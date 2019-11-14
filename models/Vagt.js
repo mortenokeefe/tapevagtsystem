@@ -1,14 +1,16 @@
 
-
 class Vagt {
-    constructor(startTid, fravær, fraværsBeskrivelse, status, vagtType) {
+    constructor (startTid, fravær, fraværsBeskrivelse, stat, vagtType, bruger) {
         this.startTid = startTid;
         this.fravær = fravær;
         this.fraværsBeskrivelse = fraværsBeskrivelse;
-        this.status = status;
+        this.status = stat;
         this.vagtType = vagtType;
-        if (Kat._antal) Kat._antal++; else Kat._antal = 1;
+        this.bruger = bruger;
     }
-    toString() { return this.constructor.name + ': ' + this.navn; };
-    static antal() { return Kat._antal; }
+    toString() {
+        return 'Vagt';
+    }
 }
+
+exports.Vagt = Vagt;
