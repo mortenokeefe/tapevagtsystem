@@ -1,0 +1,8 @@
+{
+  "name": "tapevagtsystem",
+  "version": "1.0.0",
+  "dependencies": {
+    "should": "^13.2.3",
+    "mocha": "^6.2.2"
+  }
+}

@@ -1,5 +1,5 @@
 class Begivenhed{
-    constructor(navn, dato, beskrivelse, antalFrivillige) {
+ constructor(navn, dato, beskrivelse, antalFrivillige) {
         if(navn && typeof navn=="string"){
             this.navn = navn;
         }
@@ -30,5 +30,7 @@ class Begivenhed{
             throw "antalFrivillige ikke et tal eller ikke eksisterende"
         }
         this.vagtArr = []
+     return this;
     }
 }
+exports.Begivenhed = Begivenhed;
