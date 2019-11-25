@@ -30,8 +30,8 @@ app.get('/jokes', async (request, response) => {
 
 //POST endpoints
 app.post('/createUser' , async (req, res) =>{
-    const {fornavn, efternavn, telefonnummer, brugernavn, password, brugertype, tilstand, email} = req.body();
-    
+    const {fornavn, efternavn, telefonnummer, brugernavn, password, brugertype, tilstand, email} = req.body;
+
 });
 
 
