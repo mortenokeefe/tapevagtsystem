@@ -18,6 +18,7 @@
 
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
+const ObjectId = Schema.Types.ObjectId;
 
 const vagt = new Schema({
     startTid: Date,
@@ -26,7 +27,7 @@ const vagt = new Schema({
     status: Number,
     vagtType: Number,
     bruger: Object,
-    begivenhed: Object
+    begivenhed: {type: ObjectId, ref: 'Begivenhed'}
 });
 
 vagt.methods.toString = function() {
