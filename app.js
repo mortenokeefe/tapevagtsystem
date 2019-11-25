@@ -1,5 +1,8 @@
-const express = require('express');
 
+
+const controller = require('./Controllers/controller');
+//express
+const express = require('express');
 const app = express();
 app.use(express.static('public'));
 app.use(express.json());
@@ -23,16 +26,37 @@ app.get('/event' , async (req, res )=>{
 
 
 
-app.get('/jokes', async (request, response) => {
-    let jokes = await controller.getJokes();
-    response.send(jokes);
-});
+
 
 //POST endpoints
-app.post('/createUser' , async (req, res) =>{
+app.post('/opretBruger' , async (req, res) =>{
     const {fornavn, efternavn, telefonnummer, brugernavn, password, brugertype, tilstand, email} = req.body;
-
+    controller.newBruger(fornavn, efternavn, telefonnummer, brugernavn, password, brugertype, tilstand, email, undefined);
+    res.send({ok:true}); // fix fejlsikring senere
 });
+
+app.post('/opretBegivenhed' , async (req, res) =>{
+    const {navn, dato, beskrivelse, antalFrivillige} = req.body;
+    controller.newBegivenhed(navn, dato, beskrivelse, antalFrivillige, undefined);
+    res.send({ok:true}); // fix fejlsikring senere
+});
+app.post('/opretVagt', async(req,res)=> {
+    //hvor meget skal vi egentlig have fra userinterface?
+    const {startTid, fravær, fraværsBeskrivelse, status, vagtType, bruger, begivenhed} = req.body;
+    controller.newVagt(startTid, fravær, fraværsBeskrivelse, status, vagtType, bruger, begivenhed);
+    res.send({ok:true}); // fix fejlsikring senere
+});
+app.post('/tilfoejVagtTilBruger', async(req,res) =>{
+    const {vagt, bruger} = req.body;
+    controller.addVagtToBruger(bruger, vagt);
+    res.send({ok:true}); // fix fejlsikring senere
+});
+app.post('tilfoejVagtTilBegivenhed', async(req,res) =>{
+    const {vagt, begivenhed} = req.body;
+    controller.addVagtToBegivenhed(begivenhed, vagt);
+    res.send({ok:true}); // fix fejlsikring senere
+});
+
 
 
 console.log('Listening on port ' + port + ' ...');
