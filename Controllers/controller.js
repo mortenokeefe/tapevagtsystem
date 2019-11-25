@@ -40,7 +40,7 @@ const Vagt = require('../models/Vagt');
 const Bruger = require('../models/Bruger');
 
 
-function newVagt(startTid, fravær, fraværsBeskrivelse, status, vagtType, bruger, begivenhed) {
+exports.newVagt = function newVagt(startTid, fravær, fraværsBeskrivelse, status, vagtType, bruger, begivenhed) {
     const vagt = new Vagt({
         startTid,
         fravær,
@@ -53,7 +53,7 @@ function newVagt(startTid, fravær, fraværsBeskrivelse, status, vagtType, bruge
     return vagt.save();
 };
 
-async function newBegivenhed(navn, dato, beskrivelse, antalFrivillige, vagter) {
+exports.newBegivenhed = async function newBegivenhed(navn, dato, beskrivelse, antalFrivillige, vagter) {
     const begivenhed = new Begivenhed({
         navn,
         dato,
@@ -65,11 +65,12 @@ async function newBegivenhed(navn, dato, beskrivelse, antalFrivillige, vagter) {
     //beværk at kl 19 er den 20. time i døgnet, derfor hours = 20
     let tid = dato.setHours('20', '00');
     for (let i = 1; i < antalFrivillige; i++) {
-        begivenhed.vagter.push(await newVagt(tid, undefined, undefined, 1, 1, undefined, begivenhed));
+        begivenhed.vagter.push(await exports.newVagt(tid, undefined, undefined, 1, 1, undefined, begivenhed));
     }
     return begivenhed;
 }
-function newBruger(fornavn, efternavn, telefonnummer, brugernavn, password, brugertype, tilstand, email, vagter) {
+
+exports.newBruger = function newBruger(fornavn, efternavn, telefonnummer, brugernavn, password, brugertype, tilstand, email, vagter) {
     const bruger = new Bruger({
         fornavn,
         efternavn,
@@ -84,13 +85,13 @@ function newBruger(fornavn, efternavn, telefonnummer, brugernavn, password, brug
     return bruger.save();
 }
 
-function addVagtToBegivenhed(begivenhed, vagt) {
+exports.addVagtToBegivenhed = function addVagtToBegivenhed(begivenhed, vagt) {
     vagt.begivenhed = begivenhed;
     begivenhed.vagter.push(vagt);
     return Promise.all([vagt.save(), begivenhed.save()]);
 }
 
-function addVagtToBruger(bruger, vagt) {
+exports.addVagtToBruger = function addVagtToBruger(bruger, vagt) {
     vagt.bruger = bruger;
     bruger.vagter.push(vagt);
     return Promise.all([vagt.save(), bruger.save()]);
@@ -99,8 +100,13 @@ function addVagtToBruger(bruger, vagt) {
 async function main() {
     let tid = new Date('1995-12-17T03:24:00');
     let tomvagt = undefined;
-    let bruger = await newBruger("Jens", 'Brouw', '88888888', 'jenni89', '1234', 1, 1, 'jens@jens.com', undefined);
-
+    let bruger = await exports.newBruger("Jens", 'Brouw', '88888888', 'jenni89', '1234', 1, 1, 'jens@jens.com', undefined);
+    let v1 = await exports.newVagt(tid, false, undefined, 1, 1, bruger, undefined);
+    console.log('Vagt: ' + v1);
+    let b1 = await exports.newBegivenhed('Darkest Entries', tid, 'Kedeligt show', 5, undefined);
+    console.log('Begivenhed: ' + b1);
+    await exports.addVagtToBruger(bruger, v1);
+    await exports.addVagtToBegivenhed(b1, v1);
 }
 main();
 
