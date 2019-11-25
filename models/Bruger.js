@@ -42,8 +42,9 @@ const bruger = new Schema({
     efternavn: String,
     telefonnummer: String,
     brugernavn: {
-        String,
-        unique: true
+        type: String,
+        required: true,
+        unique: true,
     },
     password: String,
     brugertype: Number,
