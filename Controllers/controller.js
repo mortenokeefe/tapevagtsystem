@@ -1,6 +1,7 @@
 
 const nodemailer = require('nodemailer');
 
+
 const transporter = nodemailer.createTransport({
         service: 'gmail',
         auth: {
@@ -32,7 +33,7 @@ const Schema = mongoose.Schema;
 const ObjectId = Schema.Types.ObjectId;
 
 mongoose.Promise = Promise;
-mongoose.connect('mongodb+srv://Morten:Kodeord123@cluster0-y2jhn.mongodb.net/test?retryWrites=true&w=majority', {useNewUrlParser: true});
+mongoose.connect("mongodb+srv://TapeProjekt:tape123@tape-yxunw.gcp.mongodb.net/test?retryWrites=true&w=majority", {useNewUrlParser: true, useUnifiedTopology: true});
 
 const Begivenhed = require('./Begivenhed');
 const Vagt = require('./Vagt');
