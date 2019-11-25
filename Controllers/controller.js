@@ -93,7 +93,7 @@ function addVagtToBruger(bruger, vagt) {
 async function main() {
     let tid = new Date('1995-12-17T03:24:00');
     let tomvagt = undefined;
-    let bruger = await newBruger("Jens", 'Brouw', '88888888', 'jenni89', '1234', 1, 1, 'jens@jens.com', undefined);
+    let bruger = await newBruger("Jens", 'Brouw', '88888888', 'jenni60', '1234', 1, 1, 'jens@jens.com', undefined);
 
 }
 main();
