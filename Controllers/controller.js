@@ -62,7 +62,6 @@ async function newBegivenhed(navn, dato, beskrivelse, antalFrivillige, vagter) {
         vagter
     });
     begivenhed.save();
-    let v = [];
     //beværk at kl 19 er den 20. time i døgnet, derfor hours = 20
     let tid = dato.setHours('20', '00');
     for (let i = 1; i < antalFrivillige; i++) {
