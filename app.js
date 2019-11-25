@@ -4,9 +4,11 @@ const controller = require('./Controllers/controller');
 //express
 const express = require('express');
 const app = express();
+const session = require('express-session');
 app.use(express.static('public'));
 app.use(express.json());
-
+app.use(session({secret: 'hemmelig', saveUninitialized: true, resave: true}));
+app.use(express.static('public'));
 // MONGODB & MONGOOSE SETUP
 const mongoose = require('mongoose');
 mongoose.Promise = Promise;
@@ -20,10 +22,17 @@ app.listen(port);
 //GET endpoints
 
 app.get('/event' , async (req, res )=>{
-    let events; // = controller get events
+    let events; // = controller.getEvents();
     res.send(events)
 });
-
+app.get('/brugere', async (req, res) =>{
+    let brugere; //= controller.getUsers();
+    res.send(brugere);
+});
+app.get('/vagter', async (req, res)=> {
+   let vagter //= controller.getVagter();
+    res.send(vagter);
+});
 
 
 
@@ -57,6 +66,39 @@ app.post('tilfoejVagtTilBegivenhed', async(req,res) =>{
     res.send({ok:true}); // fix fejlsikring senere
 });
 
+//login
+
+app.post('/login', async (request, response) => {
+    const {brugernavn, password} = request.body;
+    const check = controller.getBruger(brugernavn);
+    if (password === check.password && navn) {
+        request.session.navn = navn;
+        response.send({ok: true});
+    } else {
+        response.send({ok: false});
+    }
+});
+
+app.get('/session', async (request, response) => {
+    const navn = request.session.navn;
+    if (navn) {
+
+        response.send('/index.html');
+    } else {
+        response.redirect('/ingenAdgang.html');
+    }
+});
+
+app.get('/logout', (request, response) => {
+        request.session.destroy((err) => {
+            if (err) {
+                console.log(err);
+            } else {
+                response.redirect('/');
+            }
+        });
+    }
+);
 
 
 console.log('Listening on port ' + port + ' ...');
