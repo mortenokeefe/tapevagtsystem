@@ -64,7 +64,7 @@ exports.newBegivenhed = async function newBegivenhed(navn, dato, beskrivelse, an
     begivenhed.save();
     //beværk at kl 19 er den 20. time i døgnet, derfor hours = 20
     let tid = dato.setHours('20', '00');
-    for (let i = 1; i < antalFrivillige; i++) {
+    for (let i = 0; i < antalFrivillige; i++) {
         begivenhed.vagter.push(await exports.newVagt(tid, undefined, undefined, 1, 1, undefined, begivenhed));
     }
     return begivenhed;
@@ -91,6 +91,16 @@ exports.addVagtToBegivenhed = function addVagtToBegivenhed(begivenhed, vagt) {
     return Promise.all([vagt.save(), begivenhed.save()]);
 }
 
+exports.getEvents = function getBegivenheder() {
+    let datenow = new Date(Date.now());
+    let month1 = datenow.getMonth();
+    let year1 = datenow.getFullYear();
+    let startofnextmonth = new Date(year1, month1+1, 1,1,0,0);
+    let endofnextmonth = new Date(year1, month1+2, 0,1,0 );
+
+    return Begivenhed.find(({"dato": {"$gte": startofnextmonth, "$lt": endofnextmonth}})).exec();
+}
+
 exports.addVagtToBruger = function addVagtToBruger(bruger, vagt) {
     vagt.bruger = bruger;
     bruger.vagter.push(vagt);
@@ -98,7 +108,7 @@ exports.addVagtToBruger = function addVagtToBruger(bruger, vagt) {
 }
 
 async function main() {
-    let tid = new Date('1995-12-17T03:24:00');
+    let tid = new Date('2019-12-17T03:24:00');
     let tomvagt = undefined;
     let bruger = await exports.newBruger("Jens", 'Brouw', '88888888', 'jenni89', '1234', 1, 1, 'jens@jens.com', undefined);
     let v1 = await exports.newVagt(tid, false, undefined, 1, 1, bruger, undefined);
@@ -108,5 +118,8 @@ async function main() {
     await exports.addVagtToBruger(bruger, v1);
     await exports.addVagtToBegivenhed(b1, v1);
 }
-main();
-
+ // main();
+async function main2() {
+    console.log(await exports.getEvents());
+}
+  main2();
