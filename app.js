@@ -14,4 +14,22 @@ const port = process.env.PORT || 8080
 app.listen(port);
 
 
+//GET endpoints
+
+app.get('/event' , async (req, res )=>{
+    let events; // = controller get events
+    res.send(events)
+});
+
+
+app.get('/jokes', async (request, response) => {
+    let jokes = await controller.getJokes();
+    response.send(jokes);
+});
+
+//POST endpoints
+
+
 console.log('Listening on port ' + port + ' ...');
+
+
