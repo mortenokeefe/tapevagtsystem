@@ -18,13 +18,13 @@ let mailOptions = {
     text: 'Din vagt er blevet solgt'
 };
 
-transporter.sendMail(mailOptions, function (error, info) {
+/*transporter.sendMail(mailOptions, function (error, info) {
     if (error) {
         console.log(error)
     } else {
         console.log('Email sent: '+ info.response);
     }
-})
+})*/
 
 
 
@@ -33,11 +33,11 @@ const Schema = mongoose.Schema;
 const ObjectId = Schema.Types.ObjectId;
 
 mongoose.Promise = Promise;
-mongoose.connect('mongodb+srv:TapeProjekt:tape123@tape-yxunw.gcp.mongodb.net/Tape?retryWrites=true&w=majority', {useNewUrlParser: true});
+mongoose.connect('mongodb+srv://TapeProjekt:tape123@tape-yxunw.gcp.mongodb.net/Tape?retryWrites=true&w=majority', {useNewUrlParser: true});
 
-const Begivenhed = require('./models/Begivenhed');
-const Vagt = require('./models/Vagt');
-const Bruger = require('./models/Bruger');
+const Begivenhed = require('../models/Begivenhed');
+const Vagt = require('../models/Vagt');
+const Bruger = require('../models/Bruger');
 
 
 function newVagt(startTid, fravær, fraværsBeskrivelse, status, vagtType, bruger, begivenhed) {
@@ -53,7 +53,7 @@ function newVagt(startTid, fravær, fraværsBeskrivelse, status, vagtType, bruge
     return vagt.save();
 };
 
-function newBegivenhed(navn, dato, beskrivelse, antalFrivillige, vagter) {
+async function newBegivenhed(navn, dato, beskrivelse, antalFrivillige, vagter) {
     const begivenhed = new Begivenhed({
         navn,
         dato,
@@ -61,7 +61,13 @@ function newBegivenhed(navn, dato, beskrivelse, antalFrivillige, vagter) {
         antalFrivillige,
         vagter
     });
-    return begivenhed.save();
+    begivenhed.save();
+    //beværk at kl 19 er den 20. time i døgnet, derfor hours = 20
+    let tid = dato.setHours('20', '00');
+    for (let i = 1; i < antalFrivillige; i++) {
+        begivenhed.vagter.push(await newVagt(tid, undefined, undefined, 1, 1, undefined, begivenhed));
+    }
+    return begivenhed;
 }
 function newBruger(fornavn, efternavn, telefonnummer, brugernavn, password, brugertype, tilstand, email, vagter) {
     const bruger = new Bruger({
@@ -93,13 +99,8 @@ function addVagtToBruger(bruger, vagt) {
 async function main() {
     let tid = new Date('1995-12-17T03:24:00');
     let tomvagt = undefined;
-    let bruger = await newBruger("Jens", 'Brouw', '88888888', 'jenni89', '1234', 1, 1, 'jens@jens.com', undefined);
-    let v1 = await newVagt(tid, false, undefined, 1, 1, bruger, undefined);
-    console.log('Vagt: ' + v1);
-    let b1 = await newBegivenhed('Darkest Entries', tid, 'Kedeligt show', 5, undefined);
-    console.log('Begivenhed: ' + b1);
-    await addVagtToBruger(bruger, v1);
-    await addVagtToBegivenhed(b1, v1);
+    let bruger = await newBruger("Jens", 'Brouw', '88888888', 'jenni60', '1234', 1, 1, 'jens@jens.com', undefined);
+
 }
 main();
 
