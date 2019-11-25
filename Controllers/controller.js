@@ -53,7 +53,7 @@ function newVagt(startTid, fravær, fraværsBeskrivelse, status, vagtType, bruge
     return vagt.save();
 };
 
-function newBegivenhed(navn, dato, beskrivelse, antalFrivillige, vagter) {
+async function newBegivenhed(navn, dato, beskrivelse, antalFrivillige, vagter) {
     const begivenhed = new Begivenhed({
         navn,
         dato,
@@ -61,7 +61,14 @@ function newBegivenhed(navn, dato, beskrivelse, antalFrivillige, vagter) {
         antalFrivillige,
         vagter
     });
-    return begivenhed.save();
+    begivenhed.save();
+    let v = [];
+    //beværk at kl 19 er den 20. time i døgnet, derfor hours = 20
+    let tid = dato.setHours('20', '00');
+    for (let i = 1; i < antalFrivillige; i++) {
+        begivenhed.vagter.push(await newVagt(tid, undefined, undefined, 1, 1, undefined, begivenhed));
+    }
+    return begivenhed;
 }
 function newBruger(fornavn, efternavn, telefonnummer, brugernavn, password, brugertype, tilstand, email, vagter) {
     const bruger = new Bruger({
