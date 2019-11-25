@@ -22,12 +22,17 @@ app.get('/event' , async (req, res )=>{
 });
 
 
+
 app.get('/jokes', async (request, response) => {
     let jokes = await controller.getJokes();
     response.send(jokes);
 });
 
 //POST endpoints
+app.post('/createUser' , async (req, res) =>{
+    const {fornavn, efternavn, telefonnummer, brugernavn, password, brugertype, tilstand, email} = req.body();
+    
+});
 
 
 console.log('Listening on port ' + port + ' ...');
