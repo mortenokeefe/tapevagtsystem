@@ -26,7 +26,7 @@ const vagt = new Schema({
     fraværsBeskrivelse: String,
     status: Number,
     vagtType: Number,
-    bruger: Object,
+    bruger: {type: ObjectId, ref: 'Bruger'},
     begivenhed: {type: ObjectId, ref: 'Begivenhed'}
 });
 
