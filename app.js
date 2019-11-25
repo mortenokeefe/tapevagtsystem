@@ -9,10 +9,11 @@ app.use(express.static('public'));
 app.use(express.json());
 app.use(session({secret: 'hemmelig', saveUninitialized: true, resave: true}));
 app.use(express.static('public'));
+
 // MONGODB & MONGOOSE SETUP
 const mongoose = require('mongoose');
 mongoose.Promise = Promise;
-mongoose.connect("mongodb+srv://TapeProjekt:tape123@tape-yxunw.gcp.mongodb.net/test?retryWrites=true&w=majority", {useNewUrlParser: true, useUnifiedTopology: true});
+mongoose.connect("mongodb+srv://TapeProjekt:tape123@tape-yxunw.gcp.mongodb.net/Tape?retryWrites=true&w=majority", {useNewUrlParser: true, useUnifiedTopology: true});
 
 // START THE SERVER
 const port = process.env.PORT || 8080
@@ -21,8 +22,11 @@ app.listen(port);
 
 //GET endpoints
 
-app.get('/event' , async (req, res )=>{
-    let events; // = controller.getEvents();
+
+
+app.get('/begivenheder' , async (req, res )=>{
+    let events = await controller.getBegivnheder();
+   // console.log( events);
     res.send(events)
 });
 app.get('/brugere', async (req, res) =>{

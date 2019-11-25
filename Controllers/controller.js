@@ -33,7 +33,7 @@ const Schema = mongoose.Schema;
 const ObjectId = Schema.Types.ObjectId;
 
 mongoose.Promise = Promise;
-mongoose.connect('mongodb+srv://TapeProjekt:tape123@tape-yxunw.gcp.mongodb.net/Tape?retryWrites=true&w=majority', {useNewUrlParser: true});
+//mongoose.connect('mongodb+srv://TapeProjekt:tape123@tape-yxunw.gcp.mongodb.net/Tape?retryWrites=true&w=majority', {useNewUrlParser: true});
 
 const Begivenhed = require('../models/Begivenhed');
 const Vagt = require('../models/Vagt');
@@ -91,7 +91,7 @@ exports.addVagtToBegivenhed = function addVagtToBegivenhed(begivenhed, vagt) {
     return Promise.all([vagt.save(), begivenhed.save()]);
 }
 
-exports.getEvents = function getBegivenheder() {
+exports.getBegivnheder = async function getBegivenheder() {
     let datenow = new Date(Date.now());
     let month1 = datenow.getMonth();
     let year1 = datenow.getFullYear();
@@ -120,6 +120,6 @@ async function main() {
 }
  // main();
 async function main2() {
-    console.log(await exports.getEvents());
+    console.log(await exports.getBegivnheder());
 }
-  main2();
+ // main2();
