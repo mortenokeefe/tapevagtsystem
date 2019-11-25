@@ -43,7 +43,9 @@ const bruger = new Schema({
     brugernavn: String,
     password: String,
     brugertype: Number,
-    tilstand: Number
+    tilstand: Number,
+    email: String,
+    vagter: Object
 });
 
 bruger.methods.toString = function() {
