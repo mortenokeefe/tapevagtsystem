@@ -33,11 +33,11 @@ const Schema = mongoose.Schema;
 const ObjectId = Schema.Types.ObjectId;
 
 mongoose.Promise = Promise;
-mongoose.connect('mongodb+srv:TapeProjekt:tape123@tape-yxunw.gcp.mongodb.net/Tape?retryWrites=true&w=majority', {useNewUrlParser: true});
+mongoose.connect('mongodb+srv://TapeProjekt:tape123@tape-yxunw.gcp.mongodb.net/Tape?retryWrites=true&w=majority', {useNewUrlParser: true});
 
-const Begivenhed = require('./models/Begivenhed');
-const Vagt = require('./models/Vagt');
-const Bruger = require('./models/Bruger');
+const Begivenhed = require('../models/Begivenhed');
+const Vagt = require('../models/Vagt');
+const Bruger = require('../models/Bruger');
 
 
 function newVagt(startTid, fravær, fraværsBeskrivelse, status, vagtType, bruger, begivenhed) {
