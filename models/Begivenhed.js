@@ -41,7 +41,8 @@ const begivenhed = new Schema({
     navn: String,
     dato: Date,
     beskrivelse: String,
-    antalFrivillige: Number
+    antalFrivillige: Number,
+    vagter: [{type: ObjectId, ref: 'Vagt'}]
 });
 
 begivenhed.methods.toString = function() {
