@@ -31,6 +31,7 @@
     toString() {
         return this.fornavn + " " + this.efternavn;
     }
+
 }
 */
 const mongoose = require('mongoose');
@@ -58,4 +59,3 @@ bruger.methods.toString = function() {
 };
 
 module.exports = mongoose.model('Bruger', bruger);
-
