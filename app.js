@@ -19,7 +19,6 @@ mongoose.connect("mongodb+srv://TapeProjekt:tape123@tape-yxunw.gcp.mongodb.net/T
 const port = process.env.PORT || 8080
 app.listen(port);
 
-
 //GET endpoints
 
 
