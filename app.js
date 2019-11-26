@@ -30,7 +30,7 @@ app.get('/begivenheder' , async (req, res )=>{
     res.send(events)
 });
 app.get('/brugere', async (req, res) =>{
-    let brugere; //= controller.getUsers();
+    let brugere = await controller.getBrugere();
     res.send(brugere);
 });
 app.get('/vagter', async (req, res)=> {
