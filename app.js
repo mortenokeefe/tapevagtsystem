@@ -83,7 +83,7 @@ app.post('/login', async (request, response) => {
         if (password === check.password && brugernavn) {
             request.session.brugernavn = brugernavn;
             request.session.brugertype = check.brugertype;
-            response.send({ok: true});
+            response.send({ok: true, type: 'admin'});
         } else {
             response.send({ok: false});
         }
@@ -152,5 +152,7 @@ app.get('/logout', (request, response) => {
 
 
 console.log('Listening on port ' + port + ' ...');
+
+
 
 
