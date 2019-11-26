@@ -95,10 +95,11 @@ app.post('/login', async (request, response) => {
 app.get('/mineVagter', async (req, res) =>{
 
     let vagter = await controller.getVagterFraBruger(req.session.brugernavn);
-    for(let vagt of vagter)
-    {
-        console.log(vagt.begivenhed);
-    }
+    console.log(vagter.length);
+for(let vagt of vagter)
+{
+    console.log(vagt);
+}
 
 });
 // app.get('/session', async (request, response) => {
