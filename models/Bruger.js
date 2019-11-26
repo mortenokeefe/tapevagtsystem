@@ -48,7 +48,7 @@ const bruger = new Schema({
         unique: true,
     },
     password: String,
-    brugertype: Number,
+    brugertype: Number, //0 admin , 1 afvikler , 2 frivillig
     tilstand: Number,
     email: String,
     vagter: [{type: ObjectId, ref: 'Vagt'}]

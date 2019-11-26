@@ -5,10 +5,11 @@ const controller = require('./Controllers/controller');
 const express = require('express');
 const app = express();
 const session = require('express-session');
+const fs = require('fs').promises;
 app.use(express.static('public'));
 app.use(express.json());
 app.use(session({secret: 'hemmelig', saveUninitialized: true, resave: true}));
-app.use(express.static('public'));
+
 
 // MONGODB & MONGOOSE SETUP
 const mongoose = require('mongoose');
@@ -82,6 +83,7 @@ app.post('/login', async (request, response) => {
 
         if (password === check.password && brugernavn) {
             request.session.brugernavn = brugernavn;
+            request.session.brugertype = check.brugertype;
             response.send({ok: true});
         } else {
             response.send({ok: false});
@@ -92,12 +94,51 @@ app.post('/login', async (request, response) => {
 
 app.get('/session', async (request, response) => {
     const brugernavn = request.session.brugernavn;
-    if (brugernavn) {
-        response.redirect('/forside.html');
-    } else {
-        response.redirect('/ingenAdgang.html');
+    const brugertype = request.session.brugertype;
+    if (brugernavn && brugertype ===0) {
+       let sti = __dirname + '/private/forside.html';
+       let template = await fs.readFile(sti,'utf8');
+        response.send(template);
+    }
+    else if (brugernavn && brugertype ===1)
+    {
+        let sti = __dirname + '/private/forside.html';
+        let template = await fs.readFile(sti,'utf8');
+        response.send(template);
+    }
+    else if (brugernavn && brugertype ==2)
+    {
+        let sti = __dirname + '/private/forside.html';
+        let template = await fs.readFile(sti,'utf8');
+        response.send(template);
+    }
+    else {
+        let sti = __dirname + '/private/ingenAdgang.html';
+        let template = await fs.readFile(sti,'utf8');
+        response.send(template);
+        r
     }
 });
+app.get('/forside', async (request, response) =>{
+    const brugernavn = request.session.brugernavn;
+    const brugertype = request.session.brugertype;
+    if (brugernavn && brugertype ===0) {
+        response.redirect('/forside.html');
+    }
+    else if (brugernavn && brugertype ===1)
+    {
+        //fix redirect til afvikler
+        response.redirect('/forside.html');
+    }
+    else if (brugernavn && brugertype ==2)
+    {
+        //fix redirect til frivillig
+        response.redirect('/forside.html');
+    }
+    else {
+        response.redirect('/ingenAdgang.html');
+    }
+})
 
 app.get('/logout', (request, response) => {
         request.session.destroy((err) => {
