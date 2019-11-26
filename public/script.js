@@ -25,6 +25,7 @@ login.onclick = async () => {
             const brugereText = await forside.text();
             document.getElementById('content').innerHTML = brugereText;
             document.getElementById("defaultOpen").click();
+
         }
         else {
             password.value = "";
@@ -34,7 +35,6 @@ login.onclick = async () => {
         fejl.innerHTML = e.name + ": " + e.message;
     }
 };
-
 
 async function GET(url) {
     const OK = 200;
@@ -76,8 +76,6 @@ async function getBrugersVagter(){
         console.log(e.name + ": " + e.message);
     }
 }
-
-
 
 function openPane(evt, cityName) {
     // Declare all variables
