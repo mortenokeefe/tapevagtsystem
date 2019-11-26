@@ -68,7 +68,14 @@ async function getBrugere() {
         console.log(e.name + ": " + e.message);
     }
 }
-
+async function getBrugersVagter(){
+    try{
+        const brugereResponse = await GET('/mineVagter');
+    }
+    catch (e) {
+        console.log(e.name + ": " + e.message);
+    }
+}
 
 
 
@@ -94,5 +101,8 @@ function openPane(evt, cityName) {
 
     if (cityName == 'Frivillige') {
         getBrugere();
+    }
+    if (cityName == 'Kalender') {
+        getBrugersVagter();
     }
 }
