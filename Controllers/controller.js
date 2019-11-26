@@ -92,6 +92,7 @@ exports.addVagtToBegivenhed = function addVagtToBegivenhed(begivenhed, vagt) {
 }
 
 exports.getBegivnheder = async function getBegivenheder() {
+    //henter begivenheder for næste måned
     let datenow = new Date(Date.now());
     let month1 = datenow.getMonth();
     let year1 = datenow.getFullYear();
