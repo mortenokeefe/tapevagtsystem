@@ -92,57 +92,66 @@ app.post('/login', async (request, response) => {
 
 });
 
-app.get('/session', async (request, response) => {
-    const brugernavn = request.session.brugernavn;
-    const brugertype = request.session.brugertype;
-    if (brugernavn && brugertype ===0) {
-       let sti = __dirname + '/private/forside.html';
-      // let template = await fs.readFile(sti,'utf8');
-        //response.send(template);
-        response.sendFile(sti);
-    }
-    else if (brugernavn && brugertype ===1)
-    {
-        let sti = __dirname + '/private/forside.html';
-        // let template = await fs.readFile(sti,'utf8');
-        // response.send(template);
-        response.sendFile(sti);
+app.get('/mineVagter', async (req, res) =>{
 
-    }
-    else if (brugernavn && brugertype ===2)
+    let vagter = await controller.getVagterFraBruger(req.session.brugernavn);
+    for(let vagt of vagter)
     {
-        let sti = __dirname + '/private/forside.html';
-        // let template = await fs.readFile(sti,'utf8');
-        // response.send(template);
-        response.sendFile(sti);
+        console.log(vagt.begivenhed);
     }
-    else {
-        let sti = __dirname + '/private/ingenAdgang.html';
-        let template = await fs.readFile(sti,'utf8');
-        response.send(template);
 
-    }
 });
-app.get('/forside', async (request, response) =>{
-    const brugernavn = request.session.brugernavn;
-    const brugertype = request.session.brugertype;
-    if (brugernavn && brugertype ===0) {
-        response.redirect('/forside.html');
-    }
-    else if (brugernavn && brugertype ===1)
-    {
-        //fix redirect til afvikler
-        response.redirect('/forside.html');
-    }
-    else if (brugernavn && brugertype ==2)
-    {
-        //fix redirect til frivillig
-        response.redirect('/forside.html');
-    }
-    else {
-        response.redirect('/ingenAdgang.html');
-    }
-})
+// app.get('/session', async (request, response) => {
+//     const brugernavn = request.session.brugernavn;
+//     const brugertype = request.session.brugertype;
+//     if (brugernavn && brugertype ===0) {
+//        let sti = __dirname + '/private/forside.html';
+//       // let template = await fs.readFile(sti,'utf8');
+//         //response.send(template);
+//         response.sendFile(sti);
+//     }
+//     else if (brugernavn && brugertype ===1)
+//     {
+//         let sti = __dirname + '/private/forside.html';
+//         // let template = await fs.readFile(sti,'utf8');
+//         // response.send(template);
+//         response.sendFile(sti);
+//
+//     }
+//     else if (brugernavn && brugertype ===2)
+//     {
+//         let sti = __dirname + '/private/forside.html';
+//         // let template = await fs.readFile(sti,'utf8');
+//         // response.send(template);
+//         response.sendFile(sti);
+//     }
+//     else {
+//         let sti = __dirname + '/private/ingenAdgang.html';
+//         let template = await fs.readFile(sti,'utf8');
+//         response.send(template);
+//
+//     }
+// });
+// app.get('/forside', async (request, response) =>{
+//     const brugernavn = request.session.brugernavn;
+//     const brugertype = request.session.brugertype;
+//     if (brugernavn && brugertype ===0) {
+//         response.redirect('/forside.html');
+//     }
+//     else if (brugernavn && brugertype ===1)
+//     {
+//         //fix redirect til afvikler
+//         response.redirect('/forside.html');
+//     }
+//     else if (brugernavn && brugertype ==2)
+//     {
+//         //fix redirect til frivillig
+//         response.redirect('/forside.html');
+//     }
+//     else {
+//         response.redirect('/ingenAdgang.html');
+//     }
+// })
 
 app.get('/logout', (request, response) => {
         request.session.destroy((err) => {
