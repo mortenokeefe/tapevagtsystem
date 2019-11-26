@@ -118,8 +118,7 @@ exports.getVagterFraBruger = async function getVagterFraBruger(brugernavn) {
 
     let bruger = await  exports.getBruger(brugernavn);
     let id = bruger._id;
-
-   // console.log(await Vagt.find({"bruger" : id}, function (err, vagt) {}).exec());
+    
     return Vagt.find({"bruger" : id}, function (err, vagt) {}).exec();
 
 

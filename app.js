@@ -76,7 +76,7 @@ app.post('tilfoejVagtTilBegivenhed', async(req,res) =>{
 app.post('/login', async (request, response) => {
     const {brugernavn, password} = request.body;
     const check = await controller.getBruger(brugernavn);
-    console.log(await controller.getBruger(brugernavn));
+
     if (check == null)
         response.send({ok: false});
     else {
@@ -93,14 +93,7 @@ app.post('/login', async (request, response) => {
 });
 
 app.get('/mineVagter', async (req, res) =>{
-
     let vagter = await controller.getVagterFraBruger(req.session.brugernavn);
-    console.log(vagter.length);
-for(let vagt of vagter)
-{
-    console.log(vagt);
-}
-
 });
 // app.get('/session', async (request, response) => {
 //     const brugernavn = request.session.brugernavn;
