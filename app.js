@@ -29,6 +29,7 @@ app.get('/begivenheder' , async (req, res )=>{
     let events = await controller.getBegivnheder();
    // console.log( events);
     res.send(events)
+
 });
 app.get('/brugere', async (req, res) =>{
     let brugere = await controller.getBrugere();
@@ -97,26 +98,30 @@ app.get('/session', async (request, response) => {
     const brugertype = request.session.brugertype;
     if (brugernavn && brugertype ===0) {
        let sti = __dirname + '/private/forside.html';
-       let template = await fs.readFile(sti,'utf8');
-        response.send(template);
+      // let template = await fs.readFile(sti,'utf8');
+        //response.send(template);
+        response.sendFile(sti);
     }
     else if (brugernavn && brugertype ===1)
     {
         let sti = __dirname + '/private/forside.html';
-        let template = await fs.readFile(sti,'utf8');
-        response.send(template);
+        // let template = await fs.readFile(sti,'utf8');
+        // response.send(template);
+        response.sendFile(sti);
+
     }
-    else if (brugernavn && brugertype ==2)
+    else if (brugernavn && brugertype ===2)
     {
         let sti = __dirname + '/private/forside.html';
-        let template = await fs.readFile(sti,'utf8');
-        response.send(template);
+        // let template = await fs.readFile(sti,'utf8');
+        // response.send(template);
+        response.sendFile(sti);
     }
     else {
         let sti = __dirname + '/private/ingenAdgang.html';
         let template = await fs.readFile(sti,'utf8');
         response.send(template);
-        r
+
     }
 });
 app.get('/forside', async (request, response) =>{
