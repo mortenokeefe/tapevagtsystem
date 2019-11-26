@@ -102,6 +102,10 @@ exports.getBegivnheder = async function getBegivenheder() {
     return Begivenhed.find(({"dato": {"$gte": startofnextmonth, "$lt": endofnextmonth}})).exec();
 }
 
+exports.getBrugere = async function getBrugere() {
+    return Bruger.find().exec();
+}
+
 exports.addVagtToBruger = function addVagtToBruger(bruger, vagt) {
     vagt.bruger = bruger;
     bruger.vagter.push(vagt);
