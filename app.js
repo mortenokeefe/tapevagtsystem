@@ -93,8 +93,7 @@ app.post('/login', async (request, response) => {
 app.get('/session', async (request, response) => {
     const brugernavn = request.session.brugernavn;
     if (brugernavn) {
-
-        response.send('/index.html');
+        response.redirect('/forside.html');
     } else {
         response.redirect('/ingenAdgang.html');
     }
