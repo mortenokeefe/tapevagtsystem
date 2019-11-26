@@ -74,18 +74,25 @@ app.post('tilfoejVagtTilBegivenhed', async(req,res) =>{
 
 app.post('/login', async (request, response) => {
     const {brugernavn, password} = request.body;
-    const check = controller.getBruger(brugernavn);
-    if (password === check.password && navn) {
-        request.session.navn = navn;
-        response.send({ok: true});
-    } else {
+    const check = await controller.getBruger(brugernavn);
+    console.log(await controller.getBruger(brugernavn));
+    if (check == null)
         response.send({ok: false});
+    else {
+
+        if (password === check.password && brugernavn) {
+            request.session.brugernavn = brugernavn;
+            response.send({ok: true});
+        } else {
+            response.send({ok: false});
+        }
     }
+
 });
 
 app.get('/session', async (request, response) => {
-    const navn = request.session.navn;
-    if (navn) {
+    const brugernavn = request.session.brugernavn;
+    if (brugernavn) {
 
         response.send('/index.html');
     } else {

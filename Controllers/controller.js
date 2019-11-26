@@ -106,6 +106,9 @@ exports.addVagtToBruger = function addVagtToBruger(bruger, vagt) {
     bruger.vagter.push(vagt);
     return Promise.all([vagt.save(), bruger.save()]);
 }
+exports.getBruger = async function getBruger(brugernavn) {
+    return Bruger.findOne({"brugernavn" : brugernavn}, function (err, bruger) {}).exec();
+}
 
 async function main() {
     let tid = new Date('2019-12-17T03:24:00');
@@ -121,5 +124,7 @@ async function main() {
  // main();
 async function main2() {
     console.log(await exports.getBegivnheder());
+   // exports.newBruger('ja', 'jaja', '12345678', 'jaja', 'jaja', 1,1,'tapetestmail@gmail.com', undefined);
+    console.log( await exports.getBruger('jaja'));
 }
- // main2();
+  main2();
