@@ -20,6 +20,7 @@ async function POST(url, data) {
 
 function update() {
     getVagterTilSalg();
+    getBrugersVagter();
 }
 
 login.onclick = async () => {
@@ -86,10 +87,18 @@ async function getBrugersVagter(){
 
         brugerResponse.forEach(vagt => {
             mineVagterHTML += compiledTemplate({
-                dato:  vagt.dato,
+                dato: vagt.dato,
                 begivenhed: vagt.begivenhed,
                 id: vagt.id
             });
+            if (vagt.status != 2) {
+                mineVagterHTML += '<button class="sætVagtTilSalgButton" id="' + vagt.id + '"> Sæt til salg</button>';
+            }
+            else
+            {
+                mineVagterHTML += ' TIL SALG!';
+            }
+            mineVagterHTML += '</td></tr>';
         });
     mineVagterHTML += '</table>';
     document.getElementById('mineVagterContent').innerHTML = mineVagterHTML;

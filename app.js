@@ -43,12 +43,14 @@ app.get('/mineVagter', async (req, res) =>{
     let vagterView = [];
     for (let vagt of vagter)
     {
-        let samlet = {dato: 'dato', begivenhed : 'begivenhed', id : 'id'};
+        let samlet = {dato: 'dato', begivenhed : 'begivenhed', id : 'id', status : 'status'};
         dateConverted = vagt.startTid;
         samlet.dato = new Date(dateConverted).toLocaleDateString();
         let begivenhed = await controller.getBegivenhed(vagt.begivenhed);
         samlet.begivenhed = begivenhed.navn;
         samlet.id = vagt._id;
+        samlet.status = vagt.status;
+
         vagterView.push(samlet)
     }
     res.send(vagterView);
