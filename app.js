@@ -71,6 +71,19 @@ app.post('tilfoejVagtTilBegivenhed', async(req,res) =>{
     res.send({ok:true}); // fix fejlsikring senere
 });
 
+app.post('/overtagvagt', async (req, res) =>{
+   let brugerloggedind = req.session.brugernavn;
+   let vagtid = req.body.id;
+   // console.log(brugerloggedind + ' ønsker at overtage vagten med id: ' + vagtid);
+   await controller.overtagVagt(brugerloggedind, vagtid)
+       .then(res.send({ok: true}));
+
+});
+
+app.post('/update', async (req,res) => {
+console.log('jaja');
+});
+
 //login
 
 app.post('/login', async (request, response) => {
@@ -95,6 +108,11 @@ app.post('/login', async (request, response) => {
 app.get('/mineVagter', async (req, res) =>{
     let vagter = await controller.getVagterFraBruger(req.session.brugernavn);
 
+});
+
+app.get('/vagtertilsalg', async (req, res) => {
+   let vagter = await controller.getVagterTilSalg();
+   res.send(vagter);
 });
 
 

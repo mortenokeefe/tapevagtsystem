@@ -1,7 +1,6 @@
 
 const nodemailer = require('nodemailer');
 
-
 const transporter = nodemailer.createTransport({
         service: 'gmail',
         auth: {
@@ -123,21 +122,65 @@ exports.getBegivenhed = async function getBegivenhed(id)
 {
     return Begivenhed.findOne({_id : id}, function(err, begivenhed){}).exec();
 }
+
+exports.getBrugerFraId = async function getBrugerMedId(id) {
+    return Bruger.findOne({_id: id}).exec();
+}
+exports.getVagtFraId = async function getVagtFraId(id) {
+    return Vagt.findOne({_id: id}).exec();
+}
+
+exports.getVagterTilSalg = async function getVagterTilSalg() {
+    //henter vagtejer, begivenhed og dato
+    //alle vagter med status 2 = tile salg
+    let vagter = await Vagt.find({"status" : 2}).exec();
+    let vagtermedinfo = [];
+
+    for (let vagt of vagter) {
+        //console.log(vagt);
+        let begivenhed = await exports.getBegivenhed(vagt.begivenhed);
+        // console.log(begivenhed);
+        let dato = new Date(vagt.startTid).toLocaleDateString();
+         // console.log(dato);
+        let frivillig = await exports.getBrugerFraId(vagt.bruger);
+         // console.log(frivillig);
+        let o = {vagt: vagt, begivenhed: begivenhed.navn, bruger: frivillig.fornavn + ' ' + frivillig.efternavn, dato: dato};
+        vagtermedinfo.push(o);
+    }
+    // console.log(vagtermedinfo);
+    return vagtermedinfo;
+}
+
+exports.overtagVagt = async function overtagVagt(bruger, vagtid) {
+    let b = await exports.getBruger(bruger);
+    let vagt = await exports.getVagtFraId(vagtid);
+     vagt.bruger = b;
+     vagt.status = 1;
+     vagt.save();
+}
+
+async function update() {
+    await fetch('/update');
+}
+
 async function main() {
     let tid = new Date('2019-12-17T03:24:00');
     let tomvagt = undefined;
-    //let b1 = await exports.newBegivenhed('Darkest Entries', tid, 'Kedeligt show', 5, undefined);
+    let b1 = await exports.newBegivenhed('Darkest Entries', tid, 'Kedeligt show', 5, undefined);
     let bruger = await exports.newBruger("Jens", 'Brouw', '88888888', 'jaja', 'jaja', 1, 1, 'jens@jens.com', undefined);
     let v1 = await exports.newVagt(tid, false, undefined, 1, 1, undefined, undefined);
+    let v2 = await exports.newVagt(tid, false, undefined, 2, 2, undefined, undefined);
+
+    let bruger2 = await exports.newBruger('Thomas', 'Mee', '88888888', 'tmtheboss', 'jaja', 2, 1, 'tm@tapeaarhus.dk', undefined);
     // console.log('Vagt: ' + v1);
     //
     // console.log('Begivenhed: ' + b1);
-    let v2 = await exports.newVagt(undefined, false, undefined, 2, 2, undefined, undefined);
-
     await exports.addVagtToBruger(bruger, v1);
-    await exports.addVagtToBruger(bruger, v2);
+    await exports.addVagtToBruger(bruger2, v2);
+    await exports.addVagtToBegivenhed(b1, v1);
+    await exports.addVagtToBegivenhed(b1, v2);
 }
-  // main();
+     main();
 async function main2() {
 
 }
