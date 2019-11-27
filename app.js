@@ -94,7 +94,10 @@ app.post('/login', async (request, response) => {
 
 app.get('/mineVagter', async (req, res) =>{
     let vagter = await controller.getVagterFraBruger(req.session.brugernavn);
+    
 });
+
+
 // app.get('/session', async (request, response) => {
 //     const brugernavn = request.session.brugernavn;
 //     const brugertype = request.session.brugertype;

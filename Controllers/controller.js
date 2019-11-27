@@ -118,11 +118,12 @@ exports.getVagterFraBruger = async function getVagterFraBruger(brugernavn) {
 
     let bruger = await  exports.getBruger(brugernavn);
     let id = bruger._id;
-    
+
     return Vagt.find({"bruger" : id}, function (err, vagt) {}).exec();
-
-
-
+}
+exports.getBegivenhed = async function getBegivenhed(id)
+{
+    return Begivenhed.findOne({_id : id}, function(err, begivenhed){}).exec();
 }
 
 async function main() {
