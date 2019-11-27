@@ -143,4 +143,5 @@ function openPane(evt, tabName) {
     if (tabName == 'Mine vagter'){
         getBrugersVagter();
     }
+
 }
