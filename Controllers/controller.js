@@ -119,7 +119,10 @@ exports.getVagterFraBruger = async function getVagterFraBruger(brugernavn) {
     let vagtermedid = Vagt.find({"bruger" : bruger}).exec();
     return vagtermedid;
 }
-
+exports.getBegivenhed = async function getBegivenhed(id)
+{
+    return Begivenhed.findOne({_id : id}, function(err, begivenhed){}).exec();
+}
 async function main() {
     let tid = new Date('2019-12-17T03:24:00');
     let tomvagt = undefined;
