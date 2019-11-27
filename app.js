@@ -45,30 +45,36 @@ app.get('/vagter', async (req, res)=> {
 //POST endpoints
 app.post('/opretBruger' , async (req, res) =>{
     const {fornavn, efternavn, telefonnummer, brugernavn, password, brugertype, tilstand, email} = req.body;
-    controller.newBruger(fornavn, efternavn, telefonnummer, brugernavn, password, brugertype, tilstand, email, undefined);
+   await controller.newBruger(fornavn, efternavn, telefonnummer, brugernavn, password, brugertype, tilstand, email, undefined);
     res.send({ok:true}); // fix fejlsikring senere
 });
 
 app.post('/opretBegivenhed' , async (req, res) =>{
     const {navn, dato, beskrivelse, antalFrivillige} = req.body;
-    controller.newBegivenhed(navn, dato, beskrivelse, antalFrivillige, undefined);
+   await controller.newBegivenhed(navn, dato, beskrivelse, antalFrivillige, undefined);
     res.send({ok:true}); // fix fejlsikring senere
 });
 app.post('/opretVagt', async(req,res)=> {
     //hvor meget skal vi egentlig have fra userinterface?
     const {startTid, fravær, fraværsBeskrivelse, status, vagtType, bruger, begivenhed} = req.body;
-    controller.newVagt(startTid, fravær, fraværsBeskrivelse, status, vagtType, bruger, begivenhed);
+   await controller.newVagt(startTid, fravær, fraværsBeskrivelse, status, vagtType, bruger, begivenhed);
     res.send({ok:true}); // fix fejlsikring senere
 });
 app.post('/tilfoejVagtTilBruger', async(req,res) =>{
     const {vagt, bruger} = req.body;
-    controller.addVagtToBruger(bruger, vagt);
+   await controller.addVagtToBruger(bruger, vagt);
     res.send({ok:true}); // fix fejlsikring senere
 });
-app.post('tilfoejVagtTilBegivenhed', async(req,res) =>{
+app.post('/tilfoejVagtTilBegivenhed', async(req,res) =>{
     const {vagt, begivenhed} = req.body;
-    controller.addVagtToBegivenhed(begivenhed, vagt);
+   await controller.addVagtToBegivenhed(begivenhed, vagt);
     res.send({ok:true}); // fix fejlsikring senere
+});
+app.post('/saetVagtTilSalg', async (req, res) => {
+    const id = req.body.vagtID;
+    console.log("vagt til salg "+id)
+    await controller.setVagtStatus(id,2);
+    res.send({ok:true});
 });
 
 //login
@@ -94,8 +100,21 @@ app.post('/login', async (request, response) => {
 
 app.get('/mineVagter', async (req, res) =>{
     let vagter = await controller.getVagterFraBruger(req.session.brugernavn);
+    let vagterView = [];
+    for (let vagt of vagter)
+    {
+        let samlet = {dato: 'dato', begivenhed : 'begivenhed', id : 'id'};
+        dateConverted = vagt.startTid;
+        samlet.dato = new Date(dateConverted).toLocaleDateString();
+        let begivenhed = await controller.getBegivenhed(vagt.begivenhed);
+        samlet.begivenhed = begivenhed.navn;
+        samlet.id = vagt._id;
+        vagterView.push(samlet)
+    }
+    res.send(vagterView);
 
 });
+
 
 
 // app.get('/session', async (request, response) => {

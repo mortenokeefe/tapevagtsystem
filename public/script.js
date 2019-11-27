@@ -70,11 +70,48 @@ async function getBrugere() {
 }
 async function getBrugersVagter(){
     try{
-        const brugereResponse = await GET('/mineVagter');
+        const brugerResponse = await GET('/mineVagter');
+        const hbs = await fetch('/vagt.hbs');
+        const vagtTxt = await hbs.text();
+
+        const compiledTemplate = Handlebars.compile(vagtTxt);
+        let mineVagterHTML = '<table><tr><th> Mine Vagter</th></tr>';
+
+        brugerResponse.forEach(vagt => {
+            mineVagterHTML += compiledTemplate({
+                dato:  vagt.dato,
+                begivenhed: vagt.begivenhed,
+                id: vagt.id
+            });
+        });
+    mineVagterHTML += '</table>';
+    document.getElementById('mineVagterContent').innerHTML = mineVagterHTML;
+    let knap = document.querySelectorAll('.sætVagtTilSalgButton');
+    for (let k of knap) {
+        k.onclick = sætVagtTilSalg;
+    }
+
     }
     catch (e) {
         console.log(e.name + ": " + e.message);
     }
+}
+
+async function sætVagtTilSalg(event) {
+try {
+    const id = event.target.id;
+    console.log("vagt til salg knap " + id);
+    const url = '/saetVagtTilSalg';
+
+    await POST('/saetVagtTilSalg', {vagtID:id});
+}
+
+    catch (e) {
+        console.log(e.name +" "+ e.message +" sæt vagt til salg");
+    }
+
+
+
 }
 
 function openPane(evt, tabName) {

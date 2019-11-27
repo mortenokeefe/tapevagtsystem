@@ -123,6 +123,13 @@ exports.getBegivenhed = async function getBegivenhed(id)
 {
     return Begivenhed.findOne({_id : id}, function(err, begivenhed){}).exec();
 }
+exports.setVagtStatus = async function setVagtStatus(id, newStatus)
+{
+ const filter = {_id : id};
+ const update = {status : newStatus};
+ return  await Vagt.findOneAndUpdate(filter, update);
+
+}
 async function main() {
     let tid = new Date('2019-12-17T03:24:00');
     let tomvagt = undefined;
