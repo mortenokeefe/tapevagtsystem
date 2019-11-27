@@ -58,4 +58,11 @@ bruger.methods.toString = function() {
     return '';
 };
 
+function opdaterTilstand (tilstand, brugerAdmin, bruger){
+    if (brugerAdmin.brugertype = 0) {
+        bruger.tilstand = tilstand;
+    }
+};
+
+
 module.exports = mongoose.model('Bruger', bruger);
