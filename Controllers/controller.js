@@ -115,36 +115,27 @@ exports.getBruger = async function getBruger(brugernavn) {
     return Bruger.findOne({"brugernavn" : brugernavn}, function (err, bruger) {}).exec();
 }
 exports.getVagterFraBruger = async function getVagterFraBruger(brugernavn) {
-
-    let bruger = await  exports.getBruger(brugernavn);
-    let id = bruger._id;
-
-    return Vagt.find({"bruger" : id}, function (err, vagt) {}).exec();
-}
-exports.getBegivenhed = async function getBegivenhed(id)
-{
-    return Begivenhed.findOne({_id : id}, function(err, begivenhed){}).exec();
+    let bruger = await exports.getBruger(brugernavn);
+    let vagtermedid = Vagt.find({"bruger" : bruger}).exec();
+    return vagtermedid;
 }
 
 async function main() {
     let tid = new Date('2019-12-17T03:24:00');
-    let tid2 = new Date('2019-11-17T03:24:00');
     let tomvagt = undefined;
-    let b1 = await exports.newBegivenhed('Darkest Entries', tid, 'Kedeligt show', 5, undefined);
-    let b2 = await exports.newBegivenhed('shitshow', tid2, 'shit show', 5, undefined);
+    //let b1 = await exports.newBegivenhed('Darkest Entries', tid, 'Kedeligt show', 5, undefined);
     let bruger = await exports.newBruger("Jens", 'Brouw', '88888888', 'jaja', 'jaja', 1, 1, 'jens@jens.com', undefined);
-    let v1 = await exports.newVagt(tid, false, undefined, 1, 1, bruger, b1);
-    let v2 = await exports.newVagt(tid, false, undefined, 1, 1, bruger, b2);
-    console.log('Vagt: ' + v1);
+    let v1 = await exports.newVagt(tid, false, undefined, 1, 1, undefined, undefined);
+    // console.log('Vagt: ' + v1);
+    //
+    // console.log('Begivenhed: ' + b1);
+    let v2 = await exports.newVagt(undefined, false, undefined, 2, 2, undefined, undefined);
 
-    console.log('Begivenhed: ' + b1);
     await exports.addVagtToBruger(bruger, v1);
     await exports.addVagtToBruger(bruger, v2);
-    await exports.addVagtToBegivenhed(b1, v1);
-    await exports.addVagtToBegivenhed(b2, v2);
 }
- // main();
+  // main();
 async function main2() {
 
 }
- // main();
+  //main();
