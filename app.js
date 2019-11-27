@@ -91,6 +91,20 @@ app.post('/saetVagtTilSalg', async (req, res) => {
     await controller.setVagtStatus(id,2);
     res.send({ok:true});
 });
+
+app.post('/overtagvagt', async (req, res) =>{
+   let brugerloggedind = req.session.brugernavn;
+   let vagtid = req.body.id;
+   // console.log(brugerloggedind + ' ønsker at overtage vagten med id: ' + vagtid);
+   await controller.overtagVagt(brugerloggedind, vagtid)
+       .then(res.send({ok: true}));
+
+});
+
+app.post('/update', async (req,res) => {
+console.log('jaja');
+});
+
 //login
 
 app.post('/login', async (request, response) => {
@@ -112,6 +126,27 @@ app.post('/login', async (request, response) => {
 
 });
 
+app.get('/mineVagter', async (req, res) =>{
+    let vagter = await controller.getVagterFraBruger(req.session.brugernavn);
+    let vagterView = [];
+    for (let vagt of vagter)
+    {
+        let samlet = {dato: 'dato', begivenhed : 'begivenhed', id : 'id'};
+        dateConverted = vagt.startTid;
+        samlet.dato = new Date(dateConverted).toLocaleDateString();
+        let begivenhed = await controller.getBegivenhed(vagt.begivenhed);
+        samlet.begivenhed = begivenhed.navn;
+        samlet.id = vagt._id;
+        vagterView.push(samlet)
+    }
+    res.send(vagterView);
+
+});
+
+app.get('/vagtertilsalg', async (req, res) => {
+   let vagter = await controller.getVagterTilSalg();
+   res.send(vagter);
+});
 
 
 
@@ -178,7 +213,7 @@ app.get('/logout', (request, response) => {
     }
 );
 
-update();
+
 console.log('Listening on port ' + port + ' ...');
 
 

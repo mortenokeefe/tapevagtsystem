@@ -10,9 +10,16 @@ async function POST(url, data) {
         body: JSON.stringify(data),
         headers: {'Content-Type': 'application/json'}
     });
+    if (response.ok) {
+        update();
+    }
     if (response.status !== CREATED)
         throw new Error("POST status code " + response.status);
     return await response.json();
+}
+
+function update() {
+    getVagterTilSalg();
 }
 
 login.onclick = async () => {
@@ -97,6 +104,46 @@ async function getBrugersVagter(){
     }
 }
 
+async function getVagterTilSalg() {
+    try{
+        const vagterResponse = await GET('/vagtertilsalg');
+        const hbs = await fetch('/salg.hbs');
+        const vagterText = await hbs.text();
+
+        const compiledTemplate = Handlebars.compile(vagterText);
+        let brugereHTML = '<table><tr><th>Begivenhed</th><th>Dato</th><th>Frivillig</th><th></th></tr>';
+
+        vagterResponse.forEach(vagt => {
+            brugereHTML += compiledTemplate({
+                begivenhed:  vagt.begivenhed,
+                dato: vagt.dato,
+                bruger: vagt.bruger,
+                id: vagt.vagt._id
+            });
+        });
+        brugereHTML += '</table>';
+        document.getElementById('vagtertilsalgcontent').innerHTML = brugereHTML;
+
+        vagterResponse.forEach(vagt => {
+            let knap = document.getElementById(vagt.vagt._id);
+            knap.onclick = overtagvagt;
+        });
+
+    }
+    catch (e) {
+        console.log(e.name + ": " + e.message);
+    }
+}
+
+async function overtagvagt(event) {
+    console.log('Du har trykket på knappen med ID: ' + event.target.id + " og overtager vagten");
+    let id = {id: event.target.id};
+    await POST('/overtagvagt', id);
+
+    getVagterTilSalg();
+    event.stopPropagation();
+}
+
 async function sætVagtTilSalg(event) {
 try {
     const id = event.target.id;
@@ -142,6 +189,9 @@ function openPane(evt, tabName) {
     }
     if (tabName == 'Mine vagter'){
         getBrugersVagter();
+    }
+    if (tabName == 'Vagter til salg') {
+        getVagterTilSalg();
     }
 
 }
