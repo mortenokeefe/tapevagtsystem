@@ -94,7 +94,7 @@ app.post('/login', async (request, response) => {
 
 app.get('/mineVagter', async (req, res) =>{
     let vagter = await controller.getVagterFraBruger(req.session.brugernavn);
-    
+
 });
 
 
