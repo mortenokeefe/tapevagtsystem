@@ -180,7 +180,7 @@ async function main() {
     await exports.addVagtToBegivenhed(b1, v1);
     await exports.addVagtToBegivenhed(b1, v2);
 }
-     main();
+     // main();
 async function main2() {
 
 }
