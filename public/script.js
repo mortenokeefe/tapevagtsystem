@@ -103,4 +103,5 @@ function openPane(evt, cityName) {
     if (cityName == 'Kalender') {
         getBrugersVagter();
     }
+
 }
