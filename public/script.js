@@ -170,6 +170,41 @@ try {
 
 }
 
+async function getBegivenheder() {
+    try {
+        console.log('henter begivenheder');
+        const begivenhederResponse = await GET('/begivenheder');
+        const hbs = await fetch('/begivenheder.hbs');
+        const begivenhederText = await hbs.text();
+
+        const compiledTemplate = Handlebars.compile(begivenhederText);
+        let brugereHTML = '<table><tr><th>Navn</th></tr>';
+
+        begivenhederResponse.forEach(begivenhed => {
+            brugereHTML += compiledTemplate({
+                navn:  begivenhed.navn,
+                id: begivenhed._id
+            });
+        });
+        brugereHTML += '</table>';
+        document.getElementById('begivenhedercontent').innerHTML = brugereHTML;
+        let link = document.getElementsByClassName('link');
+        link[0].onclick = clickBegivenhed;
+
+    } catch (e) {
+        console.log(e.name + ": " + e.message);
+    }
+}
+
+async function clickBegivenhed(event) {
+    let id = event.target.id;
+    getBegivenhed(id);
+}
+
+async function getBegivenhed(id) {
+    console.log(id);
+}
+
 function openPane(evt, tabName) {
     // Declare all variables
     var i, tabcontent, tablinks;
@@ -194,7 +229,7 @@ function openPane(evt, tabName) {
         getBrugere();
     }
     if (tabName == 'Kalender') {
-
+        getBegivenheder();
     }
     if (tabName == 'Mine vagter'){
         getBrugersVagter();

@@ -22,7 +22,11 @@ app.listen(port);
 
 //GET endpoints
 
-
+app.get('/sebegivenhed/:begivenhedsid', async (req, res) => {
+    let id = req.params.begivenhedsid;
+    let begivenhedsinfo = await controller.seBegivenhed(id);
+    res.send(begivenhedsinfo);
+});
 
 app.get('/begivenheder' , async (req, res )=>{
     let events = await controller.getBegivnheder();
