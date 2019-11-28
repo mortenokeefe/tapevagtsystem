@@ -30,7 +30,7 @@ app.get('/begivenheder' , async (req, res )=>{
     res.send(events)
 });
 app.get('/brugere', async (req, res) =>{
-    let brugere; //= controller.getUsers();
+    let brugere = await controller.getAllBrugere();
     res.send(brugere);
 });
 app.get('/vagter', async (req, res)=> {
@@ -45,7 +45,7 @@ app.get('/vagter', async (req, res)=> {
 app.post('/opretBruger' , async (req, res) =>{
     const {fornavn, efternavn, telefonnummer, brugernavn, password, brugertype, tilstand, email} = req.body;
     controller.newBruger(fornavn, efternavn, telefonnummer, brugernavn, password, brugertype, tilstand, email, undefined);
-    res.send({ok:true}); // fix fejlsikring senere
+    res.sendStatus(201);
 });
 
 app.post('/opretBegivenhed' , async (req, res) =>{
@@ -103,6 +103,12 @@ app.get('/logout', (request, response) => {
         });
     }
 );
+
+app.delete('/deleteBruger/:brugernavn' , async (req, res) =>{
+    const brugernavn = req.params.brugernavn;
+    await controller.deleteBruger(brugernavn);
+    res.sendStatus(200);
+});
 
 
 console.log('Listening on port ' + port + ' ...');

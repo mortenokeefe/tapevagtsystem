@@ -1,6 +1,14 @@
-
 const nodemailer = require('nodemailer');
 
+function mailOptions(request) {
+    let mail = {
+        from: 'tapetestmail@gmail.com',
+        to: request,
+        subject: 'Test',
+        text: 'Din vagt er blevet solgt'
+    }
+    return mail;
+};
 
 const transporter = nodemailer.createTransport({
         service: 'gmail',
@@ -11,21 +19,15 @@ const transporter = nodemailer.createTransport({
     }
 );
 
-let mailOptions = {
-    from: 'tapetestmail@gmail.com',
-    to: 'tomail her',
-    subject: 'Vagtsalg',
-    text: 'Din vagt er blevet solgt'
+function sendmail(mail) {
+    transporter.sendMail(mailOptions(mail), function (error, info) {
+        if (error) {
+            console.log(error)
+        } else {
+            console.log('Email sent: ' + info.response);
+        }
+    })
 };
-
-/*transporter.sendMail(mailOptions, function (error, info) {
-    if (error) {
-        console.log(error)
-    } else {
-        console.log('Email sent: '+ info.response);
-    }
-})*/
-
 
 
 const mongoose = require('mongoose');
@@ -64,7 +66,7 @@ exports.newBegivenhed = async function newBegivenhed(navn, dato, beskrivelse, an
     begivenhed.save();
     //beværk at kl 19 er den 20. time i døgnet, derfor hours = 20
     let tid = dato.setHours('20', '00');
-    for (let i = 0; i < antalFrivillige; i++) {
+    for (let i = 1; i < antalFrivillige; i++) {
         begivenhed.vagter.push(await exports.newVagt(tid, undefined, undefined, 1, 1, undefined, begivenhed));
     }
     return begivenhed;
@@ -95,17 +97,28 @@ exports.getBegivnheder = async function getBegivenheder() {
     let datenow = new Date(Date.now());
     let month1 = datenow.getMonth();
     let year1 = datenow.getFullYear();
-    let startofnextmonth = new Date(year1, month1+1, 1,1,0,0);
-    let endofnextmonth = new Date(year1, month1+2, 0,1,0 );
+    let startofnextmonth = new Date(year1, month1 + 1, 1, 1, 0, 0);
+    let endofnextmonth = new Date(year1, month1 + 2, 0, 1, 0);
 
     return Begivenhed.find(({"dato": {"$gte": startofnextmonth, "$lt": endofnextmonth}})).exec();
 }
+
+exports.getAllBrugere = function () {
+    return Bruger.find().exec();
+};
 
 exports.addVagtToBruger = function addVagtToBruger(bruger, vagt) {
     vagt.bruger = bruger;
     bruger.vagter.push(vagt);
     return Promise.all([vagt.save(), bruger.save()]);
 }
+
+exports.deleteBruger = function deleteBruger(brugernavn) {
+    return Bruger.deleteOne({brugernavn: brugernavn});
+};
+
+
+
 
 async function main() {
     let tid = new Date('2019-12-17T03:24:00');
@@ -118,8 +131,10 @@ async function main() {
     await exports.addVagtToBruger(bruger, v1);
     await exports.addVagtToBegivenhed(b1, v1);
 }
- // main();
+
+// main();
 async function main2() {
     console.log(await exports.getBegivnheder());
 }
- // main2();
+
+// main2();
