@@ -4,6 +4,7 @@ const navn = document.querySelector('#navn');
 const password = document.querySelector('#password');
 const login = document.querySelector('#login');
 const fejl = document.querySelector('#fejl');
+
 // opretbutton.onclick = opretBruger;
 //setAllBrugere("/brugere");
 
@@ -205,6 +206,7 @@ async function getBrugersVagter(){
         for (let k of knap) {
             //k.onclick = sætVagtTilSalg;
             k.onclick = function () {
+
                 confirmBox(k.id, sætVagtTilSalg)
             };
 
@@ -270,15 +272,12 @@ try {
     }
 }
 async function confirmBox(id, targetFunction) {
-    event.stopPropagation();
-
     let parent = document.getElementById(id);
-
-
+    let enterKnapParent = parent.parentElement;
     let confirmBox = document.createElement("confirmBox");
         let newHTML =
-        '<div class="alert info" id="confirmBox"> ' +
-        '<strong>Er du sikker?</strong> <button class="yButton" id="y"> ja</button><button class="nButton" id="n"> nej</button>  </div>';
+        '<div class="alert info" id="confirmBox'+id+'">' +
+        '<strong>Er du sikker?</strong> <button class="yButton" id="y'+id+'"> ja</button><button class="nButton" id="n'+id+'"> nej</button>  </div>';
 
        // document.getElementsByTagName('confirmBox').innerHTML = newHTML;
 
@@ -286,18 +285,33 @@ async function confirmBox(id, targetFunction) {
     confirmBox.innerHTML = newHTML;
 
 
-    let yKnap = document.getElementById("y");
-    let nKnap = document.getElementById("n");
+    let yKnap = document.getElementById("y"+id);
+    let nKnap = document.getElementById("n"+id);
+    removeElement(id);
     yKnap.onclick = function() {targetFunction(id)};
     nKnap.onclick = function() {
-    removeElement('confirmBox');
+     enterKnapParent.append(parent);
+    removeElement('confirmBox'+id);
     //fix
 };
 }
 function removeElement(elementId) {
     // Removes an element from the document
     let element = document.getElementById(elementId);
+    console.log(element);
+    console.log(element.parentNode);
     element.parentNode.removeChild(element);
+}
+function removeElementsFromTagName(tagname){
+    let element = document.getElementsByTagName(tagname);
+    console.log(element);
+    if(element.length >0) {
+        for(let e of element)
+        {
+            e.parentNode.removeChild(e);
+        }
+    }
+
 }
 
 async function getBegivenheder() {
