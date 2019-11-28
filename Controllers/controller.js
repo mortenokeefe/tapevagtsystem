@@ -88,10 +88,9 @@ exports.newBruger = function newBruger(fornavn, efternavn, telefonnummer, bruger
     return bruger.save();
 }
 
-exports.addVagtToBegivenhed = function addVagtToBegivenhed(begivenhed, vagt) {
-    vagt.begivenhed = begivenhed;
-    begivenhed.vagter.push(vagt);
-    return Promise.all([vagt.save(), begivenhed.save()]);
+function getVagter(options){
+    //testg
+    return Vagt.find(options)
 }
 
 exports.getBegivnheder = async function getBegivenheder() {
@@ -105,11 +104,13 @@ exports.getBegivnheder = async function getBegivenheder() {
     return Begivenhed.find(({"dato": {"$gte": startofnextmonth, "$lt": endofnextmonth}})).exec();
 }
 
-exports.getBrugere = async function getBrugere() {
-    return Bruger.find().exec();
+function addVagtToBegivenhed(begivenhed, vagt) {
+    vagt.begivenhed = begivenhed;
+    begivenhed.vagter.push(vagt);
+    return Promise.all([vagt.save(), begivenhed.save()]);
 }
 
-exports.addVagtToBruger = function addVagtToBruger(bruger, vagt) {
+function addVagtToBruger(bruger, vagt) {
     vagt.bruger = bruger;
     bruger.vagter.push(vagt);
     return Promise.all([vagt.save(), bruger.save()]);
@@ -225,8 +226,5 @@ async function main() {
     // await exports.addVagtToBegivenhed(b1, v2);
     // await exports.addVagtToBruger(bruger, v2);
 }
-  // main();
-async function main2() {
-
-}
-  //main();
+//main();
+module.exports = {getBegivenheder:getBegivenheder, getVagter: getVagter}
