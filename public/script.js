@@ -178,7 +178,7 @@ async function getBrugere() {
     }
 }
 async function getBrugersVagter(){
-    try{
+    try {
         const brugerResponse = await GET('/mineVagter');
         const hbs = await fetch('/vagt.hbs');
         const vagtTxt = await hbs.text();
@@ -194,21 +194,21 @@ async function getBrugersVagter(){
             });
             if (vagt.status != 2) {
                 mineVagterHTML += '<button class="sætVagtTilSalgButton" id="' + vagt.id + '"> Sæt til salg</button>';
-            }
-            else
-            {
+            } else {
                 mineVagterHTML += ' TIL SALG!';
             }
             mineVagterHTML += '</td></tr>';
         });
-    mineVagterHTML += '</table>';
-    document.getElementById('mineVagterContent').innerHTML = mineVagterHTML;
-    let knap = document.querySelectorAll('.sætVagtTilSalgButton');
-    for (let k of knap) {
-        //k.onclick = sætVagtTilSalg;
-        k.onclick = function() {confirmBox(k.id,sætVagtTilSalg)};
-    }
+        mineVagterHTML += '</table>';
+        document.getElementById('mineVagterContent').innerHTML = mineVagterHTML;
+        let knap = document.querySelectorAll('.sætVagtTilSalgButton');
+        for (let k of knap) {
+            //k.onclick = sætVagtTilSalg;
+            k.onclick = function () {
+                confirmBox(k.id, sætVagtTilSalg)
+            };
 
+        }
     }
     catch (e) {
         console.log(e.name + ": " + e.message);
@@ -277,12 +277,12 @@ async function confirmBox(id, targetFunction) {
 
     let confirmBox = document.createElement("confirmBox");
         let newHTML =
-        '<div class="alert info"> ' +
+        '<div class="alert info" id="confirmBox"> ' +
         '<strong>Er du sikker?</strong> <button class="yButton" id="y"> ja</button><button class="nButton" id="n"> nej</button>  </div>';
 
        // document.getElementsByTagName('confirmBox').innerHTML = newHTML;
 
-    parent.append(confirmBox);
+    parent.parentElement.append(confirmBox);
     confirmBox.innerHTML = newHTML;
 
 
@@ -290,13 +290,13 @@ async function confirmBox(id, targetFunction) {
     let nKnap = document.getElementById("n");
     yKnap.onclick = function() {targetFunction(id)};
     nKnap.onclick = function() {
-    let alert = document.getElementsByClassName("alert info");
-    alert.innerHTML = '';
+    removeElement('confirmBox');
 };
 }
-async function fortryd(event)
-{
-
+function removeElement(elementId) {
+    // Removes an element from the document
+    let element = document.getElementById(elementId);
+    element.parentNode.removeChild(element);
 }
 
 async function getBegivenheder() {
