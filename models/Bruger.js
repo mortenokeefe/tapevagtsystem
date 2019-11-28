@@ -12,7 +12,7 @@ const bruger = new Schema({
         unique: true,
     },
     password: String,
-    brugertype: Number,
+    brugertype: Number, //0 admin , 1 afvikler , 2 frivillig
     tilstand: Number,
     email: String,
     vagter: [{type: ObjectId, ref: 'Vagt'}]
@@ -21,5 +21,13 @@ const bruger = new Schema({
 bruger.methods.toString = function() {
     return this.password;
 };
+
+//Utestet metode til at ændre en frivilligs status
+exports.opdaterBrugerTilstand = async function opdaterBrugerTilstand (tilstand, brugerAdmin, bruger){
+    if (brugerAdmin.brugertype = 0) {
+        bruger.tilstand = tilstand;
+    }
+};
+
 
 module.exports = mongoose.model('Bruger', bruger);

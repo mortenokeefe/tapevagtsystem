@@ -66,7 +66,7 @@ exports.newBegivenhed = async function newBegivenhed(navn, dato, beskrivelse, an
     begivenhed.save();
     //beværk at kl 19 er den 20. time i døgnet, derfor hours = 20
     let tid = dato.setHours('20', '00');
-    for (let i = 1; i < antalFrivillige; i++) {
+    for (let i = 0; i < antalFrivillige; i++) {
         begivenhed.vagter.push(await exports.newVagt(tid, undefined, undefined, 1, 1, undefined, begivenhed));
     }
     return begivenhed;
@@ -87,7 +87,15 @@ exports.newBruger = function newBruger(fornavn, efternavn, telefonnummer, bruger
     return bruger.save();
 }
 
-exports.addVagtToBegivenhed = function addVagtToBegivenhed(begivenhed, vagt) {
+function getVagter(options){
+    return Vagt.find(options)
+}
+
+function getBegivenheder(options){
+    return Begivenhed.find(options)
+}
+
+function addVagtToBegivenhed(begivenhed, vagt) {
     vagt.begivenhed = begivenhed;
     begivenhed.vagter.push(vagt);
     return Promise.all([vagt.save(), begivenhed.save()]);
@@ -97,15 +105,11 @@ exports.getBegivnheder = async function getBegivenheder() {
     let datenow = new Date(Date.now());
     let month1 = datenow.getMonth();
     let year1 = datenow.getFullYear();
-    let startofnextmonth = new Date(year1, month1 + 1, 1, 1, 0, 0);
-    let endofnextmonth = new Date(year1, month1 + 2, 0, 1, 0);
+    let startofnextmonth = new Date(year1, month1+1, 1,1,0,0);
+    let endofnextmonth = new Date(year1, month1+2, 0,1,0 );
 
     return Begivenhed.find(({"dato": {"$gte": startofnextmonth, "$lt": endofnextmonth}})).exec();
 }
-
-exports.getAllBrugere = function () {
-    return Bruger.find().exec();
-};
 
 exports.addVagtToBruger = function addVagtToBruger(bruger, vagt) {
     vagt.bruger = bruger;
@@ -131,10 +135,8 @@ async function main() {
     await exports.addVagtToBruger(bruger, v1);
     await exports.addVagtToBegivenhed(b1, v1);
 }
-
-// main();
+ // main();
 async function main2() {
     console.log(await exports.getBegivnheder());
 }
-
-// main2();
+ // main2();

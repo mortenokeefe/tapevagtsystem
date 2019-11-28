@@ -38,7 +38,37 @@ app.get('/vagter', async (req, res)=> {
     res.send(vagter);
 });
 
+app.get('/calendar', async function(req, res){
+    res.sendFile(__dirname+'/public/calendar/calendar.html')
+})
 
+
+app.get('/calendar/api/event', async function(req, res){
+    const events = await controller.getBegivenheder({})
+    const vagter = await controller.getVagter({})
+    const eventsReformatted = []
+    events.map(async function(element){
+
+        eventsReformatted.push({title: element.navn,
+            start: element.dato,
+            description: element.beskrivelse,
+            antalLedigeVagter: vagter.filter(vagt => vagt.begivenhed.equals(element._id)&& vagt.status==0).length ,
+            complete: element})
+    })
+    res.json(eventsReformatted)
+})
+
+app.get('/vagter/api/ledigevagter/:eventId', async function(req, res){
+    console.log(req.params.eventId)
+    const vagter = await controller.getVagter({begivenhed:mongoose.mongo.ObjectId(req.params.eventId)})
+    const ledigeVagter = []
+    vagter.map(element => {
+        if(element.status == 1){
+            ledigeVagter.push(element)
+        }
+    })
+    res.json(ledigeVagter)
+})
 
 
 //POST endpoints
