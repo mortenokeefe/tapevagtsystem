@@ -301,7 +301,6 @@ async function confirmBox(id, targetFunction) {
     nKnap.onclick = function() {
      enterKnapParent.append(parent);
     removeElement('confirmBox'+id);
-    //fix
 };
 }
 function removeElement(elementId) {
@@ -325,24 +324,27 @@ function removeElementsFromTagName(tagname){
 
 async function getBegivenheder() {
     try {
-        console.log('henter begivenheder');
-        const begivenhederResponse = await GET('/begivenheder');
-        const hbs = await fetch('/begivenheder.hbs');
-        const begivenhederText = await hbs.text();
+        // console.log('henter begivenheder');
+        // const begivenhederResponse = await GET('/begivenheder');
+        //  const hbs = await fetch('/begivenheder.hbs');
+        // const begivenhederText = await hbs.text();
+        //
+        // const compiledTemplate = Handlebars.compile(begivenhederText);
+        // let brugereHTML = '<table><tr><th>Navn</th></tr>';
+        //
+        // begivenhederResponse.forEach(begivenhed => {
+        //     brugereHTML += compiledTemplate({
+        //         navn:  begivenhed.navn,
+        //         id: begivenhed._id
+        //     });
+        // });
+        // brugereHTML += '</table>';
+        // document.getElementById('begivenhedercontent').innerHTML = brugereHTML;
+        // let link = document.getElementsByClassName('link');
+        // link[0].onclick = clickBegivenhed;
 
-        const compiledTemplate = Handlebars.compile(begivenhederText);
-        let brugereHTML = '<table><tr><th>Navn</th></tr>';
+        document.getElementById('begivenhedercontent').innerHTML ="<div id='calendar'></div>";
 
-        begivenhederResponse.forEach(begivenhed => {
-            brugereHTML += compiledTemplate({
-                navn:  begivenhed.navn,
-                id: begivenhed._id
-            });
-        });
-        brugereHTML += '</table>';
-        document.getElementById('begivenhedercontent').innerHTML = brugereHTML;
-        let link = document.getElementsByClassName('link');
-        link[0].onclick = clickBegivenhed;
 
     } catch (e) {
         console.log(e.name + ": " + e.message);
@@ -392,5 +394,6 @@ async function openPane(evt, tabName) {
     if (tabName == 'Vagter til salg') {
             getVagterTilSalg();
     }
+
 
 }
