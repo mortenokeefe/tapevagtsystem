@@ -104,6 +104,14 @@ exports.getBegivnheder = async function getBegivenheder() {
     return Begivenhed.find(({"dato": {"$gte": startofnextmonth, "$lt": endofnextmonth}})).exec();
 }
 
+exports.getCalendarBegivenheder = async function getCalendarBegivenheder(options){
+    return Begivenhed.find(options)
+}
+
+exports.getCalendarVagter = async function getCalendarVagter(options){
+    return Vagt.find(options)
+}
+
 function addVagtToBegivenhed(begivenhed, vagt) {
     vagt.begivenhed = begivenhed;
     begivenhed.vagter.push(vagt);
@@ -227,4 +235,3 @@ async function main() {
     // await exports.addVagtToBruger(bruger, v2);
 }
 //main();
-module.exports = {getBegivenheder:getBegivenheder, getVagter: getVagter}
