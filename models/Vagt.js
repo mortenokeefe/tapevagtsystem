@@ -24,7 +24,7 @@ const vagt = new Schema({
     startTid: Date,
     fravær: Boolean,
     fraværsBeskrivelse: String,
-    status: Number,
+    status: Number, // ledig 0 optaget 1 til salg 2
     vagtType: Number,
     bruger: {type: ObjectId, ref: 'Bruger'},
     begivenhed: {type: ObjectId, ref: 'Begivenhed'}

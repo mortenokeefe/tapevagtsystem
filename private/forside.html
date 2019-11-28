@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <script src="../public/forside.js" defer></script>
+    <script src="../public/handlebars-v4.4.3.js"></script>
+    <meta charset="UTF-8">
+    <title>Forside</title>
+</head>
+<body>
+<div class="tab">
+    <button class="tablinks" onclick="openPane(event, 'Kalender')" id="defaultOpen">Kalender</button>
+    <button class="tablinks" onclick="openPane(event, 'Vagter til salg')">Vagter til salg</button>
+    <button class="tablinks" onclick="openPane(event, 'Frivillige')">Frivillige</button>
+    <button class="tablinks" onclick="openPane(event, 'Statistik')">Statistik</button>
+</div>
+
+<div id="Kalender" class="tabcontent">
+    <h3>Kalender</h3>
+    <p>Her kan du se en kalender.</p>
+</div>
+
+<div id="Vagter til salg" class="tabcontent">
+    <h3>Vagter til salg</h3>
+    <p>Her kan du se vagter til salg.</p>
+</div>
+
+<div id="Frivillige" class="tabcontent">
+    <h3>Frivillige</h3>
+    <div id="frivilligcontent"></div>
+</div>
+
+<div id="Statistik" class="tabcontent">
+    <h3>Statistik</h3>
+    <p>Her kan du se statistik.</p>
+</div>
+
+</body>
+</html>

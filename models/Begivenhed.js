@@ -38,7 +38,11 @@ const Schema = mongoose.Schema;
 const ObjectId = Schema.Types.ObjectId;
 
 const begivenhed = new Schema({
-    navn: String,
+    navn: {
+        type: String,
+        required: true,
+        unique: true,
+    },
     dato: Date,
     beskrivelse: String,
     antalFrivillige: Number,
