@@ -279,7 +279,7 @@ async function confirmBox(id, targetFunction) {
     yKnap.onclick = function() {targetFunction(id)};
     nKnap.onclick = function() {
     let alert = document.getElementsByClassName("alert info");
-    alert.remove();
+    alert.innerHTML = '';
 };
 }
 async function fortryd(event)
