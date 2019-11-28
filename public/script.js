@@ -239,7 +239,11 @@ async function getVagterTilSalg() {
 
         vagterResponse.forEach(vagt => {
             let knap = document.getElementById(vagt.vagt._id);
-            knap.onclick = overtagvagt;
+            //knap.onclick = overtagvagt;
+            knap.onclick = function () {
+
+                confirmBox(vagt.vagt._id, overtagvagt);
+            };
         });
 
     }
@@ -248,13 +252,18 @@ async function getVagterTilSalg() {
     }
 }
 
-async function overtagvagt(event) {
-    console.log('Du har trykket på knappen med ID: ' + event.target.id + " og overtager vagten");
-    let id = {id: event.target.id};
-    await POST('/overtagvagt', id);
+async function overtagvagt(id) {
+    try {
+        // console.log('Du har trykket på knappen med ID: ' + event.target.id + " og overtager vagten");
+        // let id = {id: event.target.id};
+        await POST('/overtagvagt', {id: id});
 
-    getVagterTilSalg();
-    event.stopPropagation();
+        await getVagterTilSalg();
+    }
+    catch (e) {
+        console.log(e.name +" "+ e.message +" overtag vagt");
+    }
+
 }
 
 async function sætVagtTilSalg(id) {
