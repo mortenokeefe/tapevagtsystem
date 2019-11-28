@@ -291,6 +291,7 @@ async function confirmBox(id, targetFunction) {
     yKnap.onclick = function() {targetFunction(id)};
     nKnap.onclick = function() {
     removeElement('confirmBox');
+    //fix
 };
 }
 function removeElement(elementId) {
