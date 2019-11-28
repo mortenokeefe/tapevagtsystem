@@ -1,7 +1,11 @@
 let brugerliste = document.getElementById("brugere");
 let opretbutton = document.getElementById("opretbruger");
+const navn = document.querySelector('#navn');
+const password = document.querySelector('#password');
+const login = document.querySelector('#login');
+const fejl = document.querySelector('#fejl');
 opretbutton.onclick = opretBruger;
-setAllBrugere("/brugere");
+//setAllBrugere("/brugere");
 
 async function setAllBrugere(url) {
     brugerliste.innerHTML = "";
@@ -86,10 +90,7 @@ async function DELETE(url) {
     return await response.text();
 }
 
-const navn = document.querySelector('#navn');
-const password = document.querySelector('#password');
-const login = document.querySelector('#login');
-const fejl = document.querySelector('#fejl');
+
 
 async function POST(url, data) {
     const CREATED = 200;
