@@ -33,7 +33,7 @@ const Schema = mongoose.Schema;
 const ObjectId = Schema.Types.ObjectId;
 
 mongoose.Promise = Promise;
-mongoose.connect('mongodb+srv://TapeProjekt:tape123@tape-yxunw.gcp.mongodb.net/Tape?retryWrites=true&w=majority', {useNewUrlParser: true});
+
 
 const Begivenhed = require('../models/Begivenhed');
 const Vagt = require('../models/Vagt');
@@ -78,6 +78,14 @@ function newBruger(fornavn, efternavn, telefonnummer, brugernavn, password, brug
     return bruger.save();
 }
 
+function getVagter(options){
+    return Vagt.find(options)
+}
+
+function getBegivenheder(options){
+    return Begivenhed.find(options)
+}
+
 function addVagtToBegivenhed(begivenhed, vagt) {
     vagt.begivenhed = begivenhed;
     begivenhed.vagter.push(vagt);
@@ -101,5 +109,5 @@ async function main() {
     await addVagtToBruger(bruger, v1);
     await addVagtToBegivenhed(b1, v1);
 }
-main();
-
+//main();
+module.exports = {getBegivenheder:getBegivenheder, getVagter: getVagter}

@@ -49,4 +49,4 @@ begivenhed.methods.toString = function() {
     return '';
 };
 
-module.exports = mongoose.model('Begivenhed', begivenhed);
+module.exports = mongoose.model('Begivenheds', begivenhed);
