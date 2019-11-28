@@ -22,12 +22,6 @@ bruger.methods.toString = function() {
     return this.password;
 };
 
-//Utestet metode til at ændre en frivilligs status
-exports.opdaterBrugerTilstand = async function opdaterBrugerTilstand (tilstand, brugerAdmin, bruger){
-    if (brugerAdmin.brugertype = 0) {
-        bruger.tilstand = tilstand;
-    }
-};
 
 
 module.exports = mongoose.model('Bruger', bruger);

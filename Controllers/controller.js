@@ -1,3 +1,4 @@
+
 const nodemailer = require('nodemailer');
 
 function mailOptions(request) {
@@ -202,6 +203,13 @@ exports.deleteBruger = function deleteBruger(brugernavn) {
     return Bruger.deleteOne({brugernavn: brugernavn});
 };
 
+exports.setFrivilligStatus = async function setFrivilligStatus(id, newStatus)
+{
+    const filter = {_id : id};
+    const update = {tilstand : newStatus};
+    return  await bruger.findOneAndUpdate(filter, update);
+
+}
 
 
 
