@@ -1,3 +1,3 @@
 "use strict";
 
-Const Bruger = require('./models/Bruger');
+//Const Bruger = require('./models/Bruger');
