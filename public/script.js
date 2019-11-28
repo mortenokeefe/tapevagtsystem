@@ -112,15 +112,27 @@ function update() {
     getBrugersVagter();
 }
 
+async function loadhtml() {
+    const forside = await fetch('/forside.hbs');
+    const brugereText = await forside.text();
+    document.getElementById('content').innerHTML = brugereText;
+}
+async function loaddivs() {
+    const forside = await fetch('/tabdivs.hbs');
+    const brugereText = await forside.text();
+    document.getElementById('tabcontent').innerHTML = brugereText;
+}
+
 login.onclick = async () => {
     try {
         const svar = await POST("/login", {brugernavn: navn.value, password: password.value});
         if (svar.ok) {
             console.log(svar.type);
-            //hvis login er ok, vises brugere - testtest
-            const forside = await fetch('/forside.hbs');
-            const brugereText = await forside.text();
-            document.getElementById('content').innerHTML = brugereText;
+            // //hvis login er ok, vises brugere - testtest
+            // const forside = await fetch('/forside.hbs');
+            // const brugereText = await forside.text();
+            // document.getElementById('content').innerHTML = brugereText;
+            await loadhtml();
             document.getElementById("defaultOpen").click();
 
         }
@@ -319,10 +331,11 @@ async function clickBegivenhed(event) {
 }
 
 async function getBegivenhed(id) {
-    console.log(id);
+    let div = document.getElementById('tabcontent');
+    div.innerHTML = 'jaja';
 }
 
-function openPane(evt, tabName) {
+async function openPane(evt, tabName) {
     // Declare all variables
     var i, tabcontent, tablinks;
 
@@ -346,13 +359,14 @@ function openPane(evt, tabName) {
         getBrugere();
     }
     if (tabName == 'Kalender') {
+
         getBegivenheder();
     }
     if (tabName == 'Mine vagter'){
         getBrugersVagter();
     }
     if (tabName == 'Vagter til salg') {
-        getVagterTilSalg();
+            getVagterTilSalg();
     }
 
 }
