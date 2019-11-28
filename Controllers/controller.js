@@ -90,8 +90,15 @@ function getVagter(options){
     return Vagt.find(options)
 }
 
-function getBegivenheder(options){
-    return Begivenhed.find(options)
+exports.getBegivnheder = async function getBegivenheder() {
+    //henter begivenheder for næste måned
+    let datenow = new Date(Date.now());
+    let month1 = datenow.getMonth();
+    let year1 = datenow.getFullYear();
+    let startofnextmonth = new Date(year1, month1+1, 1,1,0,0);
+    let endofnextmonth = new Date(year1, month1+2, 0,1,0 );
+
+    return Begivenhed.find(({"dato": {"$gte": startofnextmonth, "$lt": endofnextmonth}})).exec();
 }
 
 function addVagtToBegivenhed(begivenhed, vagt) {
@@ -108,6 +115,11 @@ function addVagtToBruger(bruger, vagt) {
 exports.getBruger = async function getBruger(brugernavn) {
     return Bruger.findOne({"brugernavn" : brugernavn}, function (err, bruger) {}).exec();
 }
+exports.getBrugere = async function getBrugere() {
+    return Bruger.find().exec();
+}
+
+
 exports.getVagterFraBruger = async function getVagterFraBruger(brugernavn) {
     let bruger = await exports.getBruger(brugernavn);
     let vagtermedid = Vagt.find({"bruger" : bruger}).exec();
@@ -205,7 +217,7 @@ async function main() {
     // await exports.addVagtToBruger(bruger, v2);
 }
 //main();
-module.exports = {getBegivenheder:getBegivenheder, getVagter: getVagter}
+// module.exports = {getBegivenheder:getBegivenheder, getVagter: getVagter}
 
-}
+
   //main();

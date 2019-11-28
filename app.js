@@ -22,8 +22,7 @@ app.listen(port);
 
 //GET endpoints
 
-app.get('/event' , async (req, res )=>{
-    let events; // = controller get events
+
 app.get('/sebegivenhed/:begivenhedsid', async (req, res) => {
     let id = req.params.begivenhedsid;
     let begivenhedsinfo = await controller.seBegivenhed(id);
@@ -44,18 +43,21 @@ app.get('/vagter', async (req, res)=> {
    let vagter //= controller.getVagter();
     res.send(vagter);
 });
-app.get('/mineVagter', async (req, res) =>{
+app.get('/mineVagter', async (req, res) => {
     let vagter = await controller.getVagterFraBruger(req.session.brugernavn);
     let vagterView = [];
-    for (let vagt of vagter)
-    {
-        let samlet = {dato: 'dato', begivenhed : 'begivenhed', id : 'id', status : 'status'};
+    for (let vagt of vagter) {
+        let samlet = {dato: 'dato', begivenhed: 'begivenhed', id: 'id', status: 'status'};
         dateConverted = vagt.startTid;
         samlet.dato = new Date(dateConverted).toLocaleDateString();
         let begivenhed = await controller.getBegivenhed(vagt.begivenhed);
         samlet.begivenhed = begivenhed.navn;
         samlet.id = vagt._id;
         samlet.status = vagt.status;
+        vagterView.push(samlet);
+    }
+    res.send(vagterView);
+});
 
 app.get('/calendar', async function(req, res){
     res.sendFile(__dirname+'/public/calendar/calendar.html')
@@ -248,7 +250,3 @@ app.get('/logout', (request, response) => {
 
 
 console.log('Listening on port ' + port + ' ...');
-
-
-
-
