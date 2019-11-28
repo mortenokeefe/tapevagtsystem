@@ -202,6 +202,13 @@ exports.deleteBruger = function deleteBruger(brugernavn) {
     return Bruger.deleteOne({brugernavn: brugernavn});
 };
 
+exports.getCalendarEvents = function getCalendarEvents(options){
+    return Begivenhed.find(options)
+}
+
+exports.getCalendarVagt = function getCalendarVagt(options){
+    return Vagt.find(options)
+}
 
 
 
