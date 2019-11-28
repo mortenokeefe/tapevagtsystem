@@ -1,6 +1,14 @@
-
 const nodemailer = require('nodemailer');
 
+function mailOptions(request) {
+    let mail = {
+        from: 'tapetestmail@gmail.com',
+        to: request,
+        subject: 'Test',
+        text: 'Din vagt er blevet solgt'
+    }
+    return mail;
+};
 
 const transporter = nodemailer.createTransport({
         service: 'gmail',
@@ -11,21 +19,15 @@ const transporter = nodemailer.createTransport({
     }
 );
 
-let mailOptions = {
-    from: 'tapetestmail@gmail.com',
-    to: 'tomail her',
-    subject: 'Vagtsalg',
-    text: 'Din vagt er blevet solgt'
+function sendmail(mail) {
+    transporter.sendMail(mailOptions(mail), function (error, info) {
+        if (error) {
+            console.log(error)
+        } else {
+            console.log('Email sent: ' + info.response);
+        }
+    })
 };
-
-/*transporter.sendMail(mailOptions, function (error, info) {
-    if (error) {
-        console.log(error)
-    } else {
-        console.log('Email sent: '+ info.response);
-    }
-})*/
-
 
 
 const mongoose = require('mongoose');
@@ -33,7 +35,7 @@ const Schema = mongoose.Schema;
 const ObjectId = Schema.Types.ObjectId;
 
 mongoose.Promise = Promise;
-//mongoose.connect('mongodb+srv://TapeProjekt:tape123@tape-yxunw.gcp.mongodb.net/Tape?retryWrites=true&w=majority', {useNewUrlParser: true});
+
 
 const Begivenhed = require('../models/Begivenhed');
 const Vagt = require('../models/Vagt');
@@ -86,8 +88,10 @@ exports.newBruger = function newBruger(fornavn, efternavn, telefonnummer, bruger
     return bruger.save();
 }
 
-function getVagter(options){
-    return Vagt.find(options)
+exports.addVagtToBegivenhed = function addVagtToBegivenhed(begivenhed, vagt) {
+    vagt.begivenhed = begivenhed;
+    begivenhed.vagter.push(vagt);
+    return Promise.all([vagt.save(), begivenhed.save()]);
 }
 
 exports.getBegivnheder = async function getBegivenheder() {
@@ -101,13 +105,11 @@ exports.getBegivnheder = async function getBegivenheder() {
     return Begivenhed.find(({"dato": {"$gte": startofnextmonth, "$lt": endofnextmonth}})).exec();
 }
 
-function addVagtToBegivenhed(begivenhed, vagt) {
-    vagt.begivenhed = begivenhed;
-    begivenhed.vagter.push(vagt);
-    return Promise.all([vagt.save(), begivenhed.save()]);
+exports.getBrugere = async function getBrugere() {
+    return Bruger.find().exec();
 }
 
-function addVagtToBruger(bruger, vagt) {
+exports.addVagtToBruger = function addVagtToBruger(bruger, vagt) {
     vagt.bruger = bruger;
     bruger.vagter.push(vagt);
     return Promise.all([vagt.save(), bruger.save()]);
@@ -196,6 +198,13 @@ exports.seBegivenhed = async function seBegivenhed(id) {
     return o;
 }
 
+exports.deleteBruger = function deleteBruger(brugernavn) {
+    return Bruger.deleteOne({brugernavn: brugernavn});
+};
+
+
+
+
 async function main() {
     let tid = new Date('2019-12-17T03:24:00');
     let tomvagt = undefined;
@@ -216,8 +225,8 @@ async function main() {
     // await exports.addVagtToBegivenhed(b1, v2);
     // await exports.addVagtToBruger(bruger, v2);
 }
-//main();
-// module.exports = {getBegivenheder:getBegivenheder, getVagter: getVagter}
+  // main();
+async function main2() {
 
-
+}
   //main();

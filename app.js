@@ -1,5 +1,4 @@
 
-
 const controller = require('./Controllers/controller');
 //express
 const express = require('express');
@@ -95,8 +94,8 @@ app.get('/vagter/api/ledigevagter/:eventId', async function(req, res){
 //POST endpoints
 app.post('/opretBruger' , async (req, res) =>{
     const {fornavn, efternavn, telefonnummer, brugernavn, password, brugertype, tilstand, email} = req.body;
-   await controller.newBruger(fornavn, efternavn, telefonnummer, brugernavn, password, brugertype, tilstand, email, undefined);
-    res.send({ok:true}); // fix fejlsikring senere
+    controller.newBruger(fornavn, efternavn, telefonnummer, brugernavn, password, brugertype, tilstand, email, undefined);
+    res.sendStatus(201);
 });
 
 app.post('/opretBegivenhed' , async (req, res) =>{
@@ -178,6 +177,45 @@ app.get('/mineVagter', async (req, res) =>{
 
 });
 
+//login
+
+app.post('/login', async (request, response) => {
+    const {brugernavn, password} = request.body;
+    const check = controller.getBruger(brugernavn);
+    if (password === check.password && navn) {
+        request.session.navn = navn;
+        response.send({ok: true});
+    } else {
+        response.send({ok: false});
+    }
+});
+
+app.get('/session', async (request, response) => {
+    const navn = request.session.navn;
+    if (navn) {
+
+        response.send('/index.html');
+    } else {
+        response.redirect('/ingenAdgang.html');
+    }
+});
+
+app.get('/logout', (request, response) => {
+        request.session.destroy((err) => {
+            if (err) {
+                console.log(err);
+            } else {
+                response.redirect('/');
+            }
+        });
+    }
+);
+
+app.delete('/deleteBruger/:brugernavn' , async (req, res) =>{
+    const brugernavn = req.params.brugernavn;
+    await controller.deleteBruger(brugernavn);
+    res.sendStatus(200);
+});
 app.get('/vagtertilsalg', async (req, res) => {
    let vagter = await controller.getVagterTilSalg();
    res.send(vagter);
@@ -237,16 +275,9 @@ app.get('/vagtertilsalg', async (req, res) => {
 //     }
 // })
 
-app.get('/logout', (request, response) => {
-        request.session.destroy((err) => {
-            if (err) {
-                console.log(err);
-            } else {
-                response.redirect('/');
-            }
-        });
-    }
-);
+
 
 
 console.log('Listening on port ' + port + ' ...');
+
+
