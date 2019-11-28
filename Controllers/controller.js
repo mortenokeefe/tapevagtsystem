@@ -186,10 +186,12 @@ async function main() {
     await exports.addVagtToBruger(bruger2, v2);
     await exports.addVagtToBegivenhed(b1, v1);
     await exports.addVagtToBegivenhed(b1, v2);
-    await exports.addVagtToBruger(bruger, v2);
+   // await exports.addVagtToBruger(bruger, v2);
 }
-  // main();
+ //  main();
 async function main2() {
-
+    let jaja = await exports.getBruger('jaja');
+    let vagt = await exports.getVagtFraId('5ddf90e7dc549c23ac368507');
+    await exports.addVagtToBruger(jaja, vagt);
 }
-  //main();
+ // main2();

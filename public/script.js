@@ -1,3 +1,5 @@
+
+
 const navn = document.querySelector('#navn');
 const password = document.querySelector('#password');
 const login = document.querySelector('#login');
@@ -104,7 +106,8 @@ async function getBrugersVagter(){
     document.getElementById('mineVagterContent').innerHTML = mineVagterHTML;
     let knap = document.querySelectorAll('.sætVagtTilSalgButton');
     for (let k of knap) {
-        k.onclick = sætVagtTilSalg;
+        //k.onclick = sætVagtTilSalg;
+        k.onclick = function() {confirmBox(k.id,sætVagtTilSalg)};
     }
 
     }
@@ -153,9 +156,10 @@ async function overtagvagt(event) {
     event.stopPropagation();
 }
 
-async function sætVagtTilSalg(event) {
+async function sætVagtTilSalg(id) {
 try {
-    const id = event.target.id;
+   // let id = event.target.id.toString();
+  //  let subS = id.substring(1);
     console.log("vagt til salg knap " + id);
     const url = '/saetVagtTilSalg';
 
@@ -165,8 +169,34 @@ try {
     catch (e) {
         console.log(e.name +" "+ e.message +" sæt vagt til salg");
     }
+}
+async function confirmBox(id, targetFunction) {
+    event.stopPropagation();
+
+    let parent = document.getElementById(id);
 
 
+    let confirmBox = document.createElement("confirmBox");
+        let newHTML =
+        '<div class="alert info"> ' +
+        '<strong>Er du sikker?</strong> <button class="yButton" id="y"> ja</button><button class="nButton" id="n"> nej</button>  </div>';
+
+       // document.getElementsByTagName('confirmBox').innerHTML = newHTML;
+
+    parent.append(confirmBox);
+    confirmBox.innerHTML = newHTML;
+
+
+    let yKnap = document.getElementById("y");
+    let nKnap = document.getElementById("n");
+    yKnap.onclick = function() {targetFunction(id)};
+    nKnap.onclick = function() {
+    let alert = document.getElementsByClassName("alert info");
+    alert.remove();
+};
+}
+async function fortryd(event)
+{
 
 }
 
