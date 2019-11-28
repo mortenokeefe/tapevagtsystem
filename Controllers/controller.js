@@ -86,28 +86,21 @@ exports.newBruger = function newBruger(fornavn, efternavn, telefonnummer, bruger
     return bruger.save();
 }
 
-exports.addVagtToBegivenhed = function addVagtToBegivenhed(begivenhed, vagt) {
+function getVagter(options){
+    return Vagt.find(options)
+}
+
+function getBegivenheder(options){
+    return Begivenhed.find(options)
+}
+
+function addVagtToBegivenhed(begivenhed, vagt) {
     vagt.begivenhed = begivenhed;
     begivenhed.vagter.push(vagt);
     return Promise.all([vagt.save(), begivenhed.save()]);
 }
 
-exports.getBegivnheder = async function getBegivenheder() {
-    //henter begivenheder for næste måned
-    let datenow = new Date(Date.now());
-    let month1 = datenow.getMonth();
-    let year1 = datenow.getFullYear();
-    let startofnextmonth = new Date(year1, month1+1, 1,1,0,0);
-    let endofnextmonth = new Date(year1, month1+2, 0,1,0 );
-
-    return Begivenhed.find(({"dato": {"$gte": startofnextmonth, "$lt": endofnextmonth}})).exec();
-}
-
-exports.getBrugere = async function getBrugere() {
-    return Bruger.find().exec();
-}
-
-exports.addVagtToBruger = function addVagtToBruger(bruger, vagt) {
+function addVagtToBruger(bruger, vagt) {
     vagt.bruger = bruger;
     bruger.vagter.push(vagt);
     return Promise.all([vagt.save(), bruger.save()]);
@@ -211,8 +204,8 @@ async function main() {
     // await exports.addVagtToBegivenhed(b1, v2);
     // await exports.addVagtToBruger(bruger, v2);
 }
-      // main();
-async function main2() {
+//main();
+module.exports = {getBegivenheder:getBegivenheder, getVagter: getVagter}
 
 }
   //main();

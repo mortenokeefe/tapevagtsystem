@@ -58,7 +58,8 @@ bruger.methods.toString = function() {
     return '';
 };
 
-function opdaterTilstand (tilstand, brugerAdmin, bruger){
+//Utestet metode til at ændre en frivilligs status
+exports.opdaterBrugerTilstand = async function opdaterBrugerTilstand (tilstand, brugerAdmin, bruger){
     if (brugerAdmin.brugertype = 0) {
         bruger.tilstand = tilstand;
     }
