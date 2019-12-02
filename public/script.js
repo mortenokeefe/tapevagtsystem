@@ -371,7 +371,9 @@ async function getBegivenheder() {
         brugereHTML += '</table>';
         document.getElementById('begivenhedercontent').innerHTML = brugereHTML;
         let link = document.getElementsByClassName('link');
-        link[0].onclick = clickBegivenhed;
+        for (let l of link) {
+            l.onclick = clickBegivenhed;
+        }
 
     } catch (e) {
         console.log(e.name + ": " + e.message);
@@ -408,32 +410,48 @@ async function getBegivenhed(id) {
 
     let vagterhtml = '';
     let index = 1;
-    frivillige.forEach(vagt => {
-        console.log('Printer vagt: ');
-        console.log(vagt);
+    var mig;
+    for (let vagt of frivillige) {
+
+         if (vagt.bruger != undefined) {
+             let ep = '/getbruger/' + vagt.bruger;
+              let brugere = await GET(ep);
+              // console.log('XXbrugere');
+              // console.log(brugere);
+              mig = brugere.minbruger;
+              let bruger = brugere.bruger;
+             vagterhtml += index + '. ' + bruger.fornavn + ' ' + bruger.efternavn + '<br>';
+             index++;
+         }
         if (vagt.status == 0) {
-            vagterhtml += index + '. ' + 'Ledig       <button class="tilmeld" id="' + vagt._id + '"> Tilmeld vagt</button><br>';
+            vagterhtml += index + '. ' + 'Ledig<br>';
             index++;
         }
-        if(vagt.status < 0) {
-            vagterhtml += index + '. ' + vagt.fornavn + ' ' + vagt.efternavn;
-            index++;
-        }
-    });
+    }
+    //mellemrum
+    vagterhtml += '<br><br>';
+
+   if (mig) {
+       vagterhtml += 'Du har taget en vagt til dette event.';
+   }
+   else if (!mig) {
+   vagterhtml += '<button class="tilmeld" id="'+ begivenhed._id +'"> Tilmeld begivenhed</button>';
+   }
     begivenhedHTML += vagterhtml;
     let div = document.getElementById('begivenhedcontent');
     div.innerHTML = begivenhedHTML;
-    let knapper = document.getElementsByClassName('tilmeld');
-    for (let knap of knapper) {
-        knap.onclick = tilmeldVagt;
+    //hvis der er en knap
+    let knap = document.getElementsByClassName('tilmeld');
+    if(knap.length > 0) {
+        knap[0].onclick = tilmeldBegivenhed;
     }
 }
 
-async function tilmeldVagt(event) {
-    let svar = confirm('Er du sikker på at du vil tilmelde dig vagten?');
+async function tilmeldBegivenhed(event) {
+    let svar = confirm('Er du sikker på at du vil tilmelde dig begivenheden?');
     if (svar) {
-        let id = event.target.id;
-        await POST('/tagvagt', {"id": id});
+        begivenhedsid = event.target.id;
+        await POST('/tilmeldmigbegivenhed', {"id": begivenhedsid});
     }
 }
 
