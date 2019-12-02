@@ -367,7 +367,7 @@ async function åbenOpretEventVindue()
         'dato:<br> <input type="date" name="bday" id="bDate"><br>'+
         ' beskrivelse:<br><textarea rows="10" cols="50" id="bBeskrivelseTxt"></textarea><br>' +
         'antal frivillige:<br> <input type="number" name="antalfrivillige" id="bAntalFrivillige"><br>'+
-    '<button id ="opretBegivenhedButton"></button>';
+    '<button id ="opretBegivenhedButton"> opret begivenhed</button>';
     let div = document.getElementById('begivenhedcontent');
     div.innerHTML = html;
 

@@ -64,8 +64,9 @@ exports.newBegivenhed = async function newBegivenhed(navn, dato, beskrivelse, an
         vagter
     });
     console.log(dato + "controller");
+    let realDate = new Date(dato); // wtf hvorfor skal man convertere det til en date 2 gange? det virker ikke ellers
     //beværk at kl 19 er den 20. time i døgnet, derfor hours = 20
-    let tid = dato.setHours('20', '00');
+    let tid = realDate.setHours('20', '00');
     for (let i = 0; i < antalFrivillige; i++) {
         begivenhed.vagter.push(await exports.newVagt(tid, undefined, undefined, 0, 0, undefined, begivenhed));
     }
