@@ -94,6 +94,23 @@ exports.addVagtToBegivenhed = function addVagtToBegivenhed(begivenhed, vagt) {
     return Promise.all([vagt.save(), begivenhed.save()]);
 }
 
+exports.getFraværForBruger = function getFraværForBruger(brugernavn){
+
+    vagter = exports.getVagterFraBruger(brugernavn);
+    let counter =0;
+    for(let vagt of vagter)
+    {
+        if(vagt.fravær)
+        {
+            counter++;
+        }
+    }
+    if(counter >0)
+    return 100/(vagter.length/counter);
+    else
+        return 0;
+}
+
 exports.getBegivnheder = async function getBegivenheder() {
     //henter begivenheder for næste måned
     let datenow = new Date(Date.now());
@@ -232,8 +249,7 @@ async function main() {
     // await exports.addVagtToBegivenhed(b1, v2);
     // await exports.addVagtToBruger(bruger, v2);
 }
-  // main();
+
 async function main2() {
 
 }
-  //main();

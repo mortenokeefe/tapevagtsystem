@@ -276,6 +276,8 @@ async function overtagvagt(id) {
 
 }
 
+
+
 async function sætVagtTilSalg(id) {
 try {
     let svar = confirm("er du sikker?");
@@ -294,12 +296,29 @@ try {
     }
 }
 
+async function getFraværsProcent(brugernavn){
+    try {
+        const url = '/fravær/'+brugernavn;
+       const fraværsprocent = await GET(url);
+       return fraværsprocent;
+
+    }
+    catch (e) {
+        console.log(e.name +" "+ e.message);
+    }
+}
+
 function removeElement(elementId) {
     // Removes an element from the document
     let element = document.getElementById(elementId);
     console.log(element);
     console.log(element.parentNode);
     element.parentNode.removeChild(element);
+}
+
+async function åbenOpretEventVindue()
+{
+
 }
 
 
