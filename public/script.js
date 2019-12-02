@@ -7,7 +7,7 @@ let tempbruger = "";
 
 function makeFrivilligHTML() {
     let frivillig =  document.getElementById('frivilligcontent');
-    frivillig.innerHTML += "<div id = divinputfelte> <input id=\"fornavn\"> <label> fornavn</label><br>\n" +
+    frivillig.innerHTML += "<div id = divinputfelte> <h1> Frivillige </h1> <input id=\"fornavn\"> <label> fornavn</label><br>\n" +
         "<input id=\"efternavn\"> <label> efternavn</label><br>\n" +
         "<input id=\"telefonnummer\"> <label> telefonnummer</label> <br>\n" +
         "<input id=\"brugernavn\"> <label> brugernavn</label> <br>\n" +

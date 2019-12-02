@@ -259,7 +259,7 @@ async function main() {
     // await exports.addVagtToBruger(bruger, v2);
 }
 
-    main();
+ //   main();
 async function main2() {
 
 }
