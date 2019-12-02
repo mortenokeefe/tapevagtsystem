@@ -311,10 +311,7 @@ function removeElement(elementId) {
     element.parentNode.removeChild(element);
 }
 
-async function åbenOpretEventVindue()
-{
 
-}
 
 
 async function getBegivenheder() {
@@ -348,6 +345,39 @@ async function getBegivenheder() {
 async function clickBegivenhed(event) {
     let id = event.target.id;
     getBegivenhed(id);
+}
+async function opretBegivenhed(navn, dato, beskrivelse, antalFrivillige)
+{
+    console.log(navn + dato + beskrivelse + antalFrivillige);
+    const url = '/opretBegivenhed';
+    let realDate = new Date(dato);
+    try {
+        await POST(url, {navn: navn, dato: realDate, beskrivelse: beskrivelse, antalFrivillige : antalFrivillige });
+    }
+    catch (e) {
+        console.log(e.name + ": " + e.message);
+    }
+}
+
+async function åbenOpretEventVindue()
+{
+    cleartab();
+
+    let html =  'navn:<br> <input type="text" name="navn" id="bNameTxt"><br>' +
+        'dato:<br> <input type="date" name="bday" id="bDate"><br>'+
+        ' beskrivelse:<br><textarea rows="10" cols="50" id="bBeskrivelseTxt"></textarea><br>' +
+        'antal frivillige:<br> <input type="number" name="antalfrivillige" id="bAntalFrivillige"><br>'+
+    '<button id ="opretBegivenhedButton"></button>';
+    let div = document.getElementById('begivenhedcontent');
+    div.innerHTML = html;
+
+    document.getElementById('opretBegivenhedButton').onclick = function () {
+        let navn = document.getElementById('bNameTxt').value;
+        let dato = document.getElementById('bDate').valueAsDate;
+        let beskrivelse = document.getElementById('bBeskrivelseTxt').value;
+        let antalFrivillige = document.getElementById('bAntalFrivillige').value;
+        opretBegivenhed(navn, dato, beskrivelse, antalFrivillige);
+    }
 }
 
 async function getBegivenhed(id) {
@@ -439,6 +469,10 @@ async function openPane(evt, tabName) {
     if (tabName == 'Kalender') {
         cleartab();
         getBegivenheder();
+
+
+        document.getElementById("åbenOpretBegivenhedButton").onclick = åbenOpretEventVindue;
+
     }
     if (tabName == 'Mine vagter'){
         cleartab();

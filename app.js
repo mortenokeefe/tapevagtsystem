@@ -105,7 +105,10 @@ app.post('/opretBruger' , async (req, res) =>{
 });
 
 app.post('/opretBegivenhed' , async (req, res) =>{
+    console.log("opretter begivenhed");
+
     const {navn, dato, beskrivelse, antalFrivillige} = req.body;
+    console.log(navn + dato + beskrivelse + antalFrivillige);
    await controller.newBegivenhed(navn, dato, beskrivelse, antalFrivillige, undefined);
     res.send({ok:true}); // fix fejlsikring senere
 });

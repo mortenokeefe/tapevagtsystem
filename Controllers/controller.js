@@ -63,7 +63,7 @@ exports.newBegivenhed = async function newBegivenhed(navn, dato, beskrivelse, an
         antalFrivillige,
         vagter
     });
-
+    console.log(dato + "controller");
     //beværk at kl 19 er den 20. time i døgnet, derfor hours = 20
     let tid = dato.setHours('20', '00');
     for (let i = 0; i < antalFrivillige; i++) {
@@ -259,7 +259,7 @@ async function main() {
     // await exports.addVagtToBruger(bruger, v2);
 }
 
-    main();
+    //main();
 async function main2() {
 
 }
