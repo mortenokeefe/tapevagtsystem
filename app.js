@@ -64,8 +64,8 @@ app.get('/calendar', async function(req, res){
 
 
 app.get('/calendar/api/event', async function(req, res){
-    const events = await controller.getBegivenheder({})
-    const vagter = await controller.getVagter({})
+    const events = await controller.getCalendarEvents({})
+    const vagter = await controller.getCalendarVagt({})
     const eventsReformatted = []
     events.map(async function(element){
 
