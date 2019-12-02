@@ -161,7 +161,7 @@ app.post('/overtagvagt', async (req, res) =>{
    let vagtid = req.body.id;
    // console.log(brugerloggedind + ' ønsker at overtage vagten med id: ' + vagtid);
    await controller.overtagVagt(brugerloggedind, vagtid)
-       .then(res.send({ok: true}));
+       .then(res.send({ok: true}).then(controller.sendmail(req.session.email)))
 
 });
 
