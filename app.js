@@ -159,10 +159,14 @@ app.post('/overtagvagt', async (req, res) =>{
    let brugerloggedind = req.session.brugernavn;
    let vagtid = req.body.id;
    // console.log(brugerloggedind + ' ønsker at overtage vagten med id: ' + vagtid);
+    let email = await controller.getEmailFraVagtId(vagtid);
+
    await controller.overtagVagt(brugerloggedind, vagtid)
-       .then(res.send({ok: true}).then(controller.sendmail(req.session.email)))
+       .then(res.send({ok: true})).then(controller.sendmail(email));
 
 });
+
+
 
 app.post('/update', async (req,res) => {
 console.log('jaja');

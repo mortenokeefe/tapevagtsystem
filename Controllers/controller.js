@@ -179,6 +179,12 @@ exports.getBrugerFraId = async function getBrugerMedId(id) {
 exports.getVagtFraId = async function getVagtFraId(id) {
     return Vagt.findOne({_id: id}).exec();
 }
+exports.getEmailFraVagtId = async function getEmailFraVagtId(id)
+{
+    let vagt = await exports.getVagtFraId(id);
+    let bruger = await exports.getBrugerFraId(vagt.bruger);
+    return bruger.email;
+}
 
 exports.getVagterTilSalg = async function getVagterTilSalg() {
     //henter vagtejer, begivenhed og dato
