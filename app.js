@@ -21,6 +21,12 @@ app.listen(port);
 
 //GET endpoints
 
+app.get('/fravær/:brugernavn', async  (req,res) =>{
+    let brugernavn = req.params.brugernavn;
+    let fraværsprocent = await controller.getFraværForBruger(brugernavn);
+    res.send(fraværsprocent);
+});
+
 
 app.get('/sebegivenhed/:begivenhedsid', async (req, res) => {
     let id = req.params.begivenhedsid;
@@ -110,6 +116,16 @@ app.post('/opretVagt', async(req,res)=> {
    await controller.newVagt(startTid, fravær, fraværsBeskrivelse, status, vagtType, bruger, begivenhed);
     res.send({ok:true}); // fix fejlsikring senere
 });
+//skal tagvagt og tilfoejvagttilbruger sættes sammen?
+app.post('/tagvagt', async(req,res) =>{
+    let vagtid = req.body;
+    let bruger = req.session.brugernavn;
+    console.log(vagtid);
+    console.log(bruger);
+    await controller.addVagtToBruger(bruger, vagtid);
+    // res.send({ok:true}); // fix fejlsikring senere
+});
+
 app.post('/tilfoejVagtTilBruger', async(req,res) =>{
     const {vagt, bruger} = req.body;
    await controller.addVagtToBruger(bruger, vagt);

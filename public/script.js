@@ -19,6 +19,11 @@ function makeFrivilligHTML() {
         "<button id = \"deletebruger\"> Delete </button>\n" +
         "<br> </div>";
 }
+let lastID;
+
+
+// opretbutton.onclick = opretBruger;
+//setAllBrugere("/brugere");
 
 async function getBrugere() {
     try {
@@ -255,7 +260,12 @@ async function getVagterTilSalg() {
 
         vagterResponse.forEach(vagt => {
             let knap = document.getElementById(vagt.vagt._id);
-            knap.onclick = overtagvagt;
+            //knap.onclick = overtagvagt;
+            knap.onclick = function () {
+
+
+                overtagvagt(vagt.vagt._id);
+            };
         });
 
     }
@@ -264,41 +274,66 @@ async function getVagterTilSalg() {
     }
 }
 
-async function overtagvagt(event) {
-    console.log('Du har trykket på knappen med ID: ' + event.target.id + " og overtager vagten");
-    let id = {id: event.target.id};
-    await POST('/overtagvagt', id);
+async function overtagvagt(id) {
+    try {
+        let svar = confirm("er du sikker?");
 
-    getVagterTilSalg();
-    event.stopPropagation();
+        // console.log('Du har trykket på knappen med ID: ' + event.target.id + " og overtager vagten");
+        // let id = {id: event.target.id};
+        if(svar) {
+            await POST('/overtagvagt', {id: id});
+
+            await getVagterTilSalg();
+       }
+    }
+    catch (e) {
+        console.log(e.name +" "+ e.message +" overtag vagt");
+    }
+
 }
+
+
 
 async function sætVagtTilSalg(id) {
 try {
-   // let id = event.target.id.toString();
-  //  let subS = id.substring(1);
-    console.log("vagt til salg knap " + id);
+    let svar = confirm("er du sikker?");
+
+
     const url = '/saetVagtTilSalg';
+    if (svar) {
 
-    await POST('/saetVagtTilSalg', {vagtID:id});
+
+        await POST('/saetVagtTilSalg', {vagtID: id});
+    }
+
 }
-
     catch (e) {
         console.log(e.name +" "+ e.message +" sæt vagt til salg");
     }
 }
-async function confirmBox(id, targetFunction) {
-    event.stopPropagation();
 
-    let parent = document.getElementById(id);
+async function getFraværsProcent(brugernavn){
+    try {
+        const url = '/fravær/'+brugernavn;
+       const fraværsprocent = await GET(url);
+       return fraværsprocent;
 
+    }
+    catch (e) {
+        console.log(e.name +" "+ e.message);
+    }
+}
 
-    let confirmBox = document.createElement("confirmBox");
-        let newHTML =
-        '<div class="alert info"> ' +
-        '<strong>Er du sikker?</strong> <button class="yButton" id="y"> ja</button><button class="nButton" id="n"> nej</button>  </div>';
+function removeElement(elementId) {
+    // Removes an element from the document
+    let element = document.getElementById(elementId);
+    console.log(element);
+    console.log(element.parentNode);
+    element.parentNode.removeChild(element);
+}
 
-       // document.getElementsByTagName('confirmBox').innerHTML = newHTML;
+async function åbenOpretEventVindue()
+{
 
     parent.append(confirmBox);
     confirmBox.innerHTML = newHTML;
@@ -349,8 +384,65 @@ async function clickBegivenhed(event) {
 }
 
 async function getBegivenhed(id) {
-    let div = document.getElementById('tabcontent');
-    div.innerHTML = 'jaja';
+    cleartab();
+    let endpoint = '/sebegivenhed/' + id;
+    const begivenhedResponse = await GET(endpoint);
+    console.log(begivenhedResponse);
+    let begivenhed = begivenhedResponse[0];
+    let frivillige = begivenhedResponse[1];
+    let afvikler = begivenhedResponse[2];
+    const side = await fetch('/begivenhed.hbs');
+    const begivenhedText = await side.text();
+    const compiledTemplate = Handlebars.compile(begivenhedText);
+    let begivenhedHTML = compiledTemplate({
+        navn:  begivenhed.navn,
+        dato: begivenhed.dato,
+        beskrivelse: begivenhed.beskrivelse,
+        afvikler: afvikler.navn,
+    });
+
+    //generer vagt text / knap
+    // let v = await fetch('/eventvagt.hbs');
+    // let vagterText = await v.text();
+    // ledig 0 optaget 1 til salg 2
+
+    let vagterhtml = '';
+    let index = 1;
+    frivillige.forEach(vagt => {
+        console.log('Printer vagt: ');
+        console.log(vagt);
+        if (vagt.status == 0) {
+            vagterhtml += index + '. ' + 'Ledig       <button class="tilmeld" id="' + vagt._id + '"> Tilmeld vagt</button><br>';
+            index++;
+        }
+        if(vagt.status < 0) {
+            vagterhtml += index + '. ' + vagt.fornavn + ' ' + vagt.efternavn;
+            index++;
+        }
+    });
+    begivenhedHTML += vagterhtml;
+    let div = document.getElementById('begivenhedcontent');
+    div.innerHTML = begivenhedHTML;
+    let knapper = document.getElementsByClassName('tilmeld');
+    for (let knap of knapper) {
+        knap.onclick = tilmeldVagt;
+    }
+}
+
+async function tilmeldVagt(event) {
+    let svar = confirm('Er du sikker på at du vil tilmelde dig vagten?');
+    if (svar) {
+        let id = event.target.id;
+        await POST('/tagvagt', {"id": id});
+    }
+}
+
+async function cleartab() {
+    let bg = document.getElementById('begivenhedcontent');
+    let bg1 = document.getElementById('begivenhedercontent');
+
+    bg.innerHTML = '';
+    bg1.innerHTML = '';
 }
 
 async function openPane(evt, tabName) {
@@ -374,17 +466,21 @@ async function openPane(evt, tabName) {
     evt.currentTarget.className += " active";
 
     if (tabName == 'Frivillige') {
+        cleartab();
         getBrugere();
     }
     if (tabName == 'Kalender') {
-
+        cleartab();
         getBegivenheder();
     }
     if (tabName == 'Mine vagter'){
+        cleartab();
         getBrugersVagter();
     }
     if (tabName == 'Vagter til salg') {
-            getVagterTilSalg();
+        cleartab();
+        getVagterTilSalg();
     }
+
 
 }
