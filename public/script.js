@@ -120,11 +120,6 @@ async function loadhtml() {
     const brugereText = await forside.text();
     document.getElementById('content').innerHTML = brugereText;
 }
-async function loaddivs() {
-    const forside = await fetch('/tabdivs.hbs');
-    const brugereText = await forside.text();
-    document.getElementById('tabcontent').innerHTML = brugereText;
-}
 
 login.onclick = async () => {
     try {
@@ -324,27 +319,26 @@ async function åbenOpretEventVindue()
 
 async function getBegivenheder() {
     try {
-        // console.log('henter begivenheder');
-        // const begivenhederResponse = await GET('/begivenheder');
-        //  const hbs = await fetch('/begivenheder.hbs');
-        // const begivenhederText = await hbs.text();
-        //
-        // const compiledTemplate = Handlebars.compile(begivenhederText);
-        // let brugereHTML = '<table><tr><th>Navn</th></tr>';
-        //
-        // begivenhederResponse.forEach(begivenhed => {
-        //     brugereHTML += compiledTemplate({
-        //         navn:  begivenhed.navn,
-        //         id: begivenhed._id
-        //     });
-        // });
-        // brugereHTML += '</table>';
-        // document.getElementById('begivenhedercontent').innerHTML = brugereHTML;
-        // let link = document.getElementsByClassName('link');
-        // link[0].onclick = clickBegivenhed;
+        console.log('henter begivenheder');
+        const begivenhederResponse = await GET('/begivenheder');
+        const hbs = await fetch('/begivenheder.hbs');
+        const begivenhederText = await hbs.text();
 
-        document.getElementById('begivenhedercontent').innerHTML ="<div id='calendar'></div>";
+        const compiledTemplate = Handlebars.compile(begivenhederText);
+        let brugereHTML = '<table><tr><th>Navn</th></tr>';
 
+        begivenhederResponse.forEach(begivenhed => {
+            brugereHTML += compiledTemplate({
+                navn:  begivenhed.navn,
+                id: begivenhed._id
+            });
+        });
+        brugereHTML += '</table>';
+        document.getElementById('begivenhedercontent').innerHTML = brugereHTML;
+        console.log(brugereHTML.length);
+        console.log(begivenhederResponse);
+        let link = document.getElementsByClassName('link');
+         link[0].onclick = clickBegivenhed;
 
     } catch (e) {
         console.log(e.name + ": " + e.message);
@@ -357,8 +351,65 @@ async function clickBegivenhed(event) {
 }
 
 async function getBegivenhed(id) {
-    let div = document.getElementById('tabcontent');
-    div.innerHTML = 'jaja';
+    cleartab();
+    let endpoint = '/sebegivenhed/' + id;
+    const begivenhedResponse = await GET(endpoint);
+    console.log(begivenhedResponse);
+    let begivenhed = begivenhedResponse[0];
+    let frivillige = begivenhedResponse[1];
+    let afvikler = begivenhedResponse[2];
+    const side = await fetch('/begivenhed.hbs');
+    const begivenhedText = await side.text();
+    const compiledTemplate = Handlebars.compile(begivenhedText);
+    let begivenhedHTML = compiledTemplate({
+        navn:  begivenhed.navn,
+        dato: begivenhed.dato,
+        beskrivelse: begivenhed.beskrivelse,
+        afvikler: afvikler.navn,
+    });
+
+    //generer vagt text / knap
+    // let v = await fetch('/eventvagt.hbs');
+    // let vagterText = await v.text();
+    // ledig 0 optaget 1 til salg 2
+
+    let vagterhtml = '';
+    let index = 1;
+    frivillige.forEach(vagt => {
+        console.log('Printer vagt: ');
+        console.log(vagt);
+        if (vagt.status == 0) {
+            vagterhtml += index + '. ' + 'Ledig       <button class="tilmeld" id="' + vagt._id + '"> Tilmeld vagt</button><br>';
+            index++;
+        }
+        if(vagt.status < 0) {
+            vagterhtml += index + '. ' + vagt.fornavn + ' ' + vagt.efternavn;
+            index++;
+        }
+    });
+    begivenhedHTML += vagterhtml;
+    let div = document.getElementById('begivenhedcontent');
+    div.innerHTML = begivenhedHTML;
+    let knapper = document.getElementsByClassName('tilmeld');
+    for (let knap of knapper) {
+        knap.onclick = tilmeldVagt;
+    }
+}
+
+async function tilmeldVagt(event) {
+    let svar = confirm('Er du sikker på at du vil tilmelde dig vagten?');
+    if (svar) {
+        let id = event.target.id;
+        await POST('/tagvagt', {"id": id});
+    }
+}
+
+async function cleartab() {
+    let bg = document.getElementById('begivenhedcontent');
+    let bg1 = document.getElementById('begivenhedercontent');
+
+    bg.innerHTML = '';
+    bg1.innerHTML = '';
 }
 
 async function openPane(evt, tabName) {
@@ -382,17 +433,20 @@ async function openPane(evt, tabName) {
     evt.currentTarget.className += " active";
 
     if (tabName == 'Frivillige') {
+        cleartab();
         getBrugere();
     }
     if (tabName == 'Kalender') {
-
+        cleartab();
         getBegivenheder();
     }
     if (tabName == 'Mine vagter'){
+        cleartab();
         getBrugersVagter();
     }
     if (tabName == 'Vagter til salg') {
-            getVagterTilSalg();
+        cleartab();
+        getVagterTilSalg();
     }
 
 

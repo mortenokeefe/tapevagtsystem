@@ -113,21 +113,27 @@ exports.getFraværForBruger = function getFraværForBruger(brugernavn){
 
 exports.getBegivnheder = async function getBegivenheder() {
     //henter begivenheder for næste måned
-    let datenow = new Date(Date.now());
-    let month1 = datenow.getMonth();
-    let year1 = datenow.getFullYear();
-    let startofnextmonth = new Date(year1, month1+1, 1,1,0,0);
-    let endofnextmonth = new Date(year1, month1+2, 0,1,0 );
+    // let datenow = new Date(Date.now());
+    // let month1 = datenow.getMonth();
+    // let year1 = datenow.getFullYear();
+    // let startofnextmonth = new Date(year1, month1+1, 1,1,0,0);
+    // let endofnextmonth = new Date(year1, month1+2, 0,1,0 );
+    //
+    // return Begivenhed.find(({"dato": {"$gte": startofnextmonth, "$lt": endofnextmonth}})).exec();
 
-    return Begivenhed.find(({"dato": {"$gte": startofnextmonth, "$lt": endofnextmonth}})).exec();
+    //finder alle brugere
+    return Begivenhed.find().exec();
 }
 
 exports.getBrugere = async function getBrugere() {
     return Bruger.find().exec();
 }
 
-exports.addVagtToBruger = function addVagtToBruger(bruger, vagt) {
+exports.addVagtToBruger = async function addVagtToBruger(brugernavn, id) {
+    vagt = await exports.getVagtFraId(id.id);
+    bruger = await exports.getBruger(brugernavn);
     vagt.bruger = bruger;
+    vagt.status = 1;
     bruger.vagter.push(vagt);
     return Promise.all([vagt.save(), bruger.save()]);
 }
@@ -205,13 +211,16 @@ exports.seBegivenhed = async function seBegivenhed(id) {
     let frivillige = [];
     for (let vagt of vagter) {
         if(vagt.vagtType == 1) {
-            afvikler = vagt;
+            let o = await Bruger.find({"_id" : vagt.begivenhed}).exec();
+            afvikler = o.fornavn + ' ' + o.efternavn;
         }
         else {
             frivillige.push(vagt);
         }
     }
     let o = [begivenhed, frivillige, afvikler];
+    console.log('controller');
+    console.log(o);
     return o;
 }
 
@@ -250,6 +259,7 @@ async function main() {
     // await exports.addVagtToBruger(bruger, v2);
 }
 
+    main();
 async function main2() {
 
 }
