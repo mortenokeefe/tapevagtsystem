@@ -113,6 +113,8 @@ async function POST(url, data) {
 function update() {
     getVagterTilSalg();
     getBrugersVagter();
+    getBegivenheder();
+    getBrugere();
 }
 
 async function loadhtml() {
@@ -330,8 +332,10 @@ async function getBegivenheder() {
                 id: begivenhed._id
             });
         });
-        brugereHTML += '</table>';
+        brugereHTML += '</table>' + '<br> <button id="åbenOpretBegivenhedButton"> ny begivenhed</button>';
+
         document.getElementById('begivenhedercontent').innerHTML = brugereHTML;
+        document.getElementById("åbenOpretBegivenhedButton").onclick = åbenOpretEventVindue;
         console.log(brugereHTML.length);
         console.log(begivenhederResponse);
         let link = document.getElementsByClassName('link');
@@ -359,6 +363,8 @@ async function opretBegivenhed(navn, dato, beskrivelse, antalFrivillige)
     catch (e) {
         console.log(e.name + ": " + e.message);
     }
+    cleartab();
+    update();
 }
 
 async function åbenOpretEventVindue()
@@ -488,8 +494,9 @@ async function openPane(evt, tabName) {
         cleartab();
         getBegivenheder();
 
+        document.getElementById('begivenhedercontent')
 
-        document.getElementById("åbenOpretBegivenhedButton").onclick = åbenOpretEventVindue;
+
 
     }
     if (tabName == 'Mine vagter'){
