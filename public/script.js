@@ -4,6 +4,9 @@ const navn = document.querySelector('#navn');
 const password = document.querySelector('#password');
 const login = document.querySelector('#login');
 const fejl = document.querySelector('#fejl');
+let lastID;
+
+
 // opretbutton.onclick = opretBruger;
 //setAllBrugere("/brugere");
 
@@ -173,7 +176,7 @@ async function getBrugere() {
     }
 }
 async function getBrugersVagter(){
-    try{
+    try {
         const brugerResponse = await GET('/mineVagter');
         const hbs = await fetch('/vagt.hbs');
         const vagtTxt = await hbs.text();
@@ -189,21 +192,25 @@ async function getBrugersVagter(){
             });
             if (vagt.status != 2) {
                 mineVagterHTML += '<button class="sætVagtTilSalgButton" id="' + vagt.id + '"> Sæt til salg</button>';
-            }
-            else
-            {
+            } else {
                 mineVagterHTML += ' TIL SALG!';
             }
             mineVagterHTML += '</td></tr>';
         });
-    mineVagterHTML += '</table>';
-    document.getElementById('mineVagterContent').innerHTML = mineVagterHTML;
-    let knap = document.querySelectorAll('.sætVagtTilSalgButton');
-    for (let k of knap) {
-        //k.onclick = sætVagtTilSalg;
-        k.onclick = function() {confirmBox(k.id,sætVagtTilSalg)};
-    }
+        mineVagterHTML += '</table>';
+        document.getElementById('mineVagterContent').innerHTML = mineVagterHTML;
+        let knap = document.querySelectorAll('.sætVagtTilSalgButton');
+        for (let k of knap) {
+            //k.onclick = sætVagtTilSalg;
+            k.onclick = function () {
 
+               // confirmBox(k.id, sætVagtTilSalg)
+
+                    sætVagtTilSalg(k.id);
+
+            };
+
+        }
     }
     catch (e) {
         console.log(e.name + ": " + e.message);
@@ -232,7 +239,12 @@ async function getVagterTilSalg() {
 
         vagterResponse.forEach(vagt => {
             let knap = document.getElementById(vagt.vagt._id);
-            knap.onclick = overtagvagt;
+            //knap.onclick = overtagvagt;
+            knap.onclick = function () {
+
+
+                overtagvagt(vagt.vagt._id);
+            };
         });
 
     }
@@ -241,58 +253,69 @@ async function getVagterTilSalg() {
     }
 }
 
-async function overtagvagt(event) {
-    console.log('Du har trykket på knappen med ID: ' + event.target.id + " og overtager vagten");
-    let id = {id: event.target.id};
-    await POST('/overtagvagt', id);
+async function overtagvagt(id) {
+    try {
+        let svar = confirm("er du sikker?");
 
-    getVagterTilSalg();
-    event.stopPropagation();
+        // console.log('Du har trykket på knappen med ID: ' + event.target.id + " og overtager vagten");
+        // let id = {id: event.target.id};
+        if(svar) {
+            await POST('/overtagvagt', {id: id});
+
+            await getVagterTilSalg();
+       }
+    }
+    catch (e) {
+        console.log(e.name +" "+ e.message +" overtag vagt");
+    }
+
 }
+
+
 
 async function sætVagtTilSalg(id) {
 try {
-   // let id = event.target.id.toString();
-  //  let subS = id.substring(1);
-    console.log("vagt til salg knap " + id);
+    let svar = confirm("er du sikker?");
+
+
     const url = '/saetVagtTilSalg';
+    if (svar) {
 
-    await POST('/saetVagtTilSalg', {vagtID:id});
+
+        await POST('/saetVagtTilSalg', {vagtID: id});
+    }
+
 }
-
     catch (e) {
         console.log(e.name +" "+ e.message +" sæt vagt til salg");
     }
 }
-async function confirmBox(id, targetFunction) {
-    event.stopPropagation();
 
-    let parent = document.getElementById(id);
+async function getFraværsProcent(brugernavn){
+    try {
+        const url = '/fravær/'+brugernavn;
+       const fraværsprocent = await GET(url);
+       return fraværsprocent;
 
-
-    let confirmBox = document.createElement("confirmBox");
-        let newHTML =
-        '<div class="alert info"> ' +
-        '<strong>Er du sikker?</strong> <button class="yButton" id="y"> ja</button><button class="nButton" id="n"> nej</button>  </div>';
-
-       // document.getElementsByTagName('confirmBox').innerHTML = newHTML;
-
-    parent.append(confirmBox);
-    confirmBox.innerHTML = newHTML;
-
-
-    let yKnap = document.getElementById("y");
-    let nKnap = document.getElementById("n");
-    yKnap.onclick = function() {targetFunction(id)};
-    nKnap.onclick = function() {
-    let alert = document.getElementsByClassName("alert info");
-    alert.remove();
-};
+    }
+    catch (e) {
+        console.log(e.name +" "+ e.message);
+    }
 }
-async function fortryd(event)
+
+function removeElement(elementId) {
+    // Removes an element from the document
+    let element = document.getElementById(elementId);
+    console.log(element);
+    console.log(element.parentNode);
+    element.parentNode.removeChild(element);
+}
+
+async function åbenOpretEventVindue()
 {
 
 }
+
 
 async function getBegivenheder() {
     try {
@@ -441,5 +464,6 @@ async function openPane(evt, tabName) {
         cleartab();
         getVagterTilSalg();
     }
+
 
 }
