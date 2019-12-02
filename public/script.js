@@ -4,6 +4,8 @@ const navn = document.querySelector('#navn');
 const password = document.querySelector('#password');
 const login = document.querySelector('#login');
 const fejl = document.querySelector('#fejl');
+let lastID;
+
 
 // opretbutton.onclick = opretBruger;
 //setAllBrugere("/brugere");
@@ -207,7 +209,10 @@ async function getBrugersVagter(){
             //k.onclick = sætVagtTilSalg;
             k.onclick = function () {
 
-                confirmBox(k.id, sætVagtTilSalg)
+               // confirmBox(k.id, sætVagtTilSalg)
+
+                    sætVagtTilSalg(k.id);
+
             };
 
         }
@@ -242,7 +247,8 @@ async function getVagterTilSalg() {
             //knap.onclick = overtagvagt;
             knap.onclick = function () {
 
-                confirmBox(vagt.vagt._id, overtagvagt);
+
+                overtagvagt(vagt.vagt._id);
             };
         });
 
@@ -254,11 +260,15 @@ async function getVagterTilSalg() {
 
 async function overtagvagt(id) {
     try {
+        let svar = confirm("er du sikker?");
+
         // console.log('Du har trykket på knappen med ID: ' + event.target.id + " og overtager vagten");
         // let id = {id: event.target.id};
-        await POST('/overtagvagt', {id: id});
+        if(svar) {
+            await POST('/overtagvagt', {id: id});
 
-        await getVagterTilSalg();
+            await getVagterTilSalg();
+       }
     }
     catch (e) {
         console.log(e.name +" "+ e.message +" overtag vagt");
@@ -268,41 +278,22 @@ async function overtagvagt(id) {
 
 async function sætVagtTilSalg(id) {
 try {
-   // let id = event.target.id.toString();
-  //  let subS = id.substring(1);
-    console.log("vagt til salg knap " + id);
+    let svar = confirm("er du sikker?");
+   
+
     const url = '/saetVagtTilSalg';
+    if (svar) {
 
-    await POST('/saetVagtTilSalg', {vagtID:id});
+
+        await POST('/saetVagtTilSalg', {vagtID: id});
+    }
+
 }
-
     catch (e) {
         console.log(e.name +" "+ e.message +" sæt vagt til salg");
     }
 }
-async function confirmBox(id, targetFunction) {
-    let parent = document.getElementById(id);
-    let enterKnapParent = parent.parentElement;
-    let confirmBox = document.createElement("confirmBox");
-        let newHTML =
-        '<div class="alert info" id="confirmBox'+id+'">' +
-        '<strong>Er du sikker?</strong> <button class="yButton" id="y'+id+'"> ja</button><button class="nButton" id="n'+id+'"> nej</button>  </div>';
 
-       // document.getElementsByTagName('confirmBox').innerHTML = newHTML;
-
-    parent.parentElement.append(confirmBox);
-    confirmBox.innerHTML = newHTML;
-
-
-    let yKnap = document.getElementById("y"+id);
-    let nKnap = document.getElementById("n"+id);
-    removeElement(id);
-    yKnap.onclick = function() {targetFunction(id)};
-    nKnap.onclick = function() {
-     enterKnapParent.append(parent);
-    removeElement('confirmBox'+id);
-};
-}
 function removeElement(elementId) {
     // Removes an element from the document
     let element = document.getElementById(elementId);
@@ -310,17 +301,7 @@ function removeElement(elementId) {
     console.log(element.parentNode);
     element.parentNode.removeChild(element);
 }
-function removeElementsFromTagName(tagname){
-    let element = document.getElementsByTagName(tagname);
-    console.log(element);
-    if(element.length >0) {
-        for(let e of element)
-        {
-            e.parentNode.removeChild(e);
-        }
-    }
 
-}
 
 async function getBegivenheder() {
     try {
