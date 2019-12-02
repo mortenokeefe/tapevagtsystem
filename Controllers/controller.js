@@ -120,6 +120,23 @@ exports.addVagtToBruger = async function addVagtToBruger(brugernavn, id) {
     bruger.vagter.push(vagt);
     return Promise.all([vagt.save(), bruger.save()]);
 }
+
+exports.tilmeldBegivenhed = async function tilmeldBegivenhed(brugernavn, begivenhedsid) {
+    begivenhed = await exports.getBegivenhed(begivenhedsid);
+     vagter = await exports.getVagterFraBegivenhed(begivenhedsid);
+     let found = false;
+     let index = 0;
+     while (!found) {
+         if (vagter[index].status == 0) {
+             console.log(vagter[index]);
+             console.log(brugernavn);
+              await exports.addVagtToBruger(brugernavn, vagter[index]);
+             found = true;
+         }
+         index++;
+     }
+}
+
 exports.getBruger = async function getBruger(brugernavn) {
     return Bruger.findOne({"brugernavn" : brugernavn}, function (err, bruger) {}).exec();
 }
@@ -241,7 +258,7 @@ async function main() {
     // await exports.addVagtToBegivenhed(b1, v2);
     // await exports.addVagtToBruger(bruger, v2);
 }
-    main();
+    // main();
 async function main2() {
 
 }

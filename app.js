@@ -38,6 +38,16 @@ app.get('/brugere', async (req, res) =>{
     let brugere = await controller.getBrugere();
     res.send(brugere);
 });
+app.get('/getbruger/:brugerid', async (req, res) => {
+    // console.log('prøver at hente bruger');
+   let brugerid = req.params.brugerid;
+   let bruger = await controller.getBrugerFraId(brugerid);
+   let mitbrugernavn = req.session.brugernavn;
+   let minbruger = await controller.getBruger(mitbrugernavn);
+   let o = {bruger: bruger, minbruger: minbruger};
+   console.log(o);
+   res.send(o);
+});
 app.get('/vagter', async (req, res)=> {
    let vagter //= controller.getVagter();
     res.send(vagter);
@@ -109,13 +119,12 @@ app.post('/opretVagt', async(req,res)=> {
    await controller.newVagt(startTid, fravær, fraværsBeskrivelse, status, vagtType, bruger, begivenhed);
     res.send({ok:true}); // fix fejlsikring senere
 });
-//skal tagvagt og tilfoejvagttilbruger sættes sammen?
-app.post('/tagvagt', async(req,res) =>{
-    let vagtid = req.body;
-    let bruger = req.session.brugernavn;
-    console.log(vagtid);
-    console.log(bruger);
-    await controller.addVagtToBruger(bruger, vagtid);
+
+app.post('/tilmeldmigbegivenhed', async(req,res) =>{
+    let begivenhedsid = req.body.id;
+    let brugernavn = req.session.brugernavn;
+    console.log('prøver at tilmelde');
+    await controller.tilmeldBegivenhed(brugernavn, begivenhedsid);
     // res.send({ok:true}); // fix fejlsikring senere
 });
 
