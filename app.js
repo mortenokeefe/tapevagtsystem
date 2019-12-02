@@ -8,6 +8,7 @@ const fs = require('fs').promises;
 app.use(express.static('public'));
 app.use(express.json());
 app.use(session({secret: 'hemmelig', saveUninitialized: true, resave: true}));
+app.use(express.static('private'));
 
 
 // MONGODB & MONGOOSE SETUP
