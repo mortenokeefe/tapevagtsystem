@@ -1,22 +1,72 @@
-let brugerliste = document.getElementById("brugere");
-let opretbutton = document.getElementById("opretbruger");
 const navn = document.querySelector('#navn');
 const password = document.querySelector('#password');
 const login = document.querySelector('#login');
 const fejl = document.querySelector('#fejl');
+let bruger = "";
+let tempbruger = "";
+
+function makeFrivilligHTML() {
+    let frivillig =  document.getElementById('frivilligcontent');
+    frivillig.innerHTML += "<div id = divinputfelte> <h1> Frivillige </h1> <input id=\"fornavn\"> <label> fornavn</label><br>\n" +
+        "<input id=\"efternavn\"> <label> efternavn</label><br>\n" +
+        "<input id=\"telefonnummer\"> <label> telefonnummer</label> <br>\n" +
+        "<input id=\"brugernavn\"> <label> brugernavn</label> <br>\n" +
+        "<input id=\"password\"> <label> password</label> <br>\n" +
+        "<input id=\"brugertype\"> <label> brugertype</label> <br>\n" +
+        "<input id=\"tilstand\"> <label> tilstand</label> <br>\n" +
+        "<input id=\"email\"> <label> email</label> <br>\n" +
+        "<button id = \"opretbruger\"> Opret </button>\n" +
+        "<button id = \"deletebruger\"> Delete </button>\n" +
+        "<br> </div>";
+}
 let lastID;
 
 
 // opretbutton.onclick = opretBruger;
 //setAllBrugere("/brugere");
 
-async function setAllBrugere(url) {
-    brugerliste.innerHTML = "";
-    const response = await GET(url);
-    await JSON.stringify(response);
-    for (let i = 0; i < response.length; i++) {
-        brugerliste.innerHTML += "<li>" + " <p>" + response[i].fornavn + " " + response[i].efternavn
-            + " " + response[i].brugernavn + " " + " " + response[i].telefonnummer + " " + " " + response[i].email + " " + "</p>" + "</li>"
+async function getBrugere() {
+    try {
+        document.getElementById('frivilligcontent').innerHTML = null;
+        makeFrivilligHTML()
+        const brugereResponse = await GET('/brugere');
+        const hbs = await fetch('/brugere.hbs');
+        const brugereText = await hbs.text();
+
+        const compiledTemplate = Handlebars.compile(brugereText);
+        let brugereHTML = '<ul>';
+        brugereResponse.forEach(bruger => {
+            brugereHTML += compiledTemplate({
+                fornavn:  bruger.fornavn,
+                efternavn: bruger.efternavn,
+                telefonnummer: bruger.telefonnummer,
+                email: bruger.email,
+                brugernavn: bruger.brugernavn
+
+            });
+        });
+        brugereHTML += '</ul>';
+
+        let frivillig = document.getElementById('frivilligcontent')
+        frivillig.innerHTML += brugereHTML;
+        let opretbutton = frivillig.querySelector('#opretbruger');
+        opretbutton.onclick = opretBruger;
+        let deletebutton = frivillig.querySelector('#deletebruger');
+        deletebutton.onclick = sletBruger;
+        let lis = frivillig.getElementsByTagName("li");
+        for (let i = 0; i < lis.length; i++) {
+            lis[i].onclick = function () {
+                bruger = brugereResponse[i];
+                lis[i].style.color = 'grey';
+                if (tempbruger !== "" && tempbruger !== lis[i])
+                    tempbruger.style.color = 'black';
+                tempbruger = lis.item(i);
+                console.log(bruger)
+            }
+        }
+
+    } catch (e) {
+        console.log(e.name + ": " + e.message);
     }
 }
 
@@ -30,29 +80,22 @@ async function GET(url) {
 
 async function opretBruger() {
     try {
+        let frivillig =  document.getElementById('frivilligcontent');
         let url = "/opretBruger";
         let data = {
-            "fornavn": document.querySelector('#fornavn').value,
-            "efternavn": document.querySelector('#efternavn').value,
-            "telefonnummer": document.querySelector('#telefonnummer').value,
-            "brugernavn": document.querySelector('#brugernavn').value,
-            "password": document.querySelector('#password').value,
-            "brugertype": document.querySelector('#brugertype').value,
-            "tilstand": document.querySelector('#tilstand').value,
-            "email": document.querySelector('#email').value,
+            "fornavn": frivillig.querySelector('#fornavn').value,
+            "efternavn": frivillig.querySelector('#efternavn').value,
+            "telefonnummer": frivillig.querySelector('#telefonnummer').value,
+            "brugernavn": frivillig.querySelector('#brugernavn').value,
+            "password": frivillig.querySelector('#password').value,
+            "brugertype": frivillig.querySelector('#brugertype').value,
+            "tilstand": frivillig.querySelector('#tilstand').value,
+            "email": frivillig.querySelector('#email').value,
         };
         if (data.fornavn.length > 0 || data.efternavn.length > 0 || data.brugernavn.length > 0 || data.password.length > 0) {
-            let response = await POST(data, url);
-            document.querySelector('#fornavn').value = "";
-            document.querySelector('#efternavn').value = "";
-            document.querySelector('#telefonnummer').value = "";
-            document.querySelector('#brugernavn').value = "";
-            document.querySelector('#password').value = "";
-            document.querySelector('#brugertype').value = "";
-            document.querySelector('#tilstand').value = "";
-            document.querySelector('#email').value = "";
+            let response = await POSTBruger(data, url);
             console.log("POST: %o", response);
-            await setAllBrugere("/brugere");
+            await getBrugere();
         }
     } catch (e) {
         console.log(e.name + ": " + e.message);
@@ -61,17 +104,18 @@ async function opretBruger() {
 
 async function sletBruger() {
         try {
-            let brugernavn = "jaja";
+            let brugernavn = bruger.brugernavn;
             let url = "/deleteBruger/" + brugernavn;
             let response = await DELETE(url);
             console.log("DELETE: %o", response);
+            await getBrugere();
         }
         catch (e) {
                 console.log(e.name + ": " + e.message);
             }
 }
 
-async function POST(data, url) {
+async function POSTBruger(data, url) {
     const CREATED = 201;
     let response = await fetch(url, {
         method: "POST",
@@ -122,6 +166,11 @@ async function loadhtml() {
     const brugereText = await forside.text();
     document.getElementById('content').innerHTML = brugereText;
 }
+async function loaddivs() {
+    const forside = await fetch('/tabdivs.hbs');
+    const brugereText = await forside.text();
+    document.getElementById('tabcontent').innerHTML = brugereText;
+}
 
 login.onclick = async () => {
     try {
@@ -153,32 +202,8 @@ async function GET(url) {
     return await response.json();
 }
 
-async function getBrugere() {
-    try {
-        const brugereResponse = await GET('/brugere');
-        const hbs = await fetch('/brugere.hbs');
-        const brugereText = await hbs.text();
-
-        const compiledTemplate = Handlebars.compile(brugereText);
-        let brugereHTML = '<table><tr><th>Navn</th></tr>';
-
-        brugereResponse.forEach(bruger => {
-            brugereHTML += compiledTemplate({
-                fornavn:  bruger.fornavn,
-                efternavn: bruger.efternavn,
-            });
-        });
-        brugereHTML += '</table>';
-
-        document.getElementById('frivilligcontent').innerHTML = brugereHTML;
-
-
-    } catch (e) {
-        console.log(e.name + ": " + e.message);
-    }
-}
 async function getBrugersVagter(){
-    try {
+    try{
         const brugerResponse = await GET('/mineVagter');
         const hbs = await fetch('/vagt.hbs');
         const vagtTxt = await hbs.text();

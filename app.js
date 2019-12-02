@@ -109,6 +109,7 @@ app.get('/vagter/api/ledigevagter/:eventId', async function(req, res){
 
 //POST endpoints
 app.post('/opretBruger' , async (req, res) =>{
+    console.log(req.body);
     const {fornavn, efternavn, telefonnummer, brugernavn, password, brugertype, tilstand, email} = req.body;
     controller.newBruger(fornavn, efternavn, telefonnummer, brugernavn, password, brugertype, tilstand, email, undefined);
     res.sendStatus(201);
