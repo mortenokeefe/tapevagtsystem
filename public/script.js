@@ -338,7 +338,9 @@ async function getBegivenheder() {
         console.log(brugereHTML.length);
         console.log(begivenhederResponse);
         let link = document.getElementsByClassName('link');
-         link[0].onclick = clickBegivenhed;
+        for (let l of link) {
+            l.onclick = clickBegivenhed;
+        }
 
     } catch (e) {
         console.log(e.name + ": " + e.message);
@@ -400,7 +402,7 @@ async function getBegivenhed(id) {
        vagterhtml += 'Du har taget en vagt til dette event.';
    }
    else if (!mig) {
-   vagterhtml += '<button class="tilmeld" id="'+ begivenhed._id +'"> Tilmeld vagt</button>';
+   vagterhtml += '<button class="tilmeld" id="'+ begivenhed._id +'"> Tilmeld begivenhed</button>';
    }
     begivenhedHTML += vagterhtml;
     let div = document.getElementById('begivenhedcontent');
@@ -413,7 +415,7 @@ async function getBegivenhed(id) {
 }
 
 async function tilmeldBegivenhed(event) {
-    let svar = confirm('Er du sikker på at du vil tilmelde dig vagten?');
+    let svar = confirm('Er du sikker på at du vil tilmelde dig begivenheden?');
     if (svar) {
         begivenhedsid = event.target.id;
         await POST('/tilmeldmigbegivenhed', {"id": begivenhedsid});
