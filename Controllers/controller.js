@@ -209,7 +209,7 @@ exports.setFrivilligStatus = async function setFrivilligStatus(id, newStatus)
     const update = {tilstand : newStatus};
     return  await bruger.findOneAndUpdate(filter, update);
 
-}
+};
 
 
 

@@ -5,13 +5,23 @@
     <script src="../public/handlebars-v4.4.3.js"></script>
     <meta charset="UTF-8">
     <title>Forside</title>
+    <link rel="icon" href="https://www.tapeaarhus.dk/pics/logoo.png">
+    <link rel="stylesheet" href="style.css">
 </head>
+
 <body>
+
+
 <div class="tab">
+    <span class="img-container">
+    <img src="https://www.tapeaarhus.dk/pics/logoo.png"style="width:75px;height:75px;">
+    </span>
+    <span class="img-container">
     <button class="tablinks" onclick="openPane(event, 'Kalender')" id="defaultOpen">Kalender</button>
     <button class="tablinks" onclick="openPane(event, 'Vagter til salg')">Vagter til salg</button>
     <button class="tablinks" onclick="openPane(event, 'Frivillige')">Frivillige</button>
     <button class="tablinks" onclick="openPane(event, 'Statistik')">Statistik</button>
+        </span>
 </div>
 
 <div id="Kalender" class="tabcontent">
