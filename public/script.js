@@ -279,7 +279,7 @@ async function overtagvagt(id) {
 async function sætVagtTilSalg(id) {
 try {
     let svar = confirm("er du sikker?");
-   
+
 
     const url = '/saetVagtTilSalg';
     if (svar) {
