@@ -478,9 +478,10 @@ async function getBegivenhed(id) {
     let vagterhtml = '';
     let index = 1;
     var mig;
+    let harVagt = false;
     for (let vagt of frivillige) {
 
-         if (vagt.bruger != undefined) {
+         if (vagt.bruger) {
              let ep = '/getbruger/' + vagt.bruger;
               let brugere = await GET(ep);
               // console.log('XXbrugere');
@@ -489,6 +490,10 @@ async function getBegivenhed(id) {
               let bruger = brugere.bruger;
              vagterhtml += index + '. ' + bruger.fornavn + ' ' + bruger.efternavn + '<br>';
              index++;
+             if(mig._id == vagt.bruger)
+             {
+                 harVagt = true;
+             }
          }
         if (vagt.status == 0) {
             vagterhtml += index + '. ' + 'Ledig<br>';
@@ -498,10 +503,10 @@ async function getBegivenhed(id) {
     //mellemrum
     vagterhtml += '<br><br>';
 
-   if (mig) {
+   if (harVagt) {
        vagterhtml += 'Du har taget en vagt til dette event.';
    }
-   else if (!mig) {
+   else {
    vagterhtml += '<button class="tilmeld" id="'+ begivenhed._id +'"> Tilmeld begivenhed</button>';
    }
     begivenhedHTML += vagterhtml;
@@ -519,6 +524,7 @@ async function tilmeldBegivenhed(event) {
     if (svar) {
         begivenhedsid = event.target.id;
         await POST('/tilmeldmigbegivenhed', {"id": begivenhedsid});
+        update();
     }
 }
 

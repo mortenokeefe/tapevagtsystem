@@ -1,0 +1,37 @@
+div {
+    background-image: url('https://scontent-amt2-1.xx.fbcdn.net/v/t31.0-8/13248404_272289486442318_526522758123283712_o.jpg?_nc_cat=103&_nc_ohc=CFVqbznJJ8gAQlBznkm76JIVf16yrjDlXZ62Xvbe8dpTvxkzaaAH-pNrg&_nc_ht=scontent-amt2-1.xx&oh=457bb2913b4df052027c219fdde86c02&oe=5E8B2288');
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position: 50% 100%;
+    background-size: 1800px 1800px;
+}
+body{
+
+    background-color: gray;
+
+    background-image: url('https://scontent-amt2-1.xx.fbcdn.net/v/t1.0-9/70350078_952500711754522_6838972400759996416_o.jpg?_nc_cat=108&_nc_ohc=owtDljz8MdEAQnBPqK1fAv033NNAEX6scWG38fe0uNpxnITbQrZKTGABQ&_nc_ht=scontent-amt2-1.xx&oh=e270fdcf3e2b75af82cbc90a6162d394&oe=5E429A5F');  background-size: cover;
+    background-repeat: no-repeat;
+    background-position: 50% -25%;
+    background-size: 1200px 1000px;
+
+
+}
+p {
+    font-family: Helvetica Neue,Helvetica,Arial,sans-serif;
+}
+h3 {
+    font-family: Helvetica Neue,Helvetica,Arial,sans-serif;
+}
+
+button {
+    font-family: Helvetica Neue,Helvetica,Arial,sans-serif;
+    background-color: lightblue;
+}
+
+
+
+
+.img-container {
+    text-align: center;
+    display: block;
+}
