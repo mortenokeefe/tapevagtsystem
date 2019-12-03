@@ -1,4 +1,3 @@
-
 const controller = require('./Controllers/controller');
 //express
 const express = require('express');
@@ -22,10 +21,10 @@ app.listen(port);
 
 //GET endpoints
 
-app.get('/fravær/:brugernavn', async  (req,res) =>{
+app.get('/fravaer/:brugernavn', async  (req,res) =>{
     let brugernavn = req.params.brugernavn;
     let fraværsprocent = await controller.getFraværForBruger(brugernavn);
-    res.send(fraværsprocent);
+    res.send(fraværsprocent.toString());
 });
 
 
@@ -122,6 +121,13 @@ app.post('/opretBruger' , async (req, res) =>{
     res.sendStatus(201);
 });
 
+app.put('/updateBruger/:brugernavn' , async (req, res) =>{
+    const {fornavn, efternavn, telefonnummer, password, brugertype, tilstand, email} = req.body;
+    const filterbrugernavn = req.params.brugernavn;
+    await controller.updateBruger(fornavn, efternavn, telefonnummer, password, brugertype, tilstand, email, filterbrugernavn);
+    res.sendStatus(200);
+});
+
 app.post('/opretBegivenhed' , async (req, res) =>{
     console.log("opretter begivenhed");
 
@@ -142,7 +148,7 @@ app.post('/tilmeldmigbegivenhed', async(req,res) =>{
     let brugernavn = req.session.brugernavn;
     console.log('prøver at tilmelde');
     await controller.tilmeldBegivenhed(brugernavn, begivenhedsid);
-    // res.send({ok:true}); // fix fejlsikring senere
+     res.send({ok:true}); // fix fejlsikring senere
 });
 
 app.post('/tilfoejVagtTilBruger', async(req,res) =>{
