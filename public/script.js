@@ -235,20 +235,25 @@ function update() {
 async function loadhtml() {
 
     const brugertype = await GET('/brugertype');
-
-    if(brugertype.brugertype === 0) //admin
+    let forside;
+    console.log(brugertype.brugertype);
+    if(brugertype.brugertype == 0) //admin
     {
+        forside = await fetch('/forside.hbs');
+
 
     }
-    if(brugertype.brugertype ===1) //afvikler
+    if(brugertype.brugertype ==1) //afvikler
     {
+        forside = await fetch('/forside.hbs');
 
     }
-    if (brugertype.brugertype ===2) //frivillig
+    if (brugertype.brugertype ==2) //frivillig
     {
+        forside = await fetch('/forsideFrivillig.hbs');
 
     }
-    const forside = await fetch('/forside.hbs');
+
     const brugereText = await forside.text();
     document.getElementById('content').innerHTML = brugereText;
 }
