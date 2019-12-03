@@ -56,7 +56,7 @@ app.get('/getbruger/:brugerid', async (req, res) => {
 });
 app.get('/brugertype', async (req, res) =>
 {
-    let bruger = await controller.getBrugerFraId(req.session.brugernavn);
+    let bruger = await controller.getBruger(req.session.brugernavn);
     let brugertype = {brugertype: bruger.brugertype};
     res.send(brugertype);
 });
