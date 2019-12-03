@@ -141,6 +141,15 @@ exports.getBrugere = async function getBrugere() {
     return Bruger.find().exec();
 }
 
+exports.adminAddVagtToBruger = async function adminAddVagtToBruger(brugerid, vagtid) {
+    vagt = await exports.getVagtFraId(vagtid);
+    bruger = await exports.getBrugerFraId(brugerid);
+    vagt.bruger = bruger;
+    vagt.status = 1;
+    bruger.vagter.push(vagt);
+    return Promise.all([vagt.save(), bruger.save()]);
+}
+
 exports.addVagtToBruger = async function addVagtToBruger(brugernavn, id) {
     vagt = await exports.getVagtFraId(id.id);
     bruger = await exports.getBruger(brugernavn);
@@ -171,6 +180,17 @@ exports.getBruger = async function getBruger(brugernavn) {
 }
 exports.getBrugere = async function getBrugere() {
     return Bruger.find().exec();
+}
+
+exports.getFrivillige = async function getFrivillige() {
+    let brugere = await Bruger.find().exec();
+    let frivillige = [];
+    for (let bruger of brugere) {
+        if (bruger.brugertype == 2) {
+            frivillige.push(bruger);
+        }
+    }
+    return frivillige;
 }
 
 

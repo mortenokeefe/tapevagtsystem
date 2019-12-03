@@ -566,14 +566,35 @@ async function getBegivenhed(id) {
             vagterhtml += index + '. ' + 'Ledig   ';
             //hvis man er admin skal man kunne tildele vagter:
             if (brugertype == 0) {
+                let frivillige = await GET('/frivillige');
                 const tildelhbs = await fetch('/tildel.hbs');
                 const tildelText = await tildelhbs.text();
-                const tildelTemplate = Handlebars.compile(tildelText);
-                let tildelHTML = tildelTemplate({
-                    navn:  vagt.fornavn,
+                vagterhtml += tildelText;
+
+                let knaphbs = await fetch('/tildelknap.hbs');
+                let knapText = await knaphbs.text();
+
+                const knapTemplate = Handlebars.compile(knapText);
+                let knapHTML;
+                knapHTML = knapTemplate({
+                    vagtid: vagt._id
                 });
-                vagterhtml += tildelHTML;
-                // vagterhtml += '<button class="tildel" id="' + vagt._id + '">Tildel vagt</button> '
+                let frivilligehbs = await fetch('/frivillig.hbs');
+                let frivilligeText = await frivilligehbs.text();
+                console.log(frivilligeText);
+                const frivilligeTemplate = Handlebars.compile(frivilligeText);
+                knapHTML += '<select class="select" id="' + vagt._id +'" size="10" style="width: 80%">';
+                for (let frivillig of frivillige) {
+                    console.log(frivillig);
+                    knapHTML += frivilligeTemplate({
+                        frivilligid: frivillig._id,
+                       navn: frivillig.fornavn + ' ' + frivillig.efternavn
+                    });
+                }
+                knapHTML += '</select><br>';
+                knapHTML += '<button class="popupknap" id="'+ vagt._id +'">Tildel valgt</button>';
+                knapHTML += '</div></div>';
+                vagterhtml += knapHTML;
             }
             vagterhtml += '<br>';
             index++;
@@ -602,29 +623,42 @@ async function getBegivenhed(id) {
     }
     if (brugertype == 0) {
         // Get the modal
-        var modal = document.getElementById("myModal");
+        var modals = document.getElementsByClassName("modal");
 
         // Get the button that opens the modal
-        var btn = document.getElementById("myBtn");
+        var btns = document.getElementsByClassName("tildelknap");
 
         // Get the <span> element that closes the modal
-        var span = document.getElementsByClassName("close")[0];
+        var spans = document.getElementsByClassName("close");
 
-        // When the user clicks the button, open the modal
-        btn.onclick = function() {
-            modal.style.display = "block";
-        }
+        var tildelbtns = document.getElementsByClassName('popupknap');
 
-        // When the user clicks on <span> (x), close the modal
-        span.onclick = function() {
-            modal.style.display = "none";
-        }
+        var selects = document.getElementsByClassName('select');
 
-        // When the user clicks anywhere outside of the modal, close it
-        window.onclick = function(event) {
-            if (event.target == modal) {
-                modal.style.display = "none";
+        for (let index = 0; index < btns.length; index++) {
+            // When the user clicks the button, open the modal
+            btns[index].onclick = function () {
+                modals[index].style.display = "block";
             }
+
+            tildelbtns[index].onclick = async function () {
+
+                let vagtid = btns[index].id;
+                let frivilligid = selects[index].value;
+                let o = {vagtid: vagtid, frivilligid: frivilligid};
+                await POST('/adminTilfoejVagtTilBruger', o);
+
+                //lukker vindue
+                modals[index].style.display = "none";
+                cleartab();
+//get begivenhed
+            }
+
+            // When the user clicks on <span> (x), close the modal
+            spans[index].onclick = function () {
+                modals[index].style.display = "none";
+            }
+
         }
     }
 }
