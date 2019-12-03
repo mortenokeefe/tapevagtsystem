@@ -206,7 +206,7 @@ function loadCalendar() {
             },
             eventRender: function(info){
                 info.el.append( info.event.extendedProps.description + "      Ledige vagter: " + info.event.extendedProps.antalLedigeVagter);
-                if(info.event.extendedProps.antalLedigeVagter < 2){
+                if(info.event.extendedProps.antalLedigeVagter > 2){
                     info.el.style.backgroundColor = 'red'
                     info.el.style.borderColor = 'red'
                 }
