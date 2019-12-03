@@ -194,6 +194,31 @@ async function POST(url, data) {
     return await response.json();
 }
 
+function loadCalendar() {
+    var calendarEl = document.getElementById('calendar');
+    if(calendarEl && calendarEl.className!="fc fc-ltr fc-unthemed"){
+        var calendar = new FullCalendar.Calendar(calendarEl, {
+            plugins: [ 'dayGrid', 'interaction' ],
+            dateClick: function(info) {
+                calendar.changeView('dayGridDay', info.date)
+            },
+            events: {url: "http://localhost:8080/calendar/api/event"},
+            eventClick: function(){
+            },
+            eventRender: function(info){
+                info.el.append( info.event.extendedProps.description + "      Ledige vagter: " + info.event.extendedProps.antalLedigeVagter);
+                if(info.event.extendedProps.antalLedigeVagter > 2){
+                    info.el.style.backgroundColor = 'red'
+                    info.el.style.borderColor = 'red'
+                }
+            }
+
+
+        });
+        calendar.render();
+    }
+}
+
 function update() {
     getVagterTilSalg();
     getBrugersVagter();
@@ -532,6 +557,9 @@ async function tilmeldBegivenhed(event) {
 async function cleartab() {
     let bg = document.getElementById('begivenhedcontent');
     let bg1 = document.getElementById('begivenhedercontent');
+    let calendar = document.getElementById("calendar");
+    calendar.className = ""
+    calendar.innerHTML = ""
 
     bg.innerHTML = '';
     bg1.innerHTML = '';
@@ -564,6 +592,7 @@ async function openPane(evt, tabName) {
     if (tabName == 'Kalender') {
         cleartab();
         getBegivenheder();
+        loadCalendar();
 
         document.getElementById('begivenhedercontent')
 
