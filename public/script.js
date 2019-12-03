@@ -47,7 +47,7 @@ async function getBrugere() {
         let brugereHTML = '<ul>';
         for (const bruger of brugereResponse) {
             brugereHTML += compiledTemplate({
-                fornavn:  bruger.fornavn,
+                fornavn: bruger.fornavn,
                 efternavn: bruger.efternavn,
                 telefonnummer: bruger.telefonnummer,
                 email: bruger.email,
@@ -93,7 +93,7 @@ async function GET(url) {
 
 async function opretBruger() {
     try {
-        let frivillig =  document.getElementById('frivilligcontent');
+        let frivillig = document.getElementById('frivilligcontent');
         let url = "/opretBruger";
         let data = {
             "fornavn": frivillig.querySelector('#fornavn').value,
@@ -105,10 +105,15 @@ async function opretBruger() {
             "tilstand": frivillig.querySelector('#tilstand').value,
             "email": frivillig.querySelector('#email').value,
         };
-        if (data.fornavn.length > 0 || data.efternavn.length > 0 || data.brugernavn.length > 0 || data.password.length > 0) {
+        if (data.fornavn.length > 0 && data.efternavn.length > 0 && data.brugernavn.length > 0 && data.telefonnummer.match("^\\d{8}$")
+            && data.password.length > 0 && data.email.length > 0) {
             let response = await POSTBruger(data, url);
             console.log("POST: %o", response);
             await getBrugere();
+        } else if (!data.telefonnummer.match("^\\d{8}$")) {
+            alert("et telefonnummer skal være 8 tal langt")
+        } else {
+            alert("Udfyld alt informationen")
         }
     } catch (e) {
         console.log(e.name + ": " + e.message);
@@ -117,7 +122,7 @@ async function opretBruger() {
 
 async function updateBruger() {
     try {
-        let frivillig =  document.getElementById('frivilligcontent');
+        let frivillig = document.getElementById('frivilligcontent');
         let data = {
             "fornavn": frivillig.querySelector('#fornavn').value,
             "efternavn": frivillig.querySelector('#efternavn').value,
@@ -129,10 +134,18 @@ async function updateBruger() {
         };
         console.log(data);
         let url = "/updateBruger/" + bruger.brugernavn;
-        if (data.fornavn.length > 0 || data.efternavn.length > 0 || data.brugernavn.length > 0 || data.password.length > 0  || data.email.length > 0) {
-            let response = await PUT(data, url);
-            console.log("POST: %o", response);
-            await getBrugere();
+        if (data.fornavn.length > 0 && data.efternavn.length > 0 && data.telefonnummer.match("^\\d{8}$")
+            && data.password.length > 0 && data.email.length > 0) {
+            if (frivillig.querySelector('#brugernavn').value.length > 0) {
+                alert("Et brugernavn kan ikke opdateres")
+                let response = await PUT(data, url);
+                console.log("POST: %o", response);
+                await getBrugere();
+            }
+        } else if (!data.telefonnummer.match("^\\d{8}$")) {
+            alert("et telefonnummer skal være 8 tal langt")
+        } else {
+            alert("Udfyld alt informationen")
         }
     } catch (e) {
         console.log(e.name + ": " + e.message);
@@ -140,16 +153,15 @@ async function updateBruger() {
 };
 
 async function sletBruger() {
-        try {
-            let brugernavn = bruger.brugernavn;
-            let url = "/deleteBruger/" + brugernavn;
-            let response = await DELETE(url);
-            console.log("DELETE: %o", response);
-            await getBrugere();
-        }
-        catch (e) {
-                console.log(e.name + ": " + e.message);
-            }
+    try {
+        let brugernavn = bruger.brugernavn;
+        let url = "/deleteBruger/" + brugernavn;
+        let response = await DELETE(url);
+        console.log("DELETE: %o", response);
+        await getBrugere();
+    } catch (e) {
+        console.log(e.name + ": " + e.message);
+    }
 }
 
 async function POSTBruger(data, url) {
@@ -187,7 +199,6 @@ async function DELETE(url) {
 }
 
 
-
 async function POST(url, data) {
     const CREATED = 200;
     let response = await fetch(url, {
@@ -205,15 +216,18 @@ async function POST(url, data) {
 
 function loadCalendar() {
     var calendarEl = document.getElementById('calendar');
-    if(calendarEl && calendarEl.className!="fc fc-ltr fc-unthemed"){
+    if (calendarEl && calendarEl.className != "fc fc-ltr fc-unthemed") {
         var calendar = new FullCalendar.Calendar(calendarEl, {
             plugins: [ 'dayGrid', 'interaction' ],
             events: {url: "http://localhost:8080/calendar/api/event"},
-            eventClick: function(){
+            eventClick: function(info){
+                const id = info.event.extendedProps.complete._id
+                clickBegivenhed(id)
             },
+            eventColor: "green",
             eventRender: function(info){
                 info.el.append( info.event.extendedProps.description + "      Ledige vagter: " + info.event.extendedProps.antalLedigeVagter);
-                if(info.event.extendedProps.antalLedigeVagter > 2){
+                if(info.event.extendedProps.antalLedigeVagter == 0){
                     info.el.style.backgroundColor = 'red'
                     info.el.style.borderColor = 'red'
                 }
@@ -228,7 +242,7 @@ function loadCalendar() {
 function update() {
     getVagterTilSalg();
     getBrugersVagter();
-    getBegivenheder();
+    //getBegivenheder();
     getBrugere();
 }
 
@@ -280,8 +294,7 @@ login.onclick = async () => {
             await loadhtml();
             document.getElementById("defaultOpen").click();
 
-        }
-        else {
+        } else {
             password.value = "";
             fejl.innerHTML = "Forkert password!";
         }
@@ -298,8 +311,8 @@ async function GET(url) {
     return await response.json();
 }
 
-async function getBrugersVagter(){
-    try{
+async function getBrugersVagter() {
+    try {
         const brugerResponse = await GET('/mineVagter');
         const hbs = await fetch('/vagt.hbs');
         const vagtTxt = await hbs.text();
@@ -327,21 +340,20 @@ async function getBrugersVagter(){
             //k.onclick = sætVagtTilSalg;
             k.onclick = function () {
 
-               // confirmBox(k.id, sætVagtTilSalg)
+                // confirmBox(k.id, sætVagtTilSalg)
 
-                    sætVagtTilSalg(k.id);
+                sætVagtTilSalg(k.id);
 
             };
 
         }
-    }
-    catch (e) {
+    } catch (e) {
         console.log(e.name + ": " + e.message);
     }
 }
 
 async function getVagterTilSalg() {
-    try{
+    try {
         const vagterResponse = await GET('/vagtertilsalg');
         const hbs = await fetch('/salg.hbs');
         const vagterText = await hbs.text();
@@ -351,7 +363,7 @@ async function getVagterTilSalg() {
 
         vagterResponse.forEach(vagt => {
             brugereHTML += compiledTemplate({
-                begivenhed:  vagt.begivenhed,
+                begivenhed: vagt.begivenhed,
                 dato: vagt.dato,
                 bruger: vagt.bruger,
                 id: vagt.vagt._id
@@ -370,8 +382,7 @@ async function getVagterTilSalg() {
             };
         });
 
-    }
-    catch (e) {
+    } catch (e) {
         console.log(e.name + ": " + e.message);
     }
 }
@@ -382,7 +393,7 @@ async function overtagvagt(id) {
 
         // console.log('Du har trykket på knappen med ID: ' + event.target.id + " og overtager vagten");
         // let id = {id: event.target.id};
-        if(svar) {
+        if (svar) {
             await POST('/overtagvagt', {id: id});
 
             await getVagterTilSalg();
@@ -396,14 +407,13 @@ async function overtagvagt(id) {
 }
 
 
-
 async function sætVagtTilSalg(id) {
-try {
-    let svar = confirm("er du sikker?");
+    try {
+        let svar = confirm("er du sikker?");
 
 
-    const url = '/saetVagtTilSalg';
-    if (svar) {
+        const url = '/saetVagtTilSalg';
+        if (svar) {
 
 
         await POST('/saetVagtTilSalg', {vagtID: id});
@@ -439,7 +449,7 @@ function removeElement(elementId) {
 
 
 
-async function getBegivenheder() {
+/*async function getBegivenheder() {
     try {
         console.log('henter begivenheder');
         const begivenhederResponse = await GET('/begivenheder');
@@ -470,19 +480,14 @@ async function getBegivenheder() {
          }
         console.log(brugereHTML.length);
         console.log(begivenhederResponse);
-        let link = document.getElementsByClassName('link');
-        for (let l of link) {
-            l.onclick = clickBegivenhed;
-        }
 
     } catch (e) {
         console.log(e.name + ": " + e.message);
     }
-}
+}*/
 
-async function clickBegivenhed(event) {
-    let id = event.target.id;
-    getBegivenhed(id);
+async function clickBegivenhed(eventId) {
+    getBegivenhed(eventId);
 }
 async function opretBegivenhed(navn, dato, beskrivelse, antalFrivillige, afvikler)
 {
@@ -549,6 +554,7 @@ async function getBruger(brugerId)
 
 async function getBegivenhed(id) {
     cleartab();
+    brugertype = await getBrugertype();
     let endpoint = '/sebegivenhed/' + id;
     const begivenhedResponse = await GET(endpoint);
     console.log(begivenhedResponse);
@@ -592,26 +598,69 @@ async function getBegivenhed(id) {
              }
          }
         if (vagt.status == 0) {
-            vagterhtml += index + '. ' + 'Ledig<br>';
+            vagterhtml += index + '. ' + 'Ledig   ';
+            //hvis man er admin skal man kunne tildele vagter:
+            if (brugertype == 0) {
+                const tildelhbs = await fetch('/tildel.hbs');
+                const tildelText = await tildelhbs.text();
+                const tildelTemplate = Handlebars.compile(tildelText);
+                let tildelHTML = tildelTemplate({
+                    navn:  vagt.fornavn,
+                });
+                vagterhtml += tildelHTML;
+                // vagterhtml += '<button class="tildel" id="' + vagt._id + '">Tildel vagt</button> '
+            }
+            vagterhtml += '<br>';
             index++;
         }
     }
     //mellemrum
     vagterhtml += '<br><br>';
 
-   if (harVagt) {
-       vagterhtml += 'Du har taget en vagt til dette event.';
-   }
-   else {
-   vagterhtml += '<button class="tilmeld" id="'+ begivenhed._id +'"> Tilmeld begivenhed</button>';
-   }
-    begivenhedHTML += vagterhtml;
+    //hvis man er frivillig, skal man have:
+    if (brugertype == 2) {
+        if (harVagt) {
+            vagterhtml += 'Du har taget en vagt til dette event.';
+        } else {
+            vagterhtml += '<button class="tilmeld" id="' + begivenhed._id + '"> Tilmeld begivenhed</button>';
+        }
+    }
+
+        begivenhedHTML += vagterhtml;
     let div = document.getElementById('begivenhedcontent');
     div.innerHTML = begivenhedHTML;
-    //hvis der er en knap
-    let knap = document.getElementsByClassName('tilmeld');
-    if(knap.length > 0) {
-        knap[0].onclick = tilmeldBegivenhed;
+    if (brugertype == 2) {
+        let knap = document.getElementsByClassName('tilmeld');
+        if (knap.length > 0) {
+            knap[0].onclick = tilmeldBegivenhed;
+        }
+    }
+    if (brugertype == 0) {
+        // Get the modal
+        var modal = document.getElementById("myModal");
+
+        // Get the button that opens the modal
+        var btn = document.getElementById("myBtn");
+
+        // Get the <span> element that closes the modal
+        var span = document.getElementsByClassName("close")[0];
+
+        // When the user clicks the button, open the modal
+        btn.onclick = function() {
+            modal.style.display = "block";
+        }
+
+        // When the user clicks on <span> (x), close the modal
+        span.onclick = function() {
+            modal.style.display = "none";
+        }
+
+        // When the user clicks anywhere outside of the modal, close it
+        window.onclick = function(event) {
+            if (event.target == modal) {
+                modal.style.display = "none";
+            }
+        }
     }
 }
 
@@ -666,7 +715,7 @@ async function openPane(evt, tabName) {
     }
     if (tabName == 'Kalender') {
         cleartab();
-        getBegivenheder();
+        //getBegivenheder();
         loadCalendar();
 
         document.getElementById('begivenhedercontent')

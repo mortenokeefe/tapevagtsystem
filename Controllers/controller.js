@@ -294,7 +294,7 @@ async function main() {
     let tomvagt = undefined;
     let b1 = await exports.newBegivenhed('Darkest Entries', tid, 'Kedeligt show', 5, undefined);
     //let b1 = await exports.newBegivenhed('Darkest Entries', tid, 'Kedeligt show', 5, undefined);
-    let bruger = await exports.newBruger("Jens", 'Brouw', '88888888', 'jaja', 'jaja', 1, 1, 'jens@jens.com', undefined);
+    let bruger = await exports.newBruger("Jens", 'Brouw', '88888888', 'jaja', 'jaja', 0, 1, 'jens@jens.com', undefined);
     // let v1 = await exports.newVagt(tid, false, undefined, 1, 1, undefined, undefined);
     // let v2 = await exports.newVagt(tid, false, undefined, 2, 1, undefined, undefined);
 
