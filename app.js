@@ -1,4 +1,3 @@
-
 const controller = require('./Controllers/controller');
 //express
 const express = require('express');
@@ -116,6 +115,13 @@ app.post('/opretBruger' , async (req, res) =>{
     res.sendStatus(201);
 });
 
+app.put('/updateBruger/:brugernavn' , async (req, res) =>{
+    const {fornavn, efternavn, telefonnummer, password, brugertype, tilstand, email} = req.body;
+    const filterbrugernavn = req.params.brugernavn;
+    await controller.updateBruger(fornavn, efternavn, telefonnummer, password, brugertype, tilstand, email, filterbrugernavn);
+    res.sendStatus(200);
+});
+
 app.post('/opretBegivenhed' , async (req, res) =>{
     console.log("opretter begivenhed");
 
@@ -160,10 +166,14 @@ app.post('/overtagvagt', async (req, res) =>{
    let brugerloggedind = req.session.brugernavn;
    let vagtid = req.body.id;
    // console.log(brugerloggedind + ' ønsker at overtage vagten med id: ' + vagtid);
+    let email = await controller.getEmailFraVagtId(vagtid);
+
    await controller.overtagVagt(brugerloggedind, vagtid)
-       .then(res.send({ok: true}).then(controller.sendmail(req.session.email)))
+       .then(res.send({ok: true})).then(controller.sendmail(email));
 
 });
+
+
 
 app.post('/update', async (req,res) => {
 console.log('jaja');

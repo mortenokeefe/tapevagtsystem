@@ -17,6 +17,7 @@ function makeFrivilligHTML() {
         "<input id=\"email\"> <label> email</label> <br>\n" +
         "<button id = \"opretbruger\"> Opret </button>\n" +
         "<button id = \"deletebruger\"> Delete </button>\n" +
+        "<button id = \"updatebruger\"> Update </button>\n" +
         "<br> </div>";
 }
 let lastID;
@@ -53,6 +54,8 @@ async function getBrugere() {
         opretbutton.onclick = opretBruger;
         let deletebutton = frivillig.querySelector('#deletebruger');
         deletebutton.onclick = sletBruger;
+        let updatebruger = frivillig.querySelector('#updatebruger');
+        updatebruger.onclick = updateBruger;
         let lis = frivillig.getElementsByTagName("li");
         for (let i = 0; i < lis.length; i++) {
             lis[i].onclick = function () {
@@ -102,6 +105,30 @@ async function opretBruger() {
     }
 };
 
+async function updateBruger() {
+    try {
+        let frivillig =  document.getElementById('frivilligcontent');
+        let data = {
+            "fornavn": frivillig.querySelector('#fornavn').value,
+            "efternavn": frivillig.querySelector('#efternavn').value,
+            "telefonnummer": frivillig.querySelector('#telefonnummer').value,
+            "password": frivillig.querySelector('#password').value,
+            "brugertype": frivillig.querySelector('#brugertype').value,
+            "tilstand": frivillig.querySelector('#tilstand').value,
+            "email": frivillig.querySelector('#email').value,
+        };
+        console.log(data);
+        let url = "/updateBruger/" + bruger.brugernavn;
+        if (data.fornavn.length > 0 || data.efternavn.length > 0 || data.brugernavn.length > 0 || data.password.length > 0  || data.email.length > 0) {
+            let response = await PUT(data, url);
+            console.log("POST: %o", response);
+            await getBrugere();
+        }
+    } catch (e) {
+        console.log(e.name + ": " + e.message);
+    }
+};
+
 async function sletBruger() {
         try {
             let brugernavn = bruger.brugernavn;
@@ -126,6 +153,18 @@ async function POSTBruger(data, url) {
         throw new Error("POST status code " + response.status);
     return await response.text();
 };
+
+async function PUT(data, url) {
+    const OK = 200;
+    let response = await fetch(url, {
+        method: "PUT",
+        body: JSON.stringify(data),
+        headers: {'Content-Type': 'application/json'}
+    });
+    if (response.status !== OK)
+        throw new Error("PUT status code " + response.status);
+    return await response.text();
+}
 
 async function DELETE(url) {
     const OK = 200;
@@ -152,6 +191,31 @@ async function POST(url, data) {
     if (response.status !== CREATED)
         throw new Error("POST status code " + response.status);
     return await response.json();
+}
+
+function loadCalendar() {
+    var calendarEl = document.getElementById('calendar');
+    if(calendarEl && calendarEl.className!="fc fc-ltr fc-unthemed"){
+        var calendar = new FullCalendar.Calendar(calendarEl, {
+            plugins: [ 'dayGrid', 'interaction' ],
+            dateClick: function(info) {
+                calendar.changeView('dayGridDay', info.date)
+            },
+            events: {url: "http://localhost:8080/calendar/api/event"},
+            eventClick: function(){
+            },
+            eventRender: function(info){
+                info.el.append( info.event.extendedProps.description + "      Ledige vagter: " + info.event.extendedProps.antalLedigeVagter);
+                if(info.event.extendedProps.antalLedigeVagter > 2){
+                    info.el.style.backgroundColor = 'red'
+                    info.el.style.borderColor = 'red'
+                }
+            }
+
+
+        });
+        calendar.render();
+    }
 }
 
 function update() {
@@ -439,9 +503,10 @@ async function getBegivenhed(id) {
     let vagterhtml = '';
     let index = 1;
     var mig;
+    let harVagt = false;
     for (let vagt of frivillige) {
 
-         if (vagt.bruger != undefined) {
+         if (vagt.bruger) {
              let ep = '/getbruger/' + vagt.bruger;
               let brugere = await GET(ep);
               // console.log('XXbrugere');
@@ -450,6 +515,10 @@ async function getBegivenhed(id) {
               let bruger = brugere.bruger;
              vagterhtml += index + '. ' + bruger.fornavn + ' ' + bruger.efternavn + '<br>';
              index++;
+             if(mig._id == vagt.bruger)
+             {
+                 harVagt = true;
+             }
          }
         if (vagt.status == 0) {
             vagterhtml += index + '. ' + 'Ledig<br>';
@@ -459,10 +528,10 @@ async function getBegivenhed(id) {
     //mellemrum
     vagterhtml += '<br><br>';
 
-   if (mig) {
+   if (harVagt) {
        vagterhtml += 'Du har taget en vagt til dette event.';
    }
-   else if (!mig) {
+   else {
    vagterhtml += '<button class="tilmeld" id="'+ begivenhed._id +'"> Tilmeld begivenhed</button>';
    }
     begivenhedHTML += vagterhtml;
@@ -480,12 +549,16 @@ async function tilmeldBegivenhed(event) {
     if (svar) {
         begivenhedsid = event.target.id;
         await POST('/tilmeldmigbegivenhed', {"id": begivenhedsid});
+        update();
     }
 }
 
 async function cleartab() {
     let bg = document.getElementById('begivenhedcontent');
     let bg1 = document.getElementById('begivenhedercontent');
+    let calendar = document.getElementById("calendar");
+    calendar.className = ""
+    calendar.innerHTML = ""
 
     bg.innerHTML = '';
     bg1.innerHTML = '';
@@ -518,6 +591,7 @@ async function openPane(evt, tabName) {
     if (tabName == 'Kalender') {
         cleartab();
         getBegivenheder();
+        loadCalendar();
 
         document.getElementById('begivenhedercontent')
 

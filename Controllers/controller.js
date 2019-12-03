@@ -89,6 +89,19 @@ exports.newBruger = function newBruger(fornavn, efternavn, telefonnummer, bruger
     return bruger.save();
 }
 
+exports.updateBruger = async function newBruger(fornavn, efternavn, telefonnummer,  password, brugertype, tilstand, email, filterbrugernavn) {
+    const filter = filterbrugernavn;
+    const bruger = await exports.getBruger(filter);
+    bruger.fornavn = fornavn;
+    bruger.efternavn = efternavn;
+    bruger.telefonnummer = telefonnummer;
+    bruger.password = password;
+    bruger.brugertype = brugertype;
+    bruger.tilstand = tilstand;
+    bruger.email = email;
+    await bruger.save();
+}
+
 exports.addVagtToBegivenhed = function addVagtToBegivenhed(begivenhed, vagt) {
     vagt.begivenhed = begivenhed;
     begivenhed.vagter.push(vagt);
@@ -178,6 +191,12 @@ exports.getBrugerFraId = async function getBrugerMedId(id) {
 }
 exports.getVagtFraId = async function getVagtFraId(id) {
     return Vagt.findOne({_id: id}).exec();
+}
+exports.getEmailFraVagtId = async function getEmailFraVagtId(id)
+{
+    let vagt = await exports.getVagtFraId(id);
+    let bruger = await exports.getBrugerFraId(vagt.bruger);
+    return bruger.email;
 }
 
 exports.getVagterTilSalg = async function getVagterTilSalg() {
