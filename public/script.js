@@ -12,9 +12,18 @@ function makeFrivilligHTML() {
         "<input id=\"telefonnummer\"> <label> telefonnummer</label> <br>\n" +
         "<input id=\"brugernavn\"> <label> brugernavn</label> <br>\n" +
         "<input id=\"password\"> <label> password</label> <br>\n" +
-        "<input id=\"brugertype\"> <label> brugertype</label> <br>\n" +
-        "<input id=\"tilstand\"> <label> tilstand</label> <br>\n" +
         "<input id=\"email\"> <label> email</label> <br>\n" +
+        // "<input id=\"brugertype\"> <label> brugertype</label> <br>\n" +
+        "<label>brugertype</label> <br> <select id = 'brugertype'>" +
+            "<option value='0'>Admin</option>"+
+            "<option value='1'>Afvikler</option>"+
+            "<option value='2'>Frivillig</option>"+
+        "</select><br>"+
+        // "<input id=\"tilstand\"> <label> tilstand</label> <br>\n" +
+        "<label>tilstand</label> <br> <select id='tilstand'>"+
+            "<option value='0'>Aktiv</option>"+
+            "<option value='1'>Inaktiv</option>"+
+        "</select> <br>"+
         "<button id = \"opretbruger\"> Opret </button>\n" +
         "<button id = \"deletebruger\"> Delete </button>\n" +
         "<button id = \"updatebruger\"> Update </button>\n" +
@@ -199,9 +208,6 @@ function loadCalendar() {
     if(calendarEl && calendarEl.className!="fc fc-ltr fc-unthemed"){
         var calendar = new FullCalendar.Calendar(calendarEl, {
             plugins: [ 'dayGrid', 'interaction' ],
-            dateClick: function(info) {
-                calendar.changeView('dayGridDay', info.date)
-            },
             events: {url: "http://localhost:8080/calendar/api/event"},
             eventClick: function(){
             },
@@ -227,6 +233,21 @@ function update() {
 }
 
 async function loadhtml() {
+
+    const brugertype = await GET('/brugertype');
+
+    if(brugertype.brugertype === 0) //admin
+    {
+
+    }
+    if(brugertype.brugertype ===1) //afvikler
+    {
+
+    }
+    if (brugertype.brugertype ===2) //frivillig
+    {
+
+    }
     const forside = await fetch('/forside.hbs');
     const brugereText = await forside.text();
     document.getElementById('content').innerHTML = brugereText;

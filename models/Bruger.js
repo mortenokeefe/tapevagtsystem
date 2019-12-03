@@ -13,7 +13,7 @@ const bruger = new Schema({
     },
     password: String,
     brugertype: Number, //0 admin , 1 afvikler , 2 frivillig
-    tilstand: Number,
+    tilstand: Number, //0 aktiv, 1 inaktiv
     email: String,
     vagter: [{type: ObjectId, ref: 'Vagt'}]
 });
