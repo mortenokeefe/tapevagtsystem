@@ -55,7 +55,7 @@ exports.newVagt = function newVagt(startTid, fravær, fraværsBeskrivelse, statu
     return vagt.save();
 };
 
-exports.newBegivenhed = async function newBegivenhed(navn, dato, beskrivelse, antalFrivillige, vagter) {
+exports.newBegivenhed = async function newBegivenhed(navn, dato, beskrivelse, antalFrivillige, vagter, afvikler) {
     const begivenhed = new Begivenhed({
         navn,
         dato,
@@ -70,8 +70,13 @@ exports.newBegivenhed = async function newBegivenhed(navn, dato, beskrivelse, an
     for (let i = 0; i < antalFrivillige; i++) {
         begivenhed.vagter.push(await exports.newVagt(tid, undefined, undefined, 0, 0, undefined, begivenhed));
     }
-    begivenhed.vagter.push(await exports.newVagt(tid, undefined, undefined, 0, 1, undefined, begivenhed));
-    return begivenhed.save();
+     begivenhed.vagter.push(await exports.newVagt(tid, undefined, undefined, 0, 1, afvikler, begivenhed));
+    begivenhed.save();
+    let afviklerVagt = begivenhed.vagter[begivenhed.vagter.length-1];
+
+    console.log(afviklerVagt, "controller metode add afvikler");
+    await exports.addVagtToBruger(afvikler.brugernavn, afviklerVagt);
+    return begivenhed;
 }
 
 exports.newBruger = function newBruger(fornavn, efternavn, telefonnummer, brugernavn, password, brugertype, tilstand, email, vagter) {
@@ -141,9 +146,15 @@ exports.getBrugere = async function getBrugere() {
     return Bruger.find().exec();
 }
 
+exports.getVagtFraId = async function getVagtFraId(id) {
+    return Vagt.findOne({_id: id}).exec();
+}
+
 exports.addVagtToBruger = async function addVagtToBruger(brugernavn, id) {
-    vagt = await exports.getVagtFraId(id.id);
-    bruger = await exports.getBruger(brugernavn);
+    const vagt = await exports.getVagtFraId(id._id);
+    const bruger = await exports.getBruger(brugernavn);
+    console.log(vagt, "vagt")
+    console.log(bruger, "bruger")
     vagt.bruger = bruger;
     vagt.status = 1;
     bruger.vagter.push(vagt);
@@ -187,9 +198,7 @@ exports.getBegivenhed = async function getBegivenhed(id)
 exports.getBrugerFraId = async function getBrugerMedId(id) {
     return Bruger.findOne({_id: id}).exec();
 }
-exports.getVagtFraId = async function getVagtFraId(id) {
-    return Vagt.findOne({_id: id}).exec();
-}
+
 exports.getEmailFraVagtId = async function getEmailFraVagtId(id)
 {
     let vagt = await exports.getVagtFraId(id);
@@ -246,8 +255,10 @@ exports.seBegivenhed = async function seBegivenhed(id) {
     let frivillige = [];
     for (let vagt of vagter) {
         if(vagt.vagtType == 1) {
-            let o = await Bruger.find({"_id" : vagt.begivenhed}).exec();
-            afvikler = o.fornavn + ' ' + o.efternavn;
+           let o = await Bruger.find({"_id" : vagt.bruger}).exec();
+            afvikler =o; //o.fornavn + ' ' + o.efternavn;
+            console.log(afvikler);
+
         }
         else {
             frivillige.push(vagt);
@@ -256,6 +267,7 @@ exports.seBegivenhed = async function seBegivenhed(id) {
     let o = [begivenhed, frivillige, afvikler];
     console.log('controller');
     console.log(o);
+    console.log(o.afvikler, "afvikler se begivenhed");
     return o;
 }
 
@@ -269,6 +281,10 @@ exports.getCalendarEvents = function getCalendarEvents(options){
 
 exports.getCalendarVagt = function getCalendarVagt(options){
     return Vagt.find(options)
+}
+exports.getAfviklere = async function getAfviklere(){
+    return await Bruger.find({brugertype : 1});
+
 }
 
 

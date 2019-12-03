@@ -489,13 +489,13 @@ function removeElement(elementId) {
 async function clickBegivenhed(eventId) {
     getBegivenhed(eventId);
 }
-async function opretBegivenhed(navn, dato, beskrivelse, antalFrivillige)
+async function opretBegivenhed(navn, dato, beskrivelse, antalFrivillige, afvikler)
 {
     console.log(navn + dato + beskrivelse + antalFrivillige);
     const url = '/opretBegivenhed';
     let realDate = new Date(dato);
     try {
-        await POST(url, {navn: navn, dato: realDate, beskrivelse: beskrivelse, antalFrivillige : antalFrivillige });
+        await POST(url, {navn: navn, dato: realDate, beskrivelse: beskrivelse, antalFrivillige : antalFrivillige, afvikler : afvikler });
     }
     catch (e) {
         console.log(e.name + ": " + e.message);
@@ -513,16 +513,43 @@ async function åbenOpretEventVindue()
         ' beskrivelse:<br><textarea rows="10" cols="50" id="bBeskrivelseTxt"></textarea><br>' +
         'antal frivillige:<br> <input type="number" name="antalfrivillige" id="bAntalFrivillige"><br>'+
     '<button id ="opretBegivenhedButton"> opret begivenhed</button>';
+
+    const afviklere = await getAfviklere();
+    console.log(afviklere, " afviklere");
+    let afviklerehtml = "<br><label>Afvikler</label><br><select id='afviklereSelect'> ";
+
+    for (let a of afviklere)
+    {
+        console.log(a, "afviklere loop");
+           let navn = a.fornavn +", "+ a.efternavn;
+          afviklerehtml += "<option value='"+a._id+"'>"+navn+"</option>";
+    }
+    afviklerehtml += "</select>";
+    html += afviklerehtml;
+
+
     let div = document.getElementById('begivenhedcontent');
     div.innerHTML = html;
 
-    document.getElementById('opretBegivenhedButton').onclick = function () {
+    document.getElementById('opretBegivenhedButton').onclick = async function () {
         let navn = document.getElementById('bNameTxt').value;
         let dato = document.getElementById('bDate').valueAsDate;
         let beskrivelse = document.getElementById('bBeskrivelseTxt').value;
         let antalFrivillige = document.getElementById('bAntalFrivillige').value;
-        opretBegivenhed(navn, dato, beskrivelse, antalFrivillige);
+        let afviklerId = document.getElementById('afviklereSelect').value;
+        let afvikler = await getBruger(afviklerId);
+        console.log(afvikler, "script opret event afvikler");
+        opretBegivenhed(navn, dato, beskrivelse, antalFrivillige, afvikler);
     }
+}
+async function getAfviklere()
+{
+    return await GET('/afviklere');
+}
+async function getBruger(brugerId)
+{
+          let svar = await GET('/getbruger/'+brugerId);
+          return svar.bruger;
 }
 
 async function getBegivenhed(id) {
@@ -533,7 +560,8 @@ async function getBegivenhed(id) {
     console.log(begivenhedResponse);
     let begivenhed = begivenhedResponse[0];
     let frivillige = begivenhedResponse[1];
-    let afvikler = begivenhedResponse[2];
+    let afvikler = begivenhedResponse[2][0];
+    console.log(afvikler, "getbegivnehed");
     const side = await fetch('/begivenhed.hbs');
     const begivenhedText = await side.text();
     const compiledTemplate = Handlebars.compile(begivenhedText);
@@ -541,7 +569,7 @@ async function getBegivenhed(id) {
         navn:  begivenhed.navn,
         dato: begivenhed.dato,
         beskrivelse: begivenhed.beskrivelse,
-        afvikler: afvikler.navn,
+        afvikler: afvikler.fornavn +" " +afvikler.efternavn
     });
 
     //generer vagt text / knap
