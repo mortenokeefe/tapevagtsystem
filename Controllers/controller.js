@@ -70,12 +70,20 @@ exports.newBegivenhed = async function newBegivenhed(navn, dato, beskrivelse, an
     for (let i = 0; i < antalFrivillige; i++) {
         begivenhed.vagter.push(await exports.newVagt(tid, undefined, undefined, 0, 0, undefined, begivenhed));
     }
+    if(afvikler){
      begivenhed.vagter.push(await exports.newVagt(tid, undefined, undefined, 0, 1, afvikler, begivenhed));
+     }
+    else {
+        begivenhed.vagter.push(await exports.newVagt(tid, undefined, undefined, 0, 1, undefined, begivenhed));
+    }
     begivenhed.save();
+
     let afviklerVagt = begivenhed.vagter[begivenhed.vagter.length-1];
 
     console.log(afviklerVagt, "controller metode add afvikler");
-    await exports.addVagtToBruger(afvikler.brugernavn, afviklerVagt);
+    if(afvikler) {
+        await exports.addVagtToBruger(afvikler.brugernavn, afviklerVagt);
+    }
     return begivenhed;
 }
 

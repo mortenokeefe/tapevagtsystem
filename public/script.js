@@ -242,8 +242,9 @@ function loadCalendar() {
 function update() {
     getVagterTilSalg();
     getBrugersVagter();
-    //getBegivenheder();
+    getBegivenheder();
     getBrugere();
+    loadCalendar();
 }
 
 async function getBrugertype() {
@@ -449,23 +450,24 @@ function removeElement(elementId) {
 
 
 
-/*async function getBegivenheder() {
+async function getBegivenheder() {
     try {
-        console.log('henter begivenheder');
-        const begivenhederResponse = await GET('/begivenheder');
-        const hbs = await fetch('/begivenheder.hbs');
-        const begivenhederText = await hbs.text();
-
-        const compiledTemplate = Handlebars.compile(begivenhederText);
-        let brugereHTML = '<table><tr><th>Navn</th></tr>';
-
-        begivenhederResponse.forEach(begivenhed => {
-            brugereHTML += compiledTemplate({
-                navn:  begivenhed.navn,
-                id: begivenhed._id
-            });
-        });
-        brugereHTML += '</table>';
+        // console.log('henter begivenheder');
+        // const begivenhederResponse = await GET('/begivenheder');
+        // const hbs = await fetch('/begivenheder.hbs');
+        // const begivenhederText = await hbs.text();
+        //
+        // const compiledTemplate = Handlebars.compile(begivenhederText);
+        // let brugereHTML = '<table><tr><th>Navn</th></tr>';
+        //
+        // begivenhederResponse.forEach(begivenhed => {
+        //     brugereHTML += compiledTemplate({
+        //         navn:  begivenhed.navn,
+        //         id: begivenhed._id
+        //     });
+        // });
+        // brugereHTML += '</table>';
+        let brugereHTML ='';
         const brugertype = await getBrugertype();
         if(brugertype ==0)                                       //   smider knappen på
         {
@@ -479,12 +481,12 @@ function removeElement(elementId) {
              document.getElementById("åbenOpretBegivenhedButton").onclick = åbenOpretEventVindue;
          }
         console.log(brugereHTML.length);
-        console.log(begivenhederResponse);
+        //console.log(begivenhederResponse);
 
     } catch (e) {
         console.log(e.name + ": " + e.message);
     }
-}*/
+}
 
 async function clickBegivenhed(eventId) {
     getBegivenhed(eventId);
@@ -524,6 +526,7 @@ async function åbenOpretEventVindue()
            let navn = a.fornavn +", "+ a.efternavn;
           afviklerehtml += "<option value='"+a._id+"'>"+navn+"</option>";
     }
+    afviklerehtml += "<option value='undefined'> Ingen</option>";
     afviklerehtml += "</select>";
     html += afviklerehtml;
 
@@ -537,9 +540,16 @@ async function åbenOpretEventVindue()
         let beskrivelse = document.getElementById('bBeskrivelseTxt').value;
         let antalFrivillige = document.getElementById('bAntalFrivillige').value;
         let afviklerId = document.getElementById('afviklereSelect').value;
-        let afvikler = await getBruger(afviklerId);
-        console.log(afvikler, "script opret event afvikler");
-        opretBegivenhed(navn, dato, beskrivelse, antalFrivillige, afvikler);
+        if(afviklerId != 'undefined') {
+            let afvikler = await getBruger(afviklerId);
+            opretBegivenhed(navn, dato, beskrivelse, antalFrivillige, afvikler);
+               //console.log(afvikler, "script opret event afvikler");  
+        }
+            else {
+                     opretBegivenhed(navn, dato, beskrivelse, antalFrivillige, undefined);
+        }
+
+
     }
 }
 async function getAfviklere()
@@ -565,13 +575,24 @@ async function getBegivenhed(id) {
     const side = await fetch('/begivenhed.hbs');
     const begivenhedText = await side.text();
     const compiledTemplate = Handlebars.compile(begivenhedText);
-    let begivenhedHTML = compiledTemplate({
-        navn:  begivenhed.navn,
-        dato: begivenhed.dato,
-        beskrivelse: begivenhed.beskrivelse,
-        afvikler: afvikler.fornavn +" " +afvikler.efternavn
-    });
+     let begivenhedHTML ='';
+    if(afvikler) {
+         begivenhedHTML = compiledTemplate({
+            navn: begivenhed.navn,
+            dato: begivenhed.dato,
+            beskrivelse: begivenhed.beskrivelse,
+            afvikler: afvikler.fornavn + " " + afvikler.efternavn
+        });
+    }
+    else {
+                        begivenhedHTML = compiledTemplate({
+                             navn: begivenhed.navn,
+                            dato: begivenhed.dato,
+                            beskrivelse: begivenhed.beskrivelse,
+                             afvikler: 'ingen afvikler'
+                             });
 
+    }
     //generer vagt text / knap
     // let v = await fetch('/eventvagt.hbs');
     // let vagterText = await v.text();
@@ -715,7 +736,7 @@ async function openPane(evt, tabName) {
     }
     if (tabName == 'Kalender') {
         cleartab();
-        //getBegivenheder();
+        getBegivenheder();
         loadCalendar();
 
         document.getElementById('begivenhedercontent')
