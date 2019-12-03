@@ -82,7 +82,7 @@ app.get('/mineVagter', async (req, res) => {
 
 app.get('/calendar', async function(req, res){
     res.sendFile(__dirname+'/public/calendar/calendar.html')
-})
+});
 
 
 app.get('/calendar/api/event', async function(req, res){
@@ -98,7 +98,7 @@ app.get('/calendar/api/event', async function(req, res){
             complete: element})
     })
     res.json(eventsReformatted)
-})
+});
 
 app.get('/vagter/api/ledigevagter/:eventId', async function(req, res){
     console.log(req.params.eventId)
@@ -110,7 +110,11 @@ app.get('/vagter/api/ledigevagter/:eventId', async function(req, res){
         }
     })
     res.json(ledigeVagter)
-})
+});
+app.get('/afviklere', async(req, res)=> {
+    const afviklere = await controller.getAfviklere();
+    res.send(afviklere);
+});
 
 
 //POST endpoints
@@ -131,9 +135,9 @@ app.put('/updateBruger/:brugernavn' , async (req, res) =>{
 app.post('/opretBegivenhed' , async (req, res) =>{
     console.log("opretter begivenhed");
 
-    const {navn, dato, beskrivelse, antalFrivillige} = req.body;
+    const {navn, dato, beskrivelse, antalFrivillige, afvikler} = req.body;
     console.log(navn + dato + beskrivelse + antalFrivillige);
-   await controller.newBegivenhed(navn, dato, beskrivelse, antalFrivillige, undefined);
+   await controller.newBegivenhed(navn, dato, beskrivelse, antalFrivillige, undefined, afvikler);
     res.send({ok:true}); // fix fejlsikring senere
 });
 app.post('/opretVagt', async(req,res)=> {
