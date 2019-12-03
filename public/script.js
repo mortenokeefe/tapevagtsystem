@@ -209,11 +209,14 @@ function loadCalendar() {
         var calendar = new FullCalendar.Calendar(calendarEl, {
             plugins: [ 'dayGrid', 'interaction' ],
             events: {url: "http://localhost:8080/calendar/api/event"},
-            eventClick: function(){
+            eventClick: function(info){
+                const id = info.event.extendedProps.complete._id
+                clickBegivenhed(id)
             },
+            eventColor: "green",
             eventRender: function(info){
                 info.el.append( info.event.extendedProps.description + "      Ledige vagter: " + info.event.extendedProps.antalLedigeVagter);
-                if(info.event.extendedProps.antalLedigeVagter > 2){
+                if(info.event.extendedProps.antalLedigeVagter == 0){
                     info.el.style.backgroundColor = 'red'
                     info.el.style.borderColor = 'red'
                 }
@@ -459,9 +462,8 @@ async function getBegivenheder() {
     }
 }
 
-async function clickBegivenhed(event) {
-    let id = event.target.id;
-    getBegivenhed(id);
+async function clickBegivenhed(eventId) {
+    getBegivenhed(eventId);
 }
 async function opretBegivenhed(navn, dato, beskrivelse, antalFrivillige)
 {
