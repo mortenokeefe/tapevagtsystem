@@ -209,11 +209,14 @@ function loadCalendar() {
         var calendar = new FullCalendar.Calendar(calendarEl, {
             plugins: [ 'dayGrid', 'interaction' ],
             events: {url: "http://localhost:8080/calendar/api/event"},
-            eventClick: function(){
+            eventClick: function(info){
+                const id = info.event.extendedProps.complete._id
+                clickBegivenhed(id)
             },
+            eventColor: "green",
             eventRender: function(info){
                 info.el.append( info.event.extendedProps.description + "      Ledige vagter: " + info.event.extendedProps.antalLedigeVagter);
-                if(info.event.extendedProps.antalLedigeVagter > 2){
+                if(info.event.extendedProps.antalLedigeVagter == 0){
                     info.el.style.backgroundColor = 'red'
                     info.el.style.borderColor = 'red'
                 }
@@ -228,7 +231,7 @@ function loadCalendar() {
 function update() {
     getVagterTilSalg();
     getBrugersVagter();
-    getBegivenheder();
+    //getBegivenheder();
     getBrugere();
 }
 
@@ -439,7 +442,7 @@ function removeElement(elementId) {
 
 
 
-async function getBegivenheder() {
+/*async function getBegivenheder() {
     try {
         console.log('henter begivenheder');
         const begivenhederResponse = await GET('/begivenheder');
@@ -470,19 +473,14 @@ async function getBegivenheder() {
          }
         console.log(brugereHTML.length);
         console.log(begivenhederResponse);
-        let link = document.getElementsByClassName('link');
-        for (let l of link) {
-            l.onclick = clickBegivenhed;
-        }
 
     } catch (e) {
         console.log(e.name + ": " + e.message);
     }
-}
+}*/
 
-async function clickBegivenhed(event) {
-    let id = event.target.id;
-    getBegivenhed(id);
+async function clickBegivenhed(eventId) {
+    getBegivenhed(eventId);
 }
 async function opretBegivenhed(navn, dato, beskrivelse, antalFrivillige)
 {
@@ -682,7 +680,7 @@ async function openPane(evt, tabName) {
     }
     if (tabName == 'Kalender') {
         cleartab();
-        getBegivenheder();
+        //getBegivenheder();
         loadCalendar();
 
         document.getElementById('begivenhedercontent')
