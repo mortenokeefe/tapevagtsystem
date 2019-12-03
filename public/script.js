@@ -235,23 +235,33 @@ function update() {
     getBrugere();
 }
 
+async function getBrugertype() {
+    const brugertype = await GET('/brugertype');
+    return brugertype.brugertype;
+}
+
 async function loadhtml() {
 
-    const brugertype = await GET('/brugertype');
+    const brugertype = await getBrugertype();
+    let forside;
 
-    if(brugertype.brugertype === 0) //admin
+    if(brugertype == 0) //admin
     {
+        forside = await fetch('/forside.hbs');
+
 
     }
-    if(brugertype.brugertype ===1) //afvikler
+    if(brugertype ==1) //afvikler
     {
+        forside = await fetch('/forside.hbs');
 
     }
-    if (brugertype.brugertype ===2) //frivillig
+    if (brugertype ==2) //frivillig
     {
+        forside = await fetch('/forsideFrivillig.hbs');
 
     }
-    const forside = await fetch('/forside.hbs');
+
     const brugereText = await forside.text();
     document.getElementById('content').innerHTML = brugereText;
 }
@@ -379,6 +389,7 @@ async function overtagvagt(id) {
             await POST('/overtagvagt', {id: id});
 
             await getVagterTilSalg();
+            update();
        }
     }
     catch (e) {
@@ -399,6 +410,7 @@ try {
 
 
         await POST('/saetVagtTilSalg', {vagtID: id});
+        update();
     }
 
 }
@@ -446,10 +458,19 @@ async function getBegivenheder() {
                 id: begivenhed._id
             });
         });
-        brugereHTML += '</table>' + '<br> <button id="åbenOpretBegivenhedButton"> ny begivenhed</button>';
+        brugereHTML += '</table>';
+        const brugertype = await getBrugertype();
+        if(brugertype ==0)                                       //   smider knappen på
+        {
+            brugereHTML += '<br> <button id="åbenOpretBegivenhedButton"> ny begivenhed</button>';
+        }
+
+
 
         document.getElementById('begivenhedercontent').innerHTML = brugereHTML;
-        document.getElementById("åbenOpretBegivenhedButton").onclick = åbenOpretEventVindue;
+         if(brugertype ==0) {
+             document.getElementById("åbenOpretBegivenhedButton").onclick = åbenOpretEventVindue;
+         }
         console.log(brugereHTML.length);
         console.log(begivenhederResponse);
         let link = document.getElementsByClassName('link');
