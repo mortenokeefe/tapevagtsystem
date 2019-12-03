@@ -1,47 +1,51 @@
 div {
-    background-size: cover;
-    background-repeat: no-repeat;
-    background-position: 50% 100%;
-    background-color: #151e27;
 
-
-
-
+    background : rgba(255,255,255,0.4);
 }
 
 
 body{
 
-    background-color: #212529;
+    background-color: white;
 
     background-image: url('https://scontent-amt2-1.xx.fbcdn.net/v/t1.0-9/70350078_952500711754522_6838972400759996416_o.jpg?_nc_cat=108&_nc_ohc=owtDljz8MdEAQnBPqK1fAv033NNAEX6scWG38fe0uNpxnITbQrZKTGABQ&_nc_ht=scontent-amt2-1.xx&oh=e270fdcf3e2b75af82cbc90a6162d394&oe=5E429A5F');  background-size: cover;
     background-repeat: no-repeat;
 
-    background-size: 1200px 1000px;
-    background-size: 1800px 1800px;background-image: url('https://backgrounddownload.com/wp-content/uploads/2018/09/black-horror-background.png');  background-size: cover;
+    background-size: 1000px 600px;
+    background-repeat: no-repeat;
+    background-position: 50% 120%;
+    background-attachment: fixed;
 
 
 
 }
 *{
     font-family: Helvetica Neue,Helvetica,Arial,sans-serif;
-    color: lightgoldenrodyellow;
+    font-size: small;
+    color: black;
 }
 
 button {
     font-family: Helvetica Neue,Helvetica,Arial,sans-serif;
-    background-color: darkslategrey;
+    background-color: lightgoldenrodyellow;
     border: none;
 }
-
-
-
 
 .img-container {
     text-align: center;
     display: block;
+    background-color: lightyellow;
+}
+.logo {
+    background-color: white;
+    text-align: center;
+    display: block;
 }
 
-img{
-    filter: brightness(200%);
+input{
+background-color: white;
+
+}
+select{
+    background-color: white;
 }
