@@ -11,7 +11,7 @@ function makeFrivilligHTML() {
         "<input id=\"efternavn\"> <label> efternavn</label><br>\n" +
         "<input id=\"telefonnummer\"> <label> telefonnummer</label> <br>\n" +
         "<input id=\"brugernavn\"> <label> brugernavn</label> <br>\n" +
-        "<input id=\"password\"> <label> password</label> <br>\n" +
+        "<input id=\"password\" type='password'> <label> password</label> <br>\n" +
         "<input id=\"email\"> <label> email</label> <br>\n" +
         // "<input id=\"brugertype\"> <label> brugertype</label> <br>\n" +
         "<label>brugertype</label> <br> <select id = 'brugertype'>" +
