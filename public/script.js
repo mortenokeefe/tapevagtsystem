@@ -17,6 +17,7 @@ function makeFrivilligHTML() {
         "<input id=\"email\"> <label> email</label> <br>\n" +
         "<button id = \"opretbruger\"> Opret </button>\n" +
         "<button id = \"deletebruger\"> Delete </button>\n" +
+        "<button id = \"updatebruger\"> Update </button>\n" +
         "<br> </div>";
 }
 let lastID;
@@ -53,6 +54,8 @@ async function getBrugere() {
         opretbutton.onclick = opretBruger;
         let deletebutton = frivillig.querySelector('#deletebruger');
         deletebutton.onclick = sletBruger;
+        let updatebruger = frivillig.querySelector('#updatebruger');
+        updatebruger.onclick = updateBruger;
         let lis = frivillig.getElementsByTagName("li");
         for (let i = 0; i < lis.length; i++) {
             lis[i].onclick = function () {
@@ -102,6 +105,30 @@ async function opretBruger() {
     }
 };
 
+async function updateBruger() {
+    try {
+        let frivillig =  document.getElementById('frivilligcontent');
+        let data = {
+            "fornavn": frivillig.querySelector('#fornavn').value,
+            "efternavn": frivillig.querySelector('#efternavn').value,
+            "telefonnummer": frivillig.querySelector('#telefonnummer').value,
+            "password": frivillig.querySelector('#password').value,
+            "brugertype": frivillig.querySelector('#brugertype').value,
+            "tilstand": frivillig.querySelector('#tilstand').value,
+            "email": frivillig.querySelector('#email').value,
+        };
+        console.log(data);
+        let url = "/updateBruger/" + bruger.brugernavn;
+        if (data.fornavn.length > 0 || data.efternavn.length > 0 || data.brugernavn.length > 0 || data.password.length > 0  || data.email.length > 0) {
+            let response = await PUT(data, url);
+            console.log("POST: %o", response);
+            await getBrugere();
+        }
+    } catch (e) {
+        console.log(e.name + ": " + e.message);
+    }
+};
+
 async function sletBruger() {
         try {
             let brugernavn = bruger.brugernavn;
@@ -126,6 +153,18 @@ async function POSTBruger(data, url) {
         throw new Error("POST status code " + response.status);
     return await response.text();
 };
+
+async function PUT(data, url) {
+    const OK = 200;
+    let response = await fetch(url, {
+        method: "PUT",
+        body: JSON.stringify(data),
+        headers: {'Content-Type': 'application/json'}
+    });
+    if (response.status !== OK)
+        throw new Error("PUT status code " + response.status);
+    return await response.text();
+}
 
 async function DELETE(url) {
     const OK = 200;

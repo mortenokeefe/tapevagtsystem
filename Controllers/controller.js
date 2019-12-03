@@ -89,6 +89,19 @@ exports.newBruger = function newBruger(fornavn, efternavn, telefonnummer, bruger
     return bruger.save();
 }
 
+exports.updateBruger = async function newBruger(fornavn, efternavn, telefonnummer,  password, brugertype, tilstand, email, filterbrugernavn) {
+    const filter = filterbrugernavn;
+    const bruger = await exports.getBruger(filter);
+    bruger.fornavn = fornavn;
+    bruger.efternavn = efternavn;
+    bruger.telefonnummer = telefonnummer;
+    bruger.password = password;
+    bruger.brugertype = brugertype;
+    bruger.tilstand = tilstand;
+    bruger.email = email;
+    await bruger.save();
+}
+
 exports.addVagtToBegivenhed = function addVagtToBegivenhed(begivenhed, vagt) {
     vagt.begivenhed = begivenhed;
     begivenhed.vagter.push(vagt);

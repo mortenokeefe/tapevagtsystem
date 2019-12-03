@@ -1,4 +1,3 @@
-
 const controller = require('./Controllers/controller');
 //express
 const express = require('express');
@@ -113,6 +112,13 @@ app.post('/opretBruger' , async (req, res) =>{
     const {fornavn, efternavn, telefonnummer, brugernavn, password, brugertype, tilstand, email} = req.body;
     controller.newBruger(fornavn, efternavn, telefonnummer, brugernavn, password, brugertype, tilstand, email, undefined);
     res.sendStatus(201);
+});
+
+app.put('/updateBruger/:brugernavn' , async (req, res) =>{
+    const {fornavn, efternavn, telefonnummer, password, brugertype, tilstand, email} = req.body;
+    const filterbrugernavn = req.params.brugernavn;
+    await controller.updateBruger(fornavn, efternavn, telefonnummer, password, brugertype, tilstand, email, filterbrugernavn);
+    res.sendStatus(200);
 });
 
 app.post('/opretBegivenhed' , async (req, res) =>{
