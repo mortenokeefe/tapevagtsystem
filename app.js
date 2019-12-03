@@ -55,6 +55,12 @@ app.get('/getbruger/:brugerid', async (req, res) => {
    console.log(o);
    res.send(o);
 });
+app.get('/brugertype', async (req, res) =>
+{
+    let bruger = await controller.getBrugerFraId(req.session.brugernavn);
+    let brugertype = {brugertype: bruger.brugertype};
+    res.send(brugertype);
+});
 app.get('/vagter', async (req, res)=> {
    let vagter //= controller.getVagter();
     res.send(vagter);
