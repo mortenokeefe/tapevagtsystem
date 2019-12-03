@@ -223,7 +223,6 @@ function update() {
     getBrugersVagter();
     getBegivenheder();
     getBrugere();
-    loadCalendar();
 }
 
 async function loadhtml() {
@@ -557,6 +556,9 @@ async function tilmeldBegivenhed(event) {
 async function cleartab() {
     let bg = document.getElementById('begivenhedcontent');
     let bg1 = document.getElementById('begivenhedercontent');
+    let calendar = document.getElementById("calendar");
+    calendar.className = ""
+    calendar.innerHTML = ""
 
     bg.innerHTML = '';
     bg1.innerHTML = '';
