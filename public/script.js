@@ -146,9 +146,9 @@ async function POST(url, data) {
         body: JSON.stringify(data),
         headers: {'Content-Type': 'application/json'}
     });
-    if (response.ok) {
-        update();
-    }
+    // if (response.ok) {
+    //     update();
+    // }
     if (response.status !== CREATED)
         throw new Error("POST status code " + response.status);
     return await response.json();
@@ -484,15 +484,19 @@ async function tilmeldBegivenhed(event) {
     let svar = confirm('Er du sikker på at du vil tilmelde dig begivenheden?');
     if (svar) {
         begivenhedsid = event.target.id;
-        await POST('/tilmeldmigbegivenhed', {"id": begivenhedsid});
-        update();
+        let s = await POST('/tilmeldmigbegivenhed', {"id": begivenhedsid})
+        if (s.ok) {
+            console.log('prøver at slette content');
+            await cleartab()
+                .then(getBegivenhed(begivenhedsid));
+
+        }
     }
 }
 
 async function cleartab() {
     let bg = document.getElementById('begivenhedcontent');
     let bg1 = document.getElementById('begivenhedercontent');
-
     bg.innerHTML = '';
     bg1.innerHTML = '';
 }

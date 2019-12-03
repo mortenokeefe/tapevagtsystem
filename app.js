@@ -136,7 +136,7 @@ app.post('/tilmeldmigbegivenhed', async(req,res) =>{
     let brugernavn = req.session.brugernavn;
     console.log('prøver at tilmelde');
     await controller.tilmeldBegivenhed(brugernavn, begivenhedsid);
-    // res.send({ok:true}); // fix fejlsikring senere
+     res.send({ok:true}); // fix fejlsikring senere
 });
 
 app.post('/tilfoejVagtTilBruger', async(req,res) =>{
