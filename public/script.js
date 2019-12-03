@@ -195,7 +195,6 @@ async function POST(url, data) {
 
 function loadCalendar() {
     var calendarEl = document.getElementById('calendar');
-    console.log("calendarel", calendarEl)
     if(calendarEl && calendarEl.className!="fc fc-ltr fc-unthemed"){
         var calendar = new FullCalendar.Calendar(calendarEl, {
             plugins: [ 'dayGrid', 'interaction' ],
