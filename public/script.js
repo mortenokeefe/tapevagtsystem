@@ -522,6 +522,7 @@ async function åbenOpretEventVindue()
 
 async function getBegivenhed(id) {
     cleartab();
+    brugertype = await getBrugertype();
     let endpoint = '/sebegivenhed/' + id;
     const begivenhedResponse = await GET(endpoint);
     console.log(begivenhedResponse);
@@ -564,26 +565,69 @@ async function getBegivenhed(id) {
              }
          }
         if (vagt.status == 0) {
-            vagterhtml += index + '. ' + 'Ledig<br>';
+            vagterhtml += index + '. ' + 'Ledig   ';
+            //hvis man er admin skal man kunne tildele vagter:
+            if (brugertype == 0) {
+                const tildelhbs = await fetch('/tildel.hbs');
+                const tildelText = await tildelhbs.text();
+                const tildelTemplate = Handlebars.compile(tildelText);
+                let tildelHTML = tildelTemplate({
+                    navn:  vagt.fornavn,
+                });
+                vagterhtml += tildelHTML;
+                // vagterhtml += '<button class="tildel" id="' + vagt._id + '">Tildel vagt</button> '
+            }
+            vagterhtml += '<br>';
             index++;
         }
     }
     //mellemrum
     vagterhtml += '<br><br>';
 
-   if (harVagt) {
-       vagterhtml += 'Du har taget en vagt til dette event.';
-   }
-   else {
-   vagterhtml += '<button class="tilmeld" id="'+ begivenhed._id +'"> Tilmeld begivenhed</button>';
-   }
-    begivenhedHTML += vagterhtml;
+    //hvis man er frivillig, skal man have:
+    if (brugertype == 2) {
+        if (harVagt) {
+            vagterhtml += 'Du har taget en vagt til dette event.';
+        } else {
+            vagterhtml += '<button class="tilmeld" id="' + begivenhed._id + '"> Tilmeld begivenhed</button>';
+        }
+    }
+
+        begivenhedHTML += vagterhtml;
     let div = document.getElementById('begivenhedcontent');
     div.innerHTML = begivenhedHTML;
-    //hvis der er en knap
-    let knap = document.getElementsByClassName('tilmeld');
-    if(knap.length > 0) {
-        knap[0].onclick = tilmeldBegivenhed;
+    if (brugertype == 2) {
+        let knap = document.getElementsByClassName('tilmeld');
+        if (knap.length > 0) {
+            knap[0].onclick = tilmeldBegivenhed;
+        }
+    }
+    if (brugertype == 0) {
+        // Get the modal
+        var modal = document.getElementById("myModal");
+
+        // Get the button that opens the modal
+        var btn = document.getElementById("myBtn");
+
+        // Get the <span> element that closes the modal
+        var span = document.getElementsByClassName("close")[0];
+
+        // When the user clicks the button, open the modal
+        btn.onclick = function() {
+            modal.style.display = "block";
+        }
+
+        // When the user clicks on <span> (x), close the modal
+        span.onclick = function() {
+            modal.style.display = "none";
+        }
+
+        // When the user clicks anywhere outside of the modal, close it
+        window.onclick = function(event) {
+            if (event.target == modal) {
+                modal.style.display = "none";
+            }
+        }
     }
 }
 
