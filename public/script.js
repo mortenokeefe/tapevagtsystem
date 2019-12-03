@@ -231,7 +231,7 @@ function loadCalendar() {
 function update() {
     getVagterTilSalg();
     getBrugersVagter();
-    getBegivenheder();
+    //getBegivenheder();
     getBrugere();
 }
 
@@ -442,7 +442,7 @@ function removeElement(elementId) {
 
 
 
-async function getBegivenheder() {
+/*async function getBegivenheder() {
     try {
         console.log('henter begivenheder');
         const begivenhederResponse = await GET('/begivenheder');
@@ -473,15 +473,11 @@ async function getBegivenheder() {
          }
         console.log(brugereHTML.length);
         console.log(begivenhederResponse);
-        let link = document.getElementsByClassName('link');
-        for (let l of link) {
-            l.onclick = clickBegivenhed;
-        }
 
     } catch (e) {
         console.log(e.name + ": " + e.message);
     }
-}
+}*/
 
 async function clickBegivenhed(eventId) {
     getBegivenhed(eventId);
@@ -640,7 +636,7 @@ async function openPane(evt, tabName) {
     }
     if (tabName == 'Kalender') {
         cleartab();
-        getBegivenheder();
+        //getBegivenheder();
         loadCalendar();
 
         document.getElementById('begivenhedercontent')
