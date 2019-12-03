@@ -36,16 +36,17 @@ async function getBrugere() {
 
         const compiledTemplate = Handlebars.compile(brugereText);
         let brugereHTML = '<ul>';
-        brugereResponse.forEach(bruger => {
+        for (const bruger of brugereResponse) {
             brugereHTML += compiledTemplate({
                 fornavn:  bruger.fornavn,
                 efternavn: bruger.efternavn,
                 telefonnummer: bruger.telefonnummer,
                 email: bruger.email,
-                brugernavn: bruger.brugernavn
+                brugernavn: bruger.brugernavn,
+                fravær: await getFraværsProcent(bruger.brugernavn)
 
             });
-        });
+        }
         brugereHTML += '</ul>';
 
         let frivillig = document.getElementById('frivilligcontent')
@@ -359,7 +360,7 @@ try {
 
 async function getFraværsProcent(brugernavn){
     try {
-        const url = '/fravær/'+brugernavn;
+        const url = '/fravaer/'+ brugernavn;
        const fraværsprocent = await GET(url);
        return fraværsprocent;
 

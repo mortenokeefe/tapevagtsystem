@@ -21,10 +21,10 @@ app.listen(port);
 
 //GET endpoints
 
-app.get('/fravær/:brugernavn', async  (req,res) =>{
+app.get('/fravaer/:brugernavn', async  (req,res) =>{
     let brugernavn = req.params.brugernavn;
     let fraværsprocent = await controller.getFraværForBruger(brugernavn);
-    res.send(fraværsprocent);
+    res.send(fraværsprocent.toString());
 });
 
 

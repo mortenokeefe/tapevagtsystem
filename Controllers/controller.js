@@ -108,19 +108,17 @@ exports.addVagtToBegivenhed = function addVagtToBegivenhed(begivenhed, vagt) {
     return Promise.all([vagt.save(), begivenhed.save()]);
 }
 
-exports.getFraværForBruger = function getFraværForBruger(brugernavn){
+exports.getFraværForBruger = async function getFraværForBruger(brugernavn) {
 
-    vagter = exports.getVagterFraBruger(brugernavn);
-    let counter =0;
-    for(let vagt of vagter)
-    {
-        if(vagt.fravær)
-        {
+    let vagter = await exports.getVagterFraBruger(brugernavn);
+    let counter = 0;
+    for (let vagt of vagter) {
+        if (vagt.fravær) {
             counter++;
         }
     }
-    if(counter >0)
-    return 100/(vagter.length/counter);
+    if (counter > 0)
+        return 100 / (vagter.length / counter);
     else
         return 0;
 }
