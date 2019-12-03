@@ -21,10 +21,10 @@ app.listen(port);
 
 //GET endpoints
 
-app.get('/fravær/:brugernavn', async  (req,res) =>{
+app.get('/fravaer/:brugernavn', async  (req,res) =>{
     let brugernavn = req.params.brugernavn;
     let fraværsprocent = await controller.getFraværForBruger(brugernavn);
-    res.send(fraværsprocent);
+    res.send(fraværsprocent.toString());
 });
 
 
@@ -53,6 +53,12 @@ app.get('/getbruger/:brugerid', async (req, res) => {
    let o = {bruger: bruger, minbruger: minbruger};
    console.log(o);
    res.send(o);
+});
+app.get('/brugertype', async (req, res) =>
+{
+    let bruger = await controller.getBrugerFraId(req.session.brugernavn);
+    let brugertype = {brugertype: bruger.brugertype};
+    res.send(brugertype);
 });
 app.get('/vagter', async (req, res)=> {
    let vagter //= controller.getVagter();
@@ -142,7 +148,7 @@ app.post('/tilmeldmigbegivenhed', async(req,res) =>{
     let brugernavn = req.session.brugernavn;
     console.log('prøver at tilmelde');
     await controller.tilmeldBegivenhed(brugernavn, begivenhedsid);
-    // res.send({ok:true}); // fix fejlsikring senere
+     res.send({ok:true}); // fix fejlsikring senere
 });
 
 app.post('/tilfoejVagtTilBruger', async(req,res) =>{

@@ -12,9 +12,18 @@ function makeFrivilligHTML() {
         "<input id=\"telefonnummer\"> <label> telefonnummer</label> <br>\n" +
         "<input id=\"brugernavn\"> <label> brugernavn</label> <br>\n" +
         "<input id=\"password\"> <label> password</label> <br>\n" +
-        "<input id=\"brugertype\"> <label> brugertype</label> <br>\n" +
-        "<input id=\"tilstand\"> <label> tilstand</label> <br>\n" +
         "<input id=\"email\"> <label> email</label> <br>\n" +
+        // "<input id=\"brugertype\"> <label> brugertype</label> <br>\n" +
+        "<label>brugertype</label> <br> <select id = 'brugertype'>" +
+            "<option value='0'>Admin</option>"+
+            "<option value='1'>Afvikler</option>"+
+            "<option value='2'>Frivillig</option>"+
+        "</select><br>"+
+        // "<input id=\"tilstand\"> <label> tilstand</label> <br>\n" +
+        "<label>tilstand</label> <br> <select id='tilstand'>"+
+            "<option value='0'>Aktiv</option>"+
+            "<option value='1'>Inaktiv</option>"+
+        "</select> <br>"+
         "<button id = \"opretbruger\"> Opret </button>\n" +
         "<button id = \"deletebruger\"> Delete </button>\n" +
         "<button id = \"updatebruger\"> Update </button>\n" +
@@ -36,16 +45,17 @@ async function getBrugere() {
 
         const compiledTemplate = Handlebars.compile(brugereText);
         let brugereHTML = '<ul>';
-        brugereResponse.forEach(bruger => {
+        for (const bruger of brugereResponse) {
             brugereHTML += compiledTemplate({
                 fornavn:  bruger.fornavn,
                 efternavn: bruger.efternavn,
                 telefonnummer: bruger.telefonnummer,
                 email: bruger.email,
-                brugernavn: bruger.brugernavn
+                brugernavn: bruger.brugernavn,
+                fravær: await getFraværsProcent(bruger.brugernavn)
 
             });
-        });
+        }
         brugereHTML += '</ul>';
 
         let frivillig = document.getElementById('frivilligcontent')
@@ -185,9 +195,9 @@ async function POST(url, data) {
         body: JSON.stringify(data),
         headers: {'Content-Type': 'application/json'}
     });
-    if (response.ok) {
-        update();
-    }
+    // if (response.ok) {
+    //     update();
+    // }
     if (response.status !== CREATED)
         throw new Error("POST status code " + response.status);
     return await response.json();
@@ -223,6 +233,21 @@ function update() {
 }
 
 async function loadhtml() {
+
+    const brugertype = await GET('/brugertype');
+
+    if(brugertype.brugertype === 0) //admin
+    {
+
+    }
+    if(brugertype.brugertype ===1) //afvikler
+    {
+
+    }
+    if (brugertype.brugertype ===2) //frivillig
+    {
+
+    }
     const forside = await fetch('/forside.hbs');
     const brugereText = await forside.text();
     document.getElementById('content').innerHTML = brugereText;
@@ -381,7 +406,7 @@ try {
 
 async function getFraværsProcent(brugernavn){
     try {
-        const url = '/fravær/'+brugernavn;
+        const url = '/fravaer/'+ brugernavn;
        const fraværsprocent = await GET(url);
        return fraværsprocent;
 
@@ -545,8 +570,13 @@ async function tilmeldBegivenhed(event) {
     let svar = confirm('Er du sikker på at du vil tilmelde dig begivenheden?');
     if (svar) {
         begivenhedsid = event.target.id;
-        await POST('/tilmeldmigbegivenhed', {"id": begivenhedsid});
-        update();
+        let s = await POST('/tilmeldmigbegivenhed', {"id": begivenhedsid})
+        if (s.ok) {
+            console.log('prøver at slette content');
+            await cleartab()
+                .then(getBegivenhed(begivenhedsid));
+
+        }
     }
 }
 
