@@ -154,11 +154,38 @@ async function POST(url, data) {
     return await response.json();
 }
 
+function loadCalendar() {
+    var calendarEl = document.getElementById('calendar');
+    console.log("calendarel", calendarEl)
+    if(calendarEl && calendarEl.className!="fc fc-ltr fc-unthemed"){
+        var calendar = new FullCalendar.Calendar(calendarEl, {
+            plugins: [ 'dayGrid', 'interaction' ],
+            dateClick: function(info) {
+                calendar.changeView('dayGridDay', info.date)
+            },
+            events: {url: "http://localhost:8080/calendar/api/event"},
+            eventClick: function(){
+            },
+            eventRender: function(info){
+                info.el.append( info.event.extendedProps.description + "      Ledige vagter: " + info.event.extendedProps.antalLedigeVagter);
+                if(info.event.extendedProps.antalLedigeVagter < 2){
+                    info.el.style.backgroundColor = 'red'
+                    info.el.style.borderColor = 'red'
+                }
+            }
+
+
+        });
+        calendar.render();
+    }
+}
+
 function update() {
     getVagterTilSalg();
     getBrugersVagter();
     getBegivenheder();
     getBrugere();
+    loadCalendar();
 }
 
 async function loadhtml() {
@@ -524,6 +551,7 @@ async function openPane(evt, tabName) {
     if (tabName == 'Kalender') {
         cleartab();
         getBegivenheder();
+        loadCalendar();
 
         document.getElementById('begivenhedercontent')
 
