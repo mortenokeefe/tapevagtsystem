@@ -198,9 +198,6 @@ function loadCalendar() {
     if(calendarEl && calendarEl.className!="fc fc-ltr fc-unthemed"){
         var calendar = new FullCalendar.Calendar(calendarEl, {
             plugins: [ 'dayGrid', 'interaction' ],
-            dateClick: function(info) {
-                calendar.changeView('dayGridDay', info.date)
-            },
             events: {url: "http://localhost:8080/calendar/api/event"},
             eventClick: function(){
             },
