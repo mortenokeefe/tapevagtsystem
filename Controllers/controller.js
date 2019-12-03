@@ -70,12 +70,20 @@ exports.newBegivenhed = async function newBegivenhed(navn, dato, beskrivelse, an
     for (let i = 0; i < antalFrivillige; i++) {
         begivenhed.vagter.push(await exports.newVagt(tid, undefined, undefined, 0, 0, undefined, begivenhed));
     }
+    if(afvikler){
      begivenhed.vagter.push(await exports.newVagt(tid, undefined, undefined, 0, 1, afvikler, begivenhed));
+     }
+    else {
+        begivenhed.vagter.push(await exports.newVagt(tid, undefined, undefined, 0, 1, undefined, begivenhed));
+    }
     begivenhed.save();
+
     let afviklerVagt = begivenhed.vagter[begivenhed.vagter.length-1];
 
     console.log(afviklerVagt, "controller metode add afvikler");
-    await exports.addVagtToBruger(afvikler.brugernavn, afviklerVagt);
+    if(afvikler) {
+        await exports.addVagtToBruger(afvikler.brugernavn, afviklerVagt);
+    }
     return begivenhed;
 }
 
@@ -146,6 +154,15 @@ exports.getBrugere = async function getBrugere() {
     return Bruger.find().exec();
 }
 
+exports.adminAddVagtToBruger = async function adminAddVagtToBruger(brugerid, vagtid) {
+    vagt = await exports.getVagtFraId(vagtid);
+    bruger = await exports.getBrugerFraId(brugerid);
+    vagt.bruger = bruger;
+    vagt.status = 1;
+    bruger.vagter.push(vagt);
+    return Promise.all([vagt.save(), bruger.save()]);
+}
+
 exports.getVagtFraId = async function getVagtFraId(id) {
     return Vagt.findOne({_id: id}).exec();
 }
@@ -182,6 +199,17 @@ exports.getBruger = async function getBruger(brugernavn) {
 }
 exports.getBrugere = async function getBrugere() {
     return Bruger.find().exec();
+}
+
+exports.getFrivillige = async function getFrivillige() {
+    let brugere = await Bruger.find().exec();
+    let frivillige = [];
+    for (let bruger of brugere) {
+        if (bruger.brugertype == 2) {
+            frivillige.push(bruger);
+        }
+    }
+    return frivillige;
 }
 
 
@@ -267,7 +295,6 @@ exports.seBegivenhed = async function seBegivenhed(id) {
     let o = [begivenhed, frivillige, afvikler];
     console.log('controller');
     console.log(o);
-    console.log(o.afvikler, "afvikler se begivenhed");
     return o;
 }
 

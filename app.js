@@ -43,6 +43,12 @@ app.get('/begivenheder' , async (req, res )=>{
     res.send(events)
 
 });
+app.get('/frivillige', async (req, res) => {
+   let frivillige = await controller.getFrivillige();
+   console.log('frivillige');
+   console.log(frivillige)
+   res.send(frivillige);
+});
 app.get('/brugere', async (req, res) =>{
     let brugere = await controller.getBrugere();
     res.send(brugere);
@@ -165,6 +171,13 @@ app.post('/tilmeldmigbegivenhed', async(req,res) =>{
     console.log('prøver at tilmelde');
     await controller.tilmeldBegivenhed(brugernavn, begivenhedsid);
      res.send({ok:true}); // fix fejlsikring senere
+});
+
+app.post('/adminTilfoejVagtTilBruger', async(req,res) =>{
+    const vagt = req.body.vagtid;
+    const frivillig = req.body.frivilligid;
+    await controller.adminAddVagtToBruger(frivillig, vagt);
+    res.send({ok:true}); // fix fejlsikring senere
 });
 
 app.post('/tilfoejVagtTilBruger', async(req,res) =>{

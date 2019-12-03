@@ -242,8 +242,9 @@ function loadCalendar() {
 function update() {
     getVagterTilSalg();
     getBrugersVagter();
-    //getBegivenheder();
+    getBegivenheder();
     getBrugere();
+    loadCalendar();
 }
 
 async function getBrugertype() {
@@ -449,23 +450,24 @@ function removeElement(elementId) {
 
 
 
-/*async function getBegivenheder() {
+async function getBegivenheder() {
     try {
-        console.log('henter begivenheder');
-        const begivenhederResponse = await GET('/begivenheder');
-        const hbs = await fetch('/begivenheder.hbs');
-        const begivenhederText = await hbs.text();
-
-        const compiledTemplate = Handlebars.compile(begivenhederText);
-        let brugereHTML = '<table><tr><th>Navn</th></tr>';
-
-        begivenhederResponse.forEach(begivenhed => {
-            brugereHTML += compiledTemplate({
-                navn:  begivenhed.navn,
-                id: begivenhed._id
-            });
-        });
-        brugereHTML += '</table>';
+        // console.log('henter begivenheder');
+        // const begivenhederResponse = await GET('/begivenheder');
+        // const hbs = await fetch('/begivenheder.hbs');
+        // const begivenhederText = await hbs.text();
+        //
+        // const compiledTemplate = Handlebars.compile(begivenhederText);
+        // let brugereHTML = '<table><tr><th>Navn</th></tr>';
+        //
+        // begivenhederResponse.forEach(begivenhed => {
+        //     brugereHTML += compiledTemplate({
+        //         navn:  begivenhed.navn,
+        //         id: begivenhed._id
+        //     });
+        // });
+        // brugereHTML += '</table>';
+        let brugereHTML ='';
         const brugertype = await getBrugertype();
         if(brugertype ==0)                                       //   smider knappen på
         {
@@ -479,12 +481,12 @@ function removeElement(elementId) {
              document.getElementById("åbenOpretBegivenhedButton").onclick = åbenOpretEventVindue;
          }
         console.log(brugereHTML.length);
-        console.log(begivenhederResponse);
+        //console.log(begivenhederResponse);
 
     } catch (e) {
         console.log(e.name + ": " + e.message);
     }
-}*/
+}
 
 async function clickBegivenhed(eventId) {
     getBegivenhed(eventId);
@@ -524,6 +526,7 @@ async function åbenOpretEventVindue()
            let navn = a.fornavn +", "+ a.efternavn;
           afviklerehtml += "<option value='"+a._id+"'>"+navn+"</option>";
     }
+    afviklerehtml += "<option value='undefined'> Ingen</option>";
     afviklerehtml += "</select>";
     html += afviklerehtml;
 
@@ -537,9 +540,16 @@ async function åbenOpretEventVindue()
         let beskrivelse = document.getElementById('bBeskrivelseTxt').value;
         let antalFrivillige = document.getElementById('bAntalFrivillige').value;
         let afviklerId = document.getElementById('afviklereSelect').value;
-        let afvikler = await getBruger(afviklerId);
-        console.log(afvikler, "script opret event afvikler");
-        opretBegivenhed(navn, dato, beskrivelse, antalFrivillige, afvikler);
+        if(afviklerId != 'undefined') {
+            let afvikler = await getBruger(afviklerId);
+            opretBegivenhed(navn, dato, beskrivelse, antalFrivillige, afvikler);
+               //console.log(afvikler, "script opret event afvikler");  
+        }
+            else {
+                     opretBegivenhed(navn, dato, beskrivelse, antalFrivillige, undefined);
+        }
+
+
     }
 }
 async function getAfviklere()
@@ -565,13 +575,24 @@ async function getBegivenhed(id) {
     const side = await fetch('/begivenhed.hbs');
     const begivenhedText = await side.text();
     const compiledTemplate = Handlebars.compile(begivenhedText);
-    let begivenhedHTML = compiledTemplate({
-        navn:  begivenhed.navn,
-        dato: begivenhed.dato,
-        beskrivelse: begivenhed.beskrivelse,
-        afvikler: afvikler.fornavn +" " +afvikler.efternavn
-    });
+     let begivenhedHTML ='';
+    if(afvikler) {
+         begivenhedHTML = compiledTemplate({
+            navn: begivenhed.navn,
+            dato: begivenhed.dato,
+            beskrivelse: begivenhed.beskrivelse,
+            afvikler: afvikler.fornavn + " " + afvikler.efternavn
+        });
+    }
+    else {
+                        begivenhedHTML = compiledTemplate({
+                             navn: begivenhed.navn,
+                            dato: begivenhed.dato,
+                            beskrivelse: begivenhed.beskrivelse,
+                             afvikler: 'ingen afvikler'
+                             });
 
+    }
     //generer vagt text / knap
     // let v = await fetch('/eventvagt.hbs');
     // let vagterText = await v.text();
@@ -601,14 +622,35 @@ async function getBegivenhed(id) {
             vagterhtml += index + '. ' + 'Ledig   ';
             //hvis man er admin skal man kunne tildele vagter:
             if (brugertype == 0) {
+                let frivillige = await GET('/frivillige');
                 const tildelhbs = await fetch('/tildel.hbs');
                 const tildelText = await tildelhbs.text();
-                const tildelTemplate = Handlebars.compile(tildelText);
-                let tildelHTML = tildelTemplate({
-                    navn:  vagt.fornavn,
+                vagterhtml += tildelText;
+
+                let knaphbs = await fetch('/tildelknap.hbs');
+                let knapText = await knaphbs.text();
+
+                const knapTemplate = Handlebars.compile(knapText);
+                let knapHTML;
+                knapHTML = knapTemplate({
+                    vagtid: vagt._id
                 });
-                vagterhtml += tildelHTML;
-                // vagterhtml += '<button class="tildel" id="' + vagt._id + '">Tildel vagt</button> '
+                let frivilligehbs = await fetch('/frivillig.hbs');
+                let frivilligeText = await frivilligehbs.text();
+                console.log(frivilligeText);
+                const frivilligeTemplate = Handlebars.compile(frivilligeText);
+                knapHTML += '<select class="select" id="' + vagt._id +'" size="10" style="width: 80%">';
+                for (let frivillig of frivillige) {
+                    console.log(frivillig);
+                    knapHTML += frivilligeTemplate({
+                        frivilligid: frivillig._id,
+                       navn: frivillig.fornavn + ' ' + frivillig.efternavn
+                    });
+                }
+                knapHTML += '</select><br>';
+                knapHTML += '<button class="popupknap" id="'+ vagt._id +'">Tildel valgt</button>';
+                knapHTML += '</div></div>';
+                vagterhtml += knapHTML;
             }
             vagterhtml += '<br>';
             index++;
@@ -637,29 +679,42 @@ async function getBegivenhed(id) {
     }
     if (brugertype == 0) {
         // Get the modal
-        var modal = document.getElementById("myModal");
+        var modals = document.getElementsByClassName("modal");
 
         // Get the button that opens the modal
-        var btn = document.getElementById("myBtn");
+        var btns = document.getElementsByClassName("tildelknap");
 
         // Get the <span> element that closes the modal
-        var span = document.getElementsByClassName("close")[0];
+        var spans = document.getElementsByClassName("close");
 
-        // When the user clicks the button, open the modal
-        btn.onclick = function() {
-            modal.style.display = "block";
-        }
+        var tildelbtns = document.getElementsByClassName('popupknap');
 
-        // When the user clicks on <span> (x), close the modal
-        span.onclick = function() {
-            modal.style.display = "none";
-        }
+        var selects = document.getElementsByClassName('select');
 
-        // When the user clicks anywhere outside of the modal, close it
-        window.onclick = function(event) {
-            if (event.target == modal) {
-                modal.style.display = "none";
+        for (let index = 0; index < btns.length; index++) {
+            // When the user clicks the button, open the modal
+            btns[index].onclick = function () {
+                modals[index].style.display = "block";
             }
+
+            tildelbtns[index].onclick = async function () {
+
+                let vagtid = btns[index].id;
+                let frivilligid = selects[index].value;
+                let o = {vagtid: vagtid, frivilligid: frivilligid};
+                await POST('/adminTilfoejVagtTilBruger', o);
+
+                //lukker vindue
+                modals[index].style.display = "none";
+                cleartab();
+//get begivenhed
+            }
+
+            // When the user clicks on <span> (x), close the modal
+            spans[index].onclick = function () {
+                modals[index].style.display = "none";
+            }
+
         }
     }
 }
@@ -715,7 +770,7 @@ async function openPane(evt, tabName) {
     }
     if (tabName == 'Kalender') {
         cleartab();
-        //getBegivenheder();
+        getBegivenheder();
         loadCalendar();
 
         document.getElementById('begivenhedercontent')
