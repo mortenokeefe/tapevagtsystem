@@ -153,6 +153,12 @@ app.post('/opretBruger', async (req, res) => {
     res.sendStatus(201);
 });*/
 
+app.put('/redigerBegivenhed', async (req,res) => {
+   const {begivenhedsid, navn, dato, beskrivelse} = req.body;
+   await controller.redigerBegivenhed(begivenhedsid, navn, dato, beskrivelse);
+    res.sendStatus(200);
+});
+
 app.put('/updateBruger/:brugernavn' , async (req, res) =>{
     const {fornavn, efternavn, telefonnummer, password, brugertype, tilstand, email} = req.body;
     const filterbrugernavn = req.params.brugernavn;

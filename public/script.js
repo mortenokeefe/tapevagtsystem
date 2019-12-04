@@ -836,11 +836,13 @@ async function åbenRedigerEvent(begivenhedsid) {
             navn: begivenhed.navn,
             dato: dat2,
             beskrivelse: begivenhed.beskrivelse,
-            afvikler: afvikler.fornavn + " " + afvikler.efternavn
+            afvikler: afvikler.fornavn + " " + afvikler.efternavn,
+            antalfrivillige: begivenhed.antalFrivillige
         });
         begivenhedHTML += '<br>';
         begivenhedHTML += '<p>Afvikler</p>' + afvikler.fornavn + ' ' + afvikler.efternavn;
-        begivenhedHTML += '<button class="fjernafvikler" id="'+ afviklervagt._id +'">Fjern afvikler</button>';
+        begivenhedHTML += '<button class="fjernafvikler" id="'+ afviklervagt._id +'">Fjern afvikler</button><br><br>';
+        begivenhedHTML += '<button class="gemændringer">Gem ændringer</button>';
 
         let div = document.getElementById('begivenhedcontent');
         div.innerHTML = begivenhedHTML;
@@ -863,6 +865,7 @@ async function åbenRedigerEvent(begivenhedsid) {
             navn: begivenhed.navn,
             dato: dat2,
             beskrivelse: begivenhed.beskrivelse,
+            antalfrivillige: begivenhed.antalFrivillige
         });
 
         //endpoint skal være /afviklere
@@ -887,8 +890,9 @@ async function åbenRedigerEvent(begivenhedsid) {
         knapHTML += '</select><br>';
         //1 skal være vagtid
         knapHTML += '<button class="popupknap" id="' + afviklervagt._id + '">Tilknyt afvikler</button>';
-        knapHTML += '</div></div>';
+        knapHTML += '</div></div><br><br>';
         begivenhedHTML += knapHTML;
+        begivenhedHTML += '<button class="gemændringer">Gem ændringer</button>';
 
         let div = document.getElementById('begivenhedcontent');
         div.innerHTML = begivenhedHTML;
@@ -929,7 +933,17 @@ async function åbenRedigerEvent(begivenhedsid) {
             }
         }
     }
-
+    //mangler antal frivillige
+    let knap = document.getElementsByClassName('gemændringer');
+    knap[0].onclick = async function () {
+        let navn = document.getElementById('begivenhednavn').value;
+        let dato = document.getElementById('begivenheddato').value;
+        let beskrivelse = document.getElementById('begivenhedbeskrivelse').value;
+        let o = {begivenhedsid, navn, dato, beskrivelse};
+        await PUT(o, '/redigerBegivenhed');
+        cleartab();
+        getBegivenhed(begivenhedsid);
+    }
 
 }
 
