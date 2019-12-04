@@ -138,9 +138,10 @@ async function updateBruger() {
                 && data.password.length > 0 && data.email.length > 0) {
                 if (frivillig.querySelector('#brugernavn').value.length > 0) {
                     return alert("Et brugernavn kan ikke opdateres")
+                }
                     let response = await PUT(data, url);
                     console.log("POST: %o", response);
-                }
+
             } else if (!data.telefonnummer.match("^\\d{8}$")) {
                 alert("et telefonnummer skal være 8 tal langt")
             } else {
@@ -160,6 +161,19 @@ async function sletBruger() {
             let response = await DELETE(url);
             console.log("DELETE: %o", response);
             await getBrugere();
+        }
+    } catch (e) {
+        console.log(e.name + ": " + e.message);
+    }
+}
+
+async function clearDatabase() {
+    try {
+        if (await getBrugertype() === 0) {
+            let url = "/clearDatabase/";
+            let response = await DELETE(url);
+            console.log("DELETE: %o", response);
+            await update()
         }
     } catch (e) {
         console.log(e.name + ": " + e.message);
@@ -471,7 +485,7 @@ async function getBegivenheder() {
         const brugertype = await getBrugertype();
         if(brugertype ==0)                                       //   smider knappen på
         {
-            brugereHTML += '<br> <button id="åbenOpretBegivenhedButton"> ny begivenhed</button>';
+            brugereHTML += '<br> <button id="åbenOpretBegivenhedButton"> ny begivenhed</button> <button id="ClearDatabase"> ClearDatabase</button';
         }
 
 
@@ -479,9 +493,9 @@ async function getBegivenheder() {
         document.getElementById('begivenhedercontent').innerHTML = brugereHTML;
          if(brugertype ==0) {
              document.getElementById("åbenOpretBegivenhedButton").onclick = åbenOpretEventVindue;
+             document.getElementById("ClearDatabase").onclick = clearDatabase;
          }
         console.log(brugereHTML.length);
-        //console.log(begivenhederResponse);
 
     } catch (e) {
         console.log(e.name + ": " + e.message);
@@ -543,7 +557,7 @@ async function åbenOpretEventVindue()
         if(afviklerId != 'undefined') {
             let afvikler = await getBruger(afviklerId);
             opretBegivenhed(navn, dato, beskrivelse, antalFrivillige, afvikler);
-               //console.log(afvikler, "script opret event afvikler");  
+               //console.log(afvikler, "script opret event afvikler");
         }
             else {
                      opretBegivenhed(navn, dato, beskrivelse, antalFrivillige, undefined);
@@ -866,6 +880,5 @@ async function openPane(evt, tabName) {
         cleartab();
         getVagterTilSalg();
     }
-
 
 }

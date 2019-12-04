@@ -286,6 +286,12 @@ app.delete('/deleteBruger/:brugernavn' , async (req, res) =>{
     await controller.deleteBruger(brugernavn);
     res.sendStatus(200);
 });
+
+app.delete('/clearDatabase/' , async (req, res) =>{
+    await controller.clearDatabase()
+    res.sendStatus(200);
+});
+
 app.get('/vagtertilsalg', async (req, res) => {
    let vagter = await controller.getVagterTilSalg();
    res.send(vagter);
@@ -344,7 +350,6 @@ app.get('/vagtertilsalg', async (req, res) => {
 //         response.redirect('/ingenAdgang.html');
 //     }
 // })
-
 
 
 
