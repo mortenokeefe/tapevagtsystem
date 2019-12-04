@@ -68,13 +68,13 @@ exports.newBegivenhed = async function newBegivenhed(navn, dato, beskrivelse, an
     //beværk at kl 19 er den 20. time i døgnet, derfor hours = 20
     let tid = realDate.setHours('20', '00');
     for (let i = 0; i < antalFrivillige; i++) {
-        begivenhed.vagter.push(await exports.newVagt(tid, undefined, undefined, 0, 0, undefined, begivenhed));
+        begivenhed.vagter.push(await exports.newVagt(tid, false, undefined, 0, 0, undefined, begivenhed));
     }
     if(afvikler){
-     begivenhed.vagter.push(await exports.newVagt(tid, undefined, undefined, 0, 1, afvikler, begivenhed));
+     begivenhed.vagter.push(await exports.newVagt(tid, false, undefined, 0, 1, afvikler, begivenhed));
      }
     else {
-        begivenhed.vagter.push(await exports.newVagt(tid, undefined, undefined, 0, 1, undefined, begivenhed));
+        begivenhed.vagter.push(await exports.newVagt(tid, false, undefined, 0, 1, undefined, begivenhed));
     }
     begivenhed.save();
 
@@ -243,6 +243,13 @@ exports.getEmailFraVagtId = async function getEmailFraVagtId(id)
     let vagt = await exports.getVagtFraId(id);
     let bruger = await exports.getBrugerFraId(vagt.bruger);
     return bruger.email;
+}
+
+exports.setFravær = async function setFravær(vagtId){
+    const filter = {_id : vagtId};
+    let vagt = await exports.getVagtFraId(vagtId);
+    const update = {fravær : !vagt.fravær};
+    return  await Vagt.findOneAndUpdate(filter, update);
 }
 
 exports.getVagterTilSalg = async function getVagterTilSalg() {
