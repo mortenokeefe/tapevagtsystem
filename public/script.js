@@ -613,7 +613,7 @@ async function getBegivenhed(id) {
     const begivenhedText = await side.text();
     const compiledTemplate = Handlebars.compile(begivenhedText);
     if(afvikler) {
-         begivenhedHTML = compiledTemplate({
+         begivenhedHTML += compiledTemplate({
             navn: begivenhed.navn,
             dato: begivenhed.dato,
             beskrivelse: begivenhed.beskrivelse,
@@ -621,7 +621,7 @@ async function getBegivenhed(id) {
         });
     }
     else {
-                        begivenhedHTML = compiledTemplate({
+                        begivenhedHTML += compiledTemplate({
                              navn: begivenhed.navn,
                             dato: begivenhed.dato,
                             beskrivelse: begivenhed.beskrivelse,
@@ -652,6 +652,12 @@ async function getBegivenhed(id) {
              if (brugertype == 0) {
                  vagterhtml += '<button class="fjernknap" id="' + vagt._id + '">Fjern frivillig</button>';
              }
+
+             if(brugertype ==1)
+             {
+                 vagterhtml += '<button class="fraværKnap" id="' + vagt._id + '">Skift fraværsstatus</button>';
+             }
+
 
              vagterhtml += '<br>';
              index++;
@@ -738,6 +744,15 @@ async function getBegivenhed(id) {
         let knap = document.getElementsByClassName('tilmeld');
         if (knap.length > 0) {
             knap[0].onclick = tilmeldBegivenhed;
+        }
+    }
+    if(brugertype ==1){
+        let knap = document.getElementsByClassName('fraværKnap');
+        for(let k of knap)
+        {
+            k.onclick = function(){
+                setFravær(k.id);
+            }
         }
     }
 
