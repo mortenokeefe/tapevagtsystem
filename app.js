@@ -1,9 +1,9 @@
 const controller = require('./Controllers/controller');
-//express
 const express = require('express');
 const app = express();
 const session = require('express-session');
 const fs = require('fs').promises;
+const bcrypt = require('bcryptjs');
 app.use(express.static('public'));
 app.use(express.json());
 app.use(session({secret: 'hemmelig', saveUninitialized: true, resave: true}));
@@ -13,7 +13,10 @@ app.use(express.static('private'));
 // MONGODB & MONGOOSE SETUP
 const mongoose = require('mongoose');
 mongoose.Promise = Promise;
-mongoose.connect("mongodb+srv://TapeProjekt:tape123@tape-yxunw.gcp.mongodb.net/Tape?retryWrites=true&w=majority", {useNewUrlParser: true, useUnifiedTopology: true});
+mongoose.connect("mongodb+srv://TapeProjekt:tape123@tape-yxunw.gcp.mongodb.net/Tape?retryWrites=true&w=majority", {
+    useNewUrlParser: true,
+    useUnifiedTopology: true
+});
 
 // START THE SERVER
 const port = process.env.PORT || 8080
@@ -106,12 +109,12 @@ app.get('/calendar/api/event', async function(req, res){
     res.json(eventsReformatted)
 });
 
-app.get('/vagter/api/ledigevagter/:eventId', async function(req, res){
+app.get('/vagter/api/ledigevagter/:eventId', async function (req, res) {
     console.log(req.params.eventId)
-    const vagter = await controller.getVagter({begivenhed:mongoose.mongo.ObjectId(req.params.eventId)})
+    const vagter = await controller.getVagter({begivenhed: mongoose.mongo.ObjectId(req.params.eventId)})
     const ledigeVagter = []
     vagter.map(element => {
-        if(element.status == 1){
+        if (element.status == 1) {
             ledigeVagter.push(element)
         }
     })
@@ -124,12 +127,21 @@ app.get('/afviklere', async(req, res)=> {
 
 
 //POST endpoints
-app.post('/opretBruger' , async (req, res) =>{
-    console.log(req.body);
+app.post('/opretBruger', async (req, res) => {
     const {fornavn, efternavn, telefonnummer, brugernavn, password, brugertype, tilstand, email} = req.body;
     controller.newBruger(fornavn, efternavn, telefonnummer, brugernavn, password, brugertype, tilstand, email, undefined);
     res.sendStatus(201);
 });
+
+/*app.post('/opretBruger' , async (req, res) =>{
+    console.log(req.body);
+    const {fornavn, efternavn, telefonnummer, brugernavn, password, brugertype, tilstand, email} = req.body;
+    let salt = await bcrypt.hash(password, bcrypt.genSaltSync(12)).then(function(hashedPassword) {
+        controller.newBruger(fornavn, efternavn, telefonnummer, brugernavn, hashedPassword, brugertype, tilstand, email, undefined);
+    })
+    console.log(salt);
+    res.sendStatus(201);
+});*/
 
 app.put('/updateBruger/:brugernavn' , async (req, res) =>{
     const {fornavn, efternavn, telefonnummer, password, brugertype, tilstand, email} = req.body;
@@ -202,31 +214,12 @@ app.post('/fjernfrivilligfravagt', async (req, res) => {
     res.send({ok:true});
 });
 
-
-app.post('/update', async (req,res) => {
-console.log('jaja');
+app.post('/update', async (req, res) => {
+    console.log('jaja');
 });
 
-//login
 
-app.post('/login', async (request, response) => {
-    const {brugernavn, password} = request.body;
-    const check = await controller.getBruger(brugernavn);
 
-    if (check == null)
-        response.send({ok: false});
-    else {
-
-        if (password === check.password && brugernavn) {
-            request.session.brugernavn = brugernavn;
-            request.session.brugertype = check.brugertype;
-            response.send({ok: true, type: 'admin'});
-        } else {
-            response.send({ok: false});
-        }
-    }
-
-});
 
 app.get('/mineVagter', async (req, res) =>{
     let vagter = await controller.getVagterFraBruger(req.session.brugernavn);
@@ -250,13 +243,21 @@ app.get('/mineVagter', async (req, res) =>{
 
 app.post('/login', async (request, response) => {
     const {brugernavn, password} = request.body;
-    const check = controller.getBruger(brugernavn);
-    if (password === check.password && navn) {
-        request.session.navn = navn;
-        response.send({ok: true});
-    } else {
+    const check = await controller.getBruger(brugernavn);
+
+    if (check == null)
         response.send({ok: false});
+    else {
+        //if (bcrypt.compareSync(password, check.password) && brugernavn)
+        if (password === check.password && brugernavn) {
+            request.session.brugernavn = brugernavn;
+            request.session.brugertype = check.brugertype;
+            response.send({ok: true, type: 'admin'});
+        } else {
+            response.send({ok: false});
+        }
     }
+
 });
 
 app.get('/session', async (request, response) => {

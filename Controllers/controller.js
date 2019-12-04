@@ -226,7 +226,7 @@ exports.getFrivillige = async function getFrivillige() {
 
 exports.getVagterFraBruger = async function getVagterFraBruger(brugernavn) {
     let bruger = await exports.getBruger(brugernavn);
-    let vagtermedid = Vagt.find({"bruger" : bruger}).exec();
+    let vagtermedid = await Vagt.find({"bruger" : bruger}).exec();
     return vagtermedid;
 }
 exports.getBegivenhed = async function getBegivenhed(id)
@@ -311,7 +311,11 @@ exports.seBegivenhed = async function seBegivenhed(id) {
     return o;
 }
 
-exports.deleteBruger = function deleteBruger(brugernavn) {
+exports.deleteBruger = async function deleteBruger(brugernavn) {
+    let vagter = await exports.getVagterFraBruger(brugernavn);
+    for (let i = 0; i < vagter.length; i++) {
+        await exports.fjernFrivilligFraVagt(vagter[i]._id)
+    }
     return Bruger.deleteOne({brugernavn: brugernavn});
 };
 
