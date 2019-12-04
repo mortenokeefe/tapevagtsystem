@@ -63,24 +63,24 @@ exports.newBegivenhed = async function newBegivenhed(navn, dato, beskrivelse, an
         antalFrivillige,
         vagter
     });
-    console.log(dato + "controller");
+   // console.log(dato + "controller");
     let realDate = new Date(dato); // wtf hvorfor skal man convertere det til en date 2 gange? det virker ikke ellers
     //beværk at kl 19 er den 20. time i døgnet, derfor hours = 20
     let tid = realDate.setHours('20', '00');
     for (let i = 0; i < antalFrivillige; i++) {
-        begivenhed.vagter.push(await exports.newVagt(tid, undefined, undefined, 0, 0, undefined, begivenhed));
+        begivenhed.vagter.push(await exports.newVagt(tid, false, undefined, 0, 0, undefined, begivenhed));
     }
     if(afvikler){
-     begivenhed.vagter.push(await exports.newVagt(tid, undefined, undefined, 0, 1, afvikler, begivenhed));
+     begivenhed.vagter.push(await exports.newVagt(tid, false, undefined, 0, 1, afvikler, begivenhed));
      }
     else {
-        begivenhed.vagter.push(await exports.newVagt(tid, undefined, undefined, 0, 1, undefined, begivenhed));
+        begivenhed.vagter.push(await exports.newVagt(tid, false, undefined, 0, 1, undefined, begivenhed));
     }
     begivenhed.save();
 
     let afviklerVagt = begivenhed.vagter[begivenhed.vagter.length-1];
 
-    console.log(afviklerVagt, "controller metode add afvikler");
+ //   console.log(afviklerVagt, "controller metode add afvikler");
     if(afvikler) {
         await exports.addVagtToBruger(afvikler.brugernavn, afviklerVagt);
     }
@@ -185,8 +185,8 @@ exports.getVagtFraId = async function getVagtFraId(id) {
 exports.addVagtToBruger = async function addVagtToBruger(brugernavn, id) {
     const vagt = await exports.getVagtFraId(id._id);
     const bruger = await exports.getBruger(brugernavn);
-    console.log(vagt, "vagt")
-    console.log(bruger, "bruger")
+    //console.log(vagt, "vagt")
+   // console.log(bruger, "bruger")
     vagt.bruger = bruger;
     vagt.status = 1;
     bruger.vagter.push(vagt);
@@ -213,8 +213,8 @@ exports.tilmeldBegivenhed = async function tilmeldBegivenhed(brugernavn, begiven
      let index = 0;
      while (!found) {
          if (vagter[index].status == 0) {
-             console.log(vagter[index]);
-             console.log(brugernavn);
+          //   console.log(vagter[index]);
+            // console.log(brugernavn);
               await exports.addVagtToBruger(brugernavn, vagter[index]);
              found = true;
          }
@@ -262,6 +262,16 @@ exports.getEmailFraVagtId = async function getEmailFraVagtId(id)
     return bruger.email;
 }
 
+exports.setFravær = async function setFravær(vagtId){
+    const filter = {_id : vagtId};
+    let vagt = await exports.getVagtFraId(vagtId);
+    const update = {fravær : !vagt.fravær};
+    console.log(vagt.fravær, "vagt fravær");
+    return  await Vagt.findOneAndUpdate(filter, update);
+}
+
+
+
 exports.getVagterTilSalg = async function getVagterTilSalg() {
     //henter vagtejer, begivenhed og dato
     //alle vagter med status 2 = til salg
@@ -270,15 +280,15 @@ exports.getVagterTilSalg = async function getVagterTilSalg() {
 
     for (let vagt of vagter) {
 
-        console.log(vagt, "vagt");
+       // console.log(vagt, "vagt");
         let begivenhed = await exports.getBegivenhed(vagt.begivenhed);
-         console.log(begivenhed, "begivenhed");
+        // console.log(begivenhed, "begivenhed");
         let dato = new Date(vagt.startTid).toLocaleDateString();
         // console.log(dato);
         let frivillig = await exports.getBrugerFraId(vagt.bruger);
-         console.log(frivillig, "frivillig");
+        // console.log(frivillig, "frivillig");
         let o = {vagt: vagt, begivenhed: begivenhed.navn, bruger: frivillig.fornavn + ' ' + frivillig.efternavn, dato: dato};
-        console.log(o, "o");
+        //console.log(o, "o");
         vagtermedinfo.push(o);
     }
     // console.log(vagtermedinfo);
@@ -315,7 +325,7 @@ exports.seBegivenhed = async function seBegivenhed(id) {
         if(vagt.vagtType == 1) {
            let o = await Bruger.find({"_id" : vagt.bruger}).exec();
             afvikler =o; //o.fornavn + ' ' + o.efternavn;
-            console.log(afvikler);
+       //     console.log(afvikler);
 
         }
         else {
@@ -323,8 +333,8 @@ exports.seBegivenhed = async function seBegivenhed(id) {
         }
     }
     let o = [begivenhed, frivillige, afvikler];
-    console.log('controller');
-    console.log(o);
+  //  console.log('controller');
+   // console.log(o);
     return o;
 }
 
@@ -348,6 +358,17 @@ exports.getAfviklere = async function getAfviklere(){
 
 }
 
+exports.getAfvikerVagtFraBegivenhed = async function getAfvikerVagtFraBegivenhed(begivenhedsid) {
+    let afvikler;
+   let vagter = await exports.getVagterFraBegivenhed(begivenhedsid);
+   for (let vagt of vagter) {
+       if (vagt.vagtType == 1) {
+           afvikler = vagt;
+       }
+   }
+   return afvikler;
+}
+
 
 
 async function main() {
@@ -355,7 +376,7 @@ async function main() {
     let admin = await exports.newBruger('Admin', 'Administratorsen', '88888888', 'admin', 'admin', 0, 1, 'admin@tapeaarhus.dk', undefined);
 
 }
-      // main();
+       // main();
 
      // main();
 async function main2() {
