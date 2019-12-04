@@ -93,11 +93,13 @@ exports.clearDatabase = async function clearDatabase() {
     for (let i = 0; i < begivenheder.length; i++) {
         if (date > begivenheder[i].dato) {
             let vagter = await exports.getVagterFraBegivenhed(begivenheder[i]._id);
+            console.log(vagter.length)
             for (let j = 0; j < vagter.length; j++) {
+                console.log(j)
                 await exports.fjernFrivilligFraVagt(vagter[j]._id)
-                await Vagt.deleteOne(vagter[j]._id);
+                await Vagt.remove(vagter[j]);
             }
-            await Begivenhed.deleteOne(begivenheder[i]._id)
+            await Begivenhed.remove(begivenheder[i])
         }
     }
 }
@@ -195,16 +197,16 @@ exports.addVagtToBruger = async function addVagtToBruger(brugernavn, id) {
 
 exports.fjernFrivilligFraVagt = async function fjernFrivilligFraVagt(vagtid) {
     let vagt = await exports.getVagtFraId(vagtid);
-    if (await exports.getBrugerFraId(vagt.bruger) !== null) {
+    if (vagt.status === 1) {
         let bruger = await exports.getBrugerFraId(vagt.bruger);
-        let brugernavn = bruger.brugernavn;
         vagt.bruger = undefined;
         vagt.status = 0;
         await bruger.update({$pull: {vagter: vagtid}});
         vagt.save();
         bruger.save();
     }
-}
+    }
+
 
 exports.tilmeldBegivenhed = async function tilmeldBegivenhed(brugernavn, begivenhedsid) {
     begivenhed = await exports.getBegivenhed(begivenhedsid);

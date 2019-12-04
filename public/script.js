@@ -509,7 +509,7 @@ async function getBegivenheder() {
         const brugertype = await getBrugertype();
         if(brugertype ==0)                                       //   smider knappen på
         {
-            brugereHTML += '<br> <button id="åbenOpretBegivenhedButton style="height: 50px "> ny begivenhed</button> <button id="ClearDatabase"> ClearDatabase</button>';
+            brugereHTML += '<br> <button id="åbenOpretBegivenhedButton" style="height: 50px "> ny begivenhed</button> <button id="ClearDatabase"> ClearDatabase</button>';
         }
 
 
@@ -519,7 +519,6 @@ async function getBegivenheder() {
              document.getElementById("åbenOpretBegivenhedButton").onclick = åbenOpretEventVindue;
              document.getElementById("ClearDatabase").onclick = clearDatabase;
          }
-        console.log(brugereHTML.length);
 
     } catch (e) {
         console.log(e.name + ": " + e.message);
@@ -602,7 +601,7 @@ async function getBruger(brugerId)
 
 async function getBegivenhed(id) {
     cleartab();
-    brugertype = await getBrugertype();
+    let brugertype = await getBrugertype();
     let endpoint = '/sebegivenhed/' + id;
     const begivenhedResponse = await GET(endpoint);
     //console.log(begivenhedResponse);
@@ -626,7 +625,7 @@ async function getBegivenhed(id) {
     const begivenhedText = await side.text();
     const compiledTemplate = Handlebars.compile(begivenhedText);
     if(afvikler) {
-         begivenhedHTML = compiledTemplate({
+         begivenhedHTML += compiledTemplate({
             navn: begivenhed.navn,
             dato: begivenhed.dato,
             beskrivelse: begivenhed.beskrivelse,
@@ -634,7 +633,7 @@ async function getBegivenhed(id) {
         });
     }
     else {
-                        begivenhedHTML = compiledTemplate({
+                        begivenhedHTML += compiledTemplate({
                              navn: begivenhed.navn,
                             dato: begivenhed.dato,
                             beskrivelse: begivenhed.beskrivelse,
