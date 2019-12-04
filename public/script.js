@@ -567,11 +567,11 @@ async function getBegivenhed(id) {
     brugertype = await getBrugertype();
     let endpoint = '/sebegivenhed/' + id;
     const begivenhedResponse = await GET(endpoint);
-    console.log(begivenhedResponse);
+    //console.log(begivenhedResponse);
     let begivenhed = begivenhedResponse[0];
     let frivillige = begivenhedResponse[1];
     let afvikler = begivenhedResponse[2][0];
-    console.log(afvikler, "getbegivnehed");
+   // console.log(afvikler, "getbegivnehed");
     const side = await fetch('/begivenhed.hbs');
     const begivenhedText = await side.text();
     const compiledTemplate = Handlebars.compile(begivenhedText);

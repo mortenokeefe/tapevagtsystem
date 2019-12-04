@@ -236,19 +236,21 @@ exports.getEmailFraVagtId = async function getEmailFraVagtId(id)
 
 exports.getVagterTilSalg = async function getVagterTilSalg() {
     //henter vagtejer, begivenhed og dato
-    //alle vagter med status 2 = tile salg
+    //alle vagter med status 2 = til salg
     let vagter = await Vagt.find({"status" : 2}).exec();
     let vagtermedinfo = [];
 
     for (let vagt of vagter) {
-        //console.log(vagt);
+
+        console.log(vagt, "vagt");
         let begivenhed = await exports.getBegivenhed(vagt.begivenhed);
-        // console.log(begivenhed);
+         console.log(begivenhed, "begivenhed");
         let dato = new Date(vagt.startTid).toLocaleDateString();
         // console.log(dato);
         let frivillig = await exports.getBrugerFraId(vagt.bruger);
-        // console.log(frivillig);
+         console.log(frivillig, "frivillig");
         let o = {vagt: vagt, begivenhed: begivenhed.navn, bruger: frivillig.fornavn + ' ' + frivillig.efternavn, dato: dato};
+        console.log(o, "o");
         vagtermedinfo.push(o);
     }
     // console.log(vagtermedinfo);
