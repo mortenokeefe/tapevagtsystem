@@ -572,12 +572,21 @@ async function getBegivenhed(id) {
     let frivillige = begivenhedResponse[1];
     let afvikler = begivenhedResponse[2][0];
     console.log(afvikler, "getbegivnehed");
+
+    //lav fjern og rediger knap såfremt brugertype=admin
+
+    let begivenhedHTML ='<br>';
+
+    if (brugertype == 0) {
+        console.log('bruger er admin');
+        begivenhedHTML += '<button class="redigerknap" id="' + id + '">Rediger begivenhed</button><br>';
+    }
+
     const side = await fetch('/begivenhed.hbs');
     const begivenhedText = await side.text();
     const compiledTemplate = Handlebars.compile(begivenhedText);
-     let begivenhedHTML ='';
     if(afvikler) {
-         begivenhedHTML = compiledTemplate({
+         begivenhedHTML += compiledTemplate({
             navn: begivenhed.navn,
             dato: begivenhed.dato,
             beskrivelse: begivenhed.beskrivelse,
@@ -585,7 +594,7 @@ async function getBegivenhed(id) {
         });
     }
     else {
-                        begivenhedHTML = compiledTemplate({
+                        begivenhedHTML += compiledTemplate({
                              navn: begivenhed.navn,
                             dato: begivenhed.dato,
                             beskrivelse: begivenhed.beskrivelse,
@@ -611,7 +620,12 @@ async function getBegivenhed(id) {
               // console.log(brugere);
               mig = brugere.minbruger;
               let bruger = brugere.bruger;
-             vagterhtml += index + '. ' + bruger.fornavn + ' ' + bruger.efternavn + '<br>';
+             vagterhtml += index + '. ' + bruger.fornavn + ' ' + bruger.efternavn;
+             //hvis brugerttype=admin
+             if (brugertype == 0) {
+                 vagterhtml += '<button class="fjernknap" id="' + vagt._id + '">Fjern frivillig</button>';
+             }
+             vagterhtml += '<br>';
              index++;
              if(mig._id == vagt.bruger)
              {
@@ -671,6 +685,27 @@ async function getBegivenhed(id) {
         begivenhedHTML += vagterhtml;
     let div = document.getElementById('begivenhedcontent');
     div.innerHTML = begivenhedHTML;
+
+    //lav funktion til fjernknapper hvis logget ind = admin
+    if (brugertype == 0) {
+        let fjernknapper = document.getElementsByClassName('fjernknap');
+        for (let knap of fjernknapper) {
+            knap.onclick = async function () {
+                let vagtid = knap.id;
+                let s = await POST('/fjernfrivilligfravagt', {vagtid: vagtid})
+                if (s.ok) {
+                    cleartab();
+                    getBegivenhed(id);
+                }
+            }
+        }
+        //lav funktion til rediger knap
+        let redigerknap = document.getElementsByClassName('redigerknap');
+        redigerknap[0].onclick = async function () {
+            åbenRedigerEvent(id);
+        }
+    }
+
     if (brugertype == 2) {
         let knap = document.getElementsByClassName('tilmeld');
         if (knap.length > 0) {
@@ -707,6 +742,7 @@ async function getBegivenhed(id) {
                 //lukker vindue
                 modals[index].style.display = "none";
                 cleartab();
+                getBegivenhed(id);
 //get begivenhed
             }
 
@@ -717,6 +753,49 @@ async function getBegivenhed(id) {
 
         }
     }
+}
+
+async function åbenRedigerEvent(begivenhedsid) {
+    cleartab();
+
+    let endpoint = '/sebegivenhed/' + begivenhedsid;
+    const begivenhedResponse = await GET(endpoint);
+
+    let begivenhed = begivenhedResponse[0];
+
+    let afvikler = begivenhedResponse[2][0];
+
+    let begivenhedHTML ='';
+
+    const side = await fetch('/redigerevent.hbs');
+    const begivenhedText = await side.text();
+    const compiledTemplate = Handlebars.compile(begivenhedText);
+    if(afvikler) {
+
+        begivenhedHTML += compiledTemplate({
+            navn: begivenhed.navn,
+            dato: begivenhed.dato,
+            beskrivelse: begivenhed.beskrivelse,
+            afvikler: afvikler.fornavn + " " + afvikler.efternavn
+        });
+    }
+    else {
+        let dat = new Date(begivenhed.dato);
+        console.log(dat);
+        let dat2 = dat.toLocaleDateString();
+        console.log(dat2);
+        begivenhedHTML += compiledTemplate({
+            navn: begivenhed.navn,
+            dato: dat2,
+            beskrivelse: begivenhed.beskrivelse,
+            afvikler: 'ingen afvikler'
+        });
+
+    }
+
+    let div = document.getElementById('begivenhedcontent');
+    div.innerHTML = begivenhedHTML;
+
 }
 
 async function tilmeldBegivenhed(event) {
