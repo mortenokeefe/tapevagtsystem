@@ -6,39 +6,35 @@ let bruger = "";
 let tempbruger = "";
 
 function makeFrivilligHTML() {
-    let frivillig =  document.getElementById('frivilligcontent');
-    frivillig.innerHTML += "<div id = divinputfelte> <h1> Frivillige </h1> <input id=\"fornavn\"> <label> fornavn</label><br>\n" +
-        "<input id=\"efternavn\"> <label> efternavn</label><br>\n" +
-        "<input id=\"telefonnummer\"> <label> telefonnummer</label> <br>\n" +
-        "<input id=\"brugernavn\"> <label> brugernavn</label> <br>\n" +
-        "<input id=\"password\"> <label> password</label> <br>\n" +
-        "<input id=\"email\"> <label> email</label> <br>\n" +
-        // "<input id=\"brugertype\"> <label> brugertype</label> <br>\n" +
+    let frivillig = document.getElementById('frivilligcontent');
+    frivillig.innerHTML += "<div id = divinputfelte> <h1> Frivillige </h1> <input id=\"fornavn\" placeholder='fornavn'><br>\n" +
+        "<input id=\"efternavn\" placeholder='efternavn'> <br>\n" +
+        "<input id=\"telefonnummer\" placeholder='telefonnummer'> <br>\n" +
+        "<input id=\"brugernavn\" placeholder='brugernavn'> <br>\n" +
+        "<input id=\"password\" type='password' placeholder='password'> <br>\n" +
+        "<input id=\"email\" placeholder='email'> <br>\n" +
         "<label>brugertype</label> <br> <select id = 'brugertype'>" +
-            "<option value='0'>Admin</option>"+
-            "<option value='1'>Afvikler</option>"+
-            "<option value='2'>Frivillig</option>"+
-        "</select><br>"+
+        "<option value='0'>Admin</option>" +
+        "<option value='1'>Afvikler</option>" +
+        "<option value='2'>Frivillig</option>" +
+        "</select><br>" +
         // "<input id=\"tilstand\"> <label> tilstand</label> <br>\n" +
-        "<label>tilstand</label> <br> <select id='tilstand'>"+
-            "<option value='0'>Aktiv</option>"+
-            "<option value='1'>Inaktiv</option>"+
-        "</select> <br>"+
+        "<label>tilstand</label> <br> <select id='tilstand'>" +
+        "<option value='0'>Aktiv</option>" +
+        "<option value='1'>Inaktiv</option>" +
+        "</select> <br>" +
         "<button id = \"opretbruger\"> Opret </button>\n" +
         "<button id = \"deletebruger\"> Delete </button>\n" +
         "<button id = \"updatebruger\"> Update </button>\n" +
         "<br> </div>";
 }
-let lastID;
-
-
-// opretbutton.onclick = opretBruger;
-//setAllBrugere("/brugere");
 
 async function getBrugere() {
     try {
         document.getElementById('frivilligcontent').innerHTML = null;
-        makeFrivilligHTML()
+        if (await getBrugertype() === 0) {
+            makeFrivilligHTML()
+        }
         const brugereResponse = await GET('/brugere');
         const hbs = await fetch('/brugere.hbs');
         const brugereText = await hbs.text();
@@ -70,7 +66,7 @@ async function getBrugere() {
         for (let i = 0; i < lis.length; i++) {
             lis[i].onclick = function () {
                 bruger = brugereResponse[i];
-                lis[i].style.color = 'grey';
+                lis[i].style.color = 'gray';
                 if (tempbruger !== "" && tempbruger !== lis[i])
                     tempbruger.style.color = 'black';
                 tempbruger = lis.item(i);
@@ -93,27 +89,30 @@ async function GET(url) {
 
 async function opretBruger() {
     try {
-        let frivillig = document.getElementById('frivilligcontent');
-        let url = "/opretBruger";
-        let data = {
-            "fornavn": frivillig.querySelector('#fornavn').value,
-            "efternavn": frivillig.querySelector('#efternavn').value,
-            "telefonnummer": frivillig.querySelector('#telefonnummer').value,
-            "brugernavn": frivillig.querySelector('#brugernavn').value,
-            "password": frivillig.querySelector('#password').value,
-            "brugertype": frivillig.querySelector('#brugertype').value,
-            "tilstand": frivillig.querySelector('#tilstand').value,
-            "email": frivillig.querySelector('#email').value,
-        };
-        if (data.fornavn.length > 0 && data.efternavn.length > 0 && data.brugernavn.length > 0 && data.telefonnummer.match("^\\d{8}$")
-            && data.password.length > 0 && data.email.length > 0) {
-            let response = await POSTBruger(data, url);
-            console.log("POST: %o", response);
-            await getBrugere();
-        } else if (!data.telefonnummer.match("^\\d{8}$")) {
-            alert("et telefonnummer skal være 8 tal langt")
-        } else {
-            alert("Udfyld alt informationen")
+        if (await getBrugertype() === 0) {
+            let frivillig = document.getElementById('frivilligcontent');
+            let url = "/opretBruger";
+            let data = {
+                "fornavn": frivillig.querySelector('#fornavn').value,
+                "efternavn": frivillig.querySelector('#efternavn').value,
+                "telefonnummer": frivillig.querySelector('#telefonnummer').value,
+                "brugernavn": frivillig.querySelector('#brugernavn').value,
+                "password": frivillig.querySelector('#password').value,
+                "brugertype": frivillig.querySelector('#brugertype').value,
+                "tilstand": frivillig.querySelector('#tilstand').value,
+                "email": frivillig.querySelector('#email').value,
+            };
+            if (data.fornavn.length > 0 && data.efternavn.length > 0 && data.brugernavn.length > 0 && data.telefonnummer.match("^\\d{8}$")
+                && data.password.length > 0 && data.email.length > 0) {
+                let response = await POSTBruger(data, url);
+                cleartab()
+                await getBrugere()
+                console.log("POST: %o", response);
+            } else if (!data.telefonnummer.match("^\\d{8}$")) {
+                alert("et telefonnummer skal være 8 tal langt")
+            } else {
+                alert("Udfyld alt informationen")
+            }
         }
     } catch (e) {
         console.log(e.name + ": " + e.message);
@@ -122,30 +121,31 @@ async function opretBruger() {
 
 async function updateBruger() {
     try {
-        let frivillig = document.getElementById('frivilligcontent');
-        let data = {
-            "fornavn": frivillig.querySelector('#fornavn').value,
-            "efternavn": frivillig.querySelector('#efternavn').value,
-            "telefonnummer": frivillig.querySelector('#telefonnummer').value,
-            "password": frivillig.querySelector('#password').value,
-            "brugertype": frivillig.querySelector('#brugertype').value,
-            "tilstand": frivillig.querySelector('#tilstand').value,
-            "email": frivillig.querySelector('#email').value,
-        };
-        console.log(data);
-        let url = "/updateBruger/" + bruger.brugernavn;
-        if (data.fornavn.length > 0 && data.efternavn.length > 0 && data.telefonnummer.match("^\\d{8}$")
-            && data.password.length > 0 && data.email.length > 0) {
-            if (frivillig.querySelector('#brugernavn').value.length > 0) {
-                alert("Et brugernavn kan ikke opdateres")
-                let response = await PUT(data, url);
-                console.log("POST: %o", response);
-                await getBrugere();
+        if (await getBrugertype() === 0) {
+            let frivillig = document.getElementById('frivilligcontent');
+            let data = {
+                "fornavn": frivillig.querySelector('#fornavn').value,
+                "efternavn": frivillig.querySelector('#efternavn').value,
+                "telefonnummer": frivillig.querySelector('#telefonnummer').value,
+                "password": frivillig.querySelector('#password').value,
+                "brugertype": frivillig.querySelector('#brugertype').value,
+                "tilstand": frivillig.querySelector('#tilstand').value,
+                "email": frivillig.querySelector('#email').value,
+            };
+            console.log(data);
+            let url = "/updateBruger/" + bruger.brugernavn;
+            if (data.fornavn.length > 0 && data.efternavn.length > 0 && data.telefonnummer.match("^\\d{8}$")
+                && data.password.length > 0 && data.email.length > 0) {
+                if (frivillig.querySelector('#brugernavn').value.length > 0) {
+                    return alert("Et brugernavn kan ikke opdateres")
+                    let response = await PUT(data, url);
+                    console.log("POST: %o", response);
+                }
+            } else if (!data.telefonnummer.match("^\\d{8}$")) {
+                alert("et telefonnummer skal være 8 tal langt")
+            } else {
+                alert("Udfyld alt informationen")
             }
-        } else if (!data.telefonnummer.match("^\\d{8}$")) {
-            alert("et telefonnummer skal være 8 tal langt")
-        } else {
-            alert("Udfyld alt informationen")
         }
     } catch (e) {
         console.log(e.name + ": " + e.message);
@@ -154,11 +154,13 @@ async function updateBruger() {
 
 async function sletBruger() {
     try {
-        let brugernavn = bruger.brugernavn;
-        let url = "/deleteBruger/" + brugernavn;
-        let response = await DELETE(url);
-        console.log("DELETE: %o", response);
-        await getBrugere();
+        if (await getBrugertype() === 0) {
+            let brugernavn = bruger.brugernavn;
+            let url = "/deleteBruger/" + brugernavn;
+            let response = await DELETE(url);
+            console.log("DELETE: %o", response);
+            await getBrugere();
+        }
     } catch (e) {
         console.log(e.name + ": " + e.message);
     }
@@ -265,7 +267,7 @@ async function loadhtml() {
     }
     if(brugertype ==1) //afvikler
     {
-        forside = await fetch('/forside.hbs');
+        forside = await fetch('/forsideafvikler.hbs');
 
     }
     if (brugertype ==2) //frivillig
@@ -277,6 +279,7 @@ async function loadhtml() {
     const brugereText = await forside.text();
     document.getElementById('content').innerHTML = brugereText;
 }
+
 async function loaddivs() {
     const forside = await fetch('/tabdivs.hbs');
     const brugereText = await forside.text();
@@ -317,7 +320,7 @@ async function getBrugersVagter() {
         const brugerResponse = await GET('/mineVagter');
         const hbs = await fetch('/vagt.hbs');
         const vagtTxt = await hbs.text();
-
+        const brugertype = await getBrugertype();
         const compiledTemplate = Handlebars.compile(vagtTxt);
         let mineVagterHTML = '<table><tr><th> Mine Vagter</th></tr>';
 
@@ -327,10 +330,12 @@ async function getBrugersVagter() {
                 begivenhed: vagt.begivenhed,
                 id: vagt.id
             });
-            if (vagt.status != 2) {
-                mineVagterHTML += '<button class="sætVagtTilSalgButton" id="' + vagt.id + '"> Sæt til salg</button>';
-            } else {
-                mineVagterHTML += ' TIL SALG!';
+            if(brugertype !=1) {
+                if (vagt.status != 2) {
+                    mineVagterHTML += '<button class="sætVagtTilSalgButton" id="' + vagt.id + '"> Sæt til salg</button>';
+                } else {
+                    mineVagterHTML += ' TIL SALG!';
+                }
             }
             mineVagterHTML += '</td></tr>';
         });
@@ -358,6 +363,7 @@ async function getVagterTilSalg() {
         const vagterResponse = await GET('/vagtertilsalg');
         const hbs = await fetch('/salg.hbs');
         const vagterText = await hbs.text();
+        const brugertype = await getBrugertype();
 
         const compiledTemplate = Handlebars.compile(vagterText);
         let brugereHTML = '<table><tr><th>Begivenhed</th><th>Dato</th><th>Frivillig</th><th></th></tr>';
@@ -376,11 +382,17 @@ async function getVagterTilSalg() {
         vagterResponse.forEach(vagt => {
             let knap = document.getElementById(vagt.vagt._id);
             //knap.onclick = overtagvagt;
+            if (brugertype == 0) {
+               // knap.innerHTML = '';
+                knap.hidden = true;
+            } else {
+
             knap.onclick = function () {
 
 
                 overtagvagt(vagt.vagt._id);
             };
+        }
         });
 
     } catch (e) {
@@ -399,10 +411,9 @@ async function overtagvagt(id) {
 
             await getVagterTilSalg();
             update();
-       }
-    }
-    catch (e) {
-        console.log(e.name +" "+ e.message +" overtag vagt");
+        }
+    } catch (e) {
+        console.log(e.name + " " + e.message + " overtag vagt");
     }
 
 }
@@ -448,8 +459,6 @@ function removeElement(elementId) {
 }
 
 
-
-
 async function getBegivenheder() {
     try {
         // console.log('henter begivenheder');
@@ -471,7 +480,7 @@ async function getBegivenheder() {
         const brugertype = await getBrugertype();
         if(brugertype ==0)                                       //   smider knappen på
         {
-            brugereHTML += '<br> <button id="åbenOpretBegivenhedButton"> ny begivenhed</button>';
+            brugereHTML += '<br> <button id="åbenOpretBegivenhedButton" style="height: 50px "> Ny begivenhed</button>';
         }
 
 
@@ -567,10 +576,11 @@ async function getBegivenhed(id) {
     brugertype = await getBrugertype();
     let endpoint = '/sebegivenhed/' + id;
     const begivenhedResponse = await GET(endpoint);
-    console.log(begivenhedResponse);
+    //console.log(begivenhedResponse);
     let begivenhed = begivenhedResponse[0];
     let frivillige = begivenhedResponse[1];
     let afvikler = begivenhedResponse[2][0];
+   // console.log(afvikler, "getbegivnehed");
     console.log(afvikler, "getbegivnehed");
 
     //lav fjern og rediger knap såfremt brugertype=admin
@@ -586,7 +596,7 @@ async function getBegivenhed(id) {
     const begivenhedText = await side.text();
     const compiledTemplate = Handlebars.compile(begivenhedText);
     if(afvikler) {
-         begivenhedHTML += compiledTemplate({
+         begivenhedHTML = compiledTemplate({
             navn: begivenhed.navn,
             dato: begivenhed.dato,
             beskrivelse: begivenhed.beskrivelse,
@@ -594,7 +604,7 @@ async function getBegivenhed(id) {
         });
     }
     else {
-                        begivenhedHTML += compiledTemplate({
+                        begivenhedHTML = compiledTemplate({
                              navn: begivenhed.navn,
                             dato: begivenhed.dato,
                             beskrivelse: begivenhed.beskrivelse,
