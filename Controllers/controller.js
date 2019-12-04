@@ -178,6 +178,17 @@ exports.addVagtToBruger = async function addVagtToBruger(brugernavn, id) {
     return Promise.all([vagt.save(), bruger.save()]);
 }
 
+exports.fjernFrivilligFraVagt = async function fjernFrivilligFraVagt(vagtid) {
+    let vagt = await exports.getVagtFraId(vagtid);
+    let bruger = await exports.getBrugerFraId(vagt.bruger);
+    let brugernavn = bruger.brugernavn;
+    vagt.bruger = undefined;
+    vagt.status = 0;
+    await bruger.update({$pull: {vagter: vagtid}});
+    vagt.save();
+    bruger.save();
+}
+
 exports.tilmeldBegivenhed = async function tilmeldBegivenhed(brugernavn, begivenhedsid) {
     begivenhed = await exports.getBegivenhed(begivenhedsid);
      vagter = await exports.getVagterFraBegivenhed(begivenhedsid);
@@ -319,28 +330,13 @@ exports.getAfviklere = async function getAfviklere(){
 
 
 async function main() {
-    let tid = new Date('2019-12-17T03:24:00');
-    let tomvagt = undefined;
-    let b1 = await exports.newBegivenhed('Darkest Entries', tid, 'Kedeligt show', 5, undefined);
-    //let b1 = await exports.newBegivenhed('Darkest Entries', tid, 'Kedeligt show', 5, undefined);
-    let bruger = await exports.newBruger("Jens", 'Brouw', '88888888', 'jaja', 'jaja', 0, 1, 'jens@jens.com', undefined);
-    // let v1 = await exports.newVagt(tid, false, undefined, 1, 1, undefined, undefined);
-    // let v2 = await exports.newVagt(tid, false, undefined, 2, 1, undefined, undefined);
 
-    let bruger2 = await exports.newBruger('Thomas', 'Mee', '88888888', 'tmtheboss', 'jaja', 2, 1, 'tm@tapeaarhus.dk', undefined);
-    // console.log('Vagt: ' + v1);
-    //
-    // console.log('Begivenhed: ' + b1);
+    let admin = await exports.newBruger('Admin', 'Administratorsen', '88888888', 'admin', 'admin', 0, 1, 'admin@tapeaarhus.dk', undefined);
 
-    // await exports.addVagtToBruger(bruger, v1);
-    // await exports.addVagtToBruger(bruger2, v2);
-    // await exports.addVagtToBegivenhed(b1, v1);
-    // await exports.addVagtToBegivenhed(b1, v2);
-    // await exports.addVagtToBruger(bruger, v2);
 }
-    // main();
+      // main();
 
-    // main();
+     // main();
 async function main2() {
 
 }
