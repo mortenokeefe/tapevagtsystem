@@ -48,7 +48,7 @@ async function getBrugere() {
                 telefonnummer: bruger.telefonnummer,
                 email: bruger.email,
                 brugernavn: bruger.brugernavn,
-                fravær: await getFraværsProcent(bruger.brugernavn)
+                fravær: await getFraværsProcent(bruger.brugernavn)+'%'
 
             });
         }
@@ -469,7 +469,7 @@ async function setFravær(vagtId){
             const url = '/setFravaer';
             const data = {vagtId: vagtId};
             await PUT(data, url);
-            update();
+
         }
 
     }
@@ -549,13 +549,12 @@ async function åbenOpretEventVindue()
 
     let html =  'navn:<br> <input type="text" name="navn" id="bNameTxt"><br>' +
         'dato:<br> <input type="date" name="bday" id="bDate"><br>'+
-        ' beskrivelse:<br><textarea rows="10" cols="50" id="bBeskrivelseTxt"></textarea><br>' +
-        'antal frivillige:<br> <input type="number" name="antalfrivillige" id="bAntalFrivillige"><br>'+
-    '<button id ="opretBegivenhedButton"> opret begivenhed</button>';
+        'beskrivelse:<br><textarea rows="10" cols="50" id="bBeskrivelseTxt"></textarea><br>' +
+        'antal frivillige:<br> <input type="number" name="antalfrivillige" id="bAntalFrivillige"><br>';
 
     const afviklere = await getAfviklere();
     console.log(afviklere, " afviklere");
-    let afviklerehtml = "<br><label>Afvikler</label><br><select id='afviklereSelect'> ";
+    let afviklerehtml = "<label>Afvikler</label><br><select id='afviklereSelect'> ";
 
     for (let a of afviklere)
     {
@@ -565,7 +564,7 @@ async function åbenOpretEventVindue()
     }
     afviklerehtml += "<option value='undefined'> Ingen</option>";
     afviklerehtml += "</select>";
-    html += afviklerehtml;
+    html += afviklerehtml + '<br><br><button id ="opretBegivenhedButton"> opret begivenhed</button>';;
 
 
     let div = document.getElementById('begivenhedcontent');
@@ -667,7 +666,14 @@ async function getBegivenhed(id) {
 
              if(brugertype ==1)
              {
-                 vagterhtml += '<button class="fraværKnap" id="' + vagt._id + '">Skift fraværsstatus</button>';
+                 let fraværsstatus;
+                 if(vagt.fravær)
+                 fraværsstatus ='fraværende';
+                 else
+                     fraværsstatus ='deltagende';
+
+
+                 vagterhtml += ' : ' +fraværsstatus+'<button class="fraværKnap" id="' + vagt._id + '">Skift fraværsstatus</button>';
              }
 
 
@@ -764,6 +770,8 @@ async function getBegivenhed(id) {
         {
             k.onclick = function(){
                 setFravær(k.id);
+                cleartab();
+                getBegivenhed(id);
             }
         }
     }
@@ -840,11 +848,13 @@ async function åbenRedigerEvent(begivenhedsid) {
             navn: begivenhed.navn,
             dato: dat2,
             beskrivelse: begivenhed.beskrivelse,
-            afvikler: afvikler.fornavn + " " + afvikler.efternavn
+            afvikler: afvikler.fornavn + " " + afvikler.efternavn,
+            antalfrivillige: begivenhed.antalFrivillige
         });
         begivenhedHTML += '<br>';
         begivenhedHTML += '<p>Afvikler</p>' + afvikler.fornavn + ' ' + afvikler.efternavn;
-        begivenhedHTML += '<button class="fjernafvikler" id="'+ afviklervagt._id +'">Fjern afvikler</button>';
+        begivenhedHTML += '<button class="fjernafvikler" id="'+ afviklervagt._id +'">Fjern afvikler</button><br><br>';
+        begivenhedHTML += '<button class="gemændringer">Gem ændringer</button>';
 
         let div = document.getElementById('begivenhedcontent');
         div.innerHTML = begivenhedHTML;
@@ -867,6 +877,7 @@ async function åbenRedigerEvent(begivenhedsid) {
             navn: begivenhed.navn,
             dato: dat2,
             beskrivelse: begivenhed.beskrivelse,
+            antalfrivillige: begivenhed.antalFrivillige
         });
 
         //endpoint skal være /afviklere
@@ -891,8 +902,9 @@ async function åbenRedigerEvent(begivenhedsid) {
         knapHTML += '</select><br>';
         //1 skal være vagtid
         knapHTML += '<button class="popupknap" id="' + afviklervagt._id + '">Tilknyt afvikler</button>';
-        knapHTML += '</div></div>';
+        knapHTML += '</div></div><br><br>';
         begivenhedHTML += knapHTML;
+        begivenhedHTML += '<button class="gemændringer">Gem ændringer</button>';
 
         let div = document.getElementById('begivenhedcontent');
         div.innerHTML = begivenhedHTML;
@@ -933,7 +945,17 @@ async function åbenRedigerEvent(begivenhedsid) {
             }
         }
     }
-
+    //mangler antal frivillige
+    let knap = document.getElementsByClassName('gemændringer');
+    knap[0].onclick = async function () {
+        let navn = document.getElementById('begivenhednavn').value;
+        let dato = document.getElementById('begivenheddato').value;
+        let beskrivelse = document.getElementById('begivenhedbeskrivelse').value;
+        let o = {begivenhedsid, navn, dato, beskrivelse};
+        await PUT(o, '/redigerBegivenhed');
+        cleartab();
+        getBegivenhed(begivenhedsid);
+    }
 
 }
 
