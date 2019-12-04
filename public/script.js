@@ -844,7 +844,7 @@ async function åbenRedigerEvent(begivenhedsid) {
             let s = await POST('/fjernfrivilligfravagt', {vagtid: vagtid})
             if (s.ok) {
                 cleartab();
-                getBegivenhed(id);
+                åbenRedigerEvent(begivenhed._id);
             }
         }
 
