@@ -286,6 +286,13 @@ exports.setVagtStatus = async function setVagtStatus(id, newStatus)
 
 }
 
+exports.redigerBegivenhed = async function redigerBegivenhed(begivenhedsid, navn, dato, beskrivelse) {
+    const filter = {_id: begivenhedsid};
+    let d = new Date(dato);
+    const update = {navn: navn, dato: d, beskrivelse: beskrivelse};
+    return await Begivenhed.findOneAndUpdate(filter, update);
+}
+
 exports.getVagterFraBegivenhed = async function getVagterFraBegivenhed(begivenhedsid) {
     let vagter = await Vagt.find({"begivenhed" : begivenhedsid}).exec();
     return vagter;
@@ -348,10 +355,12 @@ exports.getAfvikerVagtFraBegivenhed = async function getAfvikerVagtFraBegivenhed
 
 async function main() {
 
-    let admin = await exports.newBruger('Admin', 'Administratorsen', '88888888', 'admin', 'admin', 0, 1, 'admin@tapeaarhus.dk', undefined);
+    let admin = await exports.newBruger('Admin', 'Jensen', '88888888', 'admin', 'admin', 0, 1, 'admin@tapeaarhus.dk', undefined);
+    let afvikler = await exports.newBruger('Afvikler', 'Afvikler', '88888888', 'af', 'af', 1, 1, 'admin@tapeaarhus.dk', undefined);
+    let frivillig = await exports.newBruger('Fri', 'Villig', '88888888', 'fri', 'fri', 2, 1, 'admin@tapeaarhus.dk', undefined);
 
 }
-       // main();
+         // main();
 
      // main();
 async function main2() {
