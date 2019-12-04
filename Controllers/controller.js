@@ -311,7 +311,9 @@ exports.seBegivenhed = async function seBegivenhed(id) {
 
 exports.deleteBruger = async function deleteBruger(brugernavn) {
     let vagter = await exports.getVagterFraBruger(brugernavn);
-    console.log(vagter)
+    for (let i = 0; i < vagter.length; i++) {
+        await exports.fjernFrivilligFraVagt(vagter[i]._id)
+    }
     return Bruger.deleteOne({brugernavn: brugernavn});
 };
 

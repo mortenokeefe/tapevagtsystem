@@ -585,7 +585,6 @@ async function getBegivenhed(id) {
     const side = await fetch('/begivenhed.hbs');
     const begivenhedText = await side.text();
     const compiledTemplate = Handlebars.compile(begivenhedText);
-     let begivenhedHTML ='';
     if(afvikler) {
          begivenhedHTML = compiledTemplate({
             navn: begivenhed.navn,
