@@ -449,6 +449,22 @@ async function getFraværsProcent(brugernavn){
         console.log(e.name +" "+ e.message);
     }
 }
+async function setFravær(vagtId){
+    try {
+        let svar = confirm('er du sikker?');
+        if(svar) {
+            const url = '/setFravaer';
+            const data = {vagtId: vagtId};
+            await PUT(data, url);
+            update();
+        }
+
+    }
+    catch (e) {
+        console.log(e.name +" "+ e.message);
+    }
+
+}
 
 function removeElement(elementId) {
     // Removes an element from the document
@@ -592,6 +608,7 @@ async function getBegivenhed(id) {
         begivenhedHTML += '<button class="redigerknap" id="' + id + '">Rediger begivenhed</button><br>';
     }
 
+
     const side = await fetch('/begivenhed.hbs');
     const begivenhedText = await side.text();
     const compiledTemplate = Handlebars.compile(begivenhedText);
@@ -635,6 +652,13 @@ async function getBegivenhed(id) {
              if (brugertype == 0) {
                  vagterhtml += '<button class="fjernknap" id="' + vagt._id + '">Fjern frivillig</button>';
              }
+
+             if(brugertype ==1)
+             {
+                 vagterhtml += '<button class="fraværKnap" id="' + vagt._id + '">Skift fraværsstatus</button>';
+             }
+
+
              vagterhtml += '<br>';
              index++;
              if(mig._id == vagt.bruger)
@@ -722,6 +746,16 @@ async function getBegivenhed(id) {
             knap[0].onclick = tilmeldBegivenhed;
         }
     }
+    if(brugertype ==1){
+        let knap = document.getElementsByClassName('fraværKnap');
+        for(let k of knap)
+        {
+            k.onclick = function(){
+                setFravær(k.id);
+            }
+        }
+    }
+
     if (brugertype == 0) {
         // Get the modal
         var modals = document.getElementsByClassName("modal");

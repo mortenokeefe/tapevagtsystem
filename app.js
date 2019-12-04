@@ -230,6 +230,10 @@ app.post('/update', async (req, res) => {
     console.log('jaja');
 });
 
+app.put('/setFravaer', async (req, res) =>{
+    let vagtId = req.body.vagtId;
+
+});
 
 
 
