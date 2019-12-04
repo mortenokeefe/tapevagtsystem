@@ -125,6 +125,12 @@ app.get('/afviklere', async(req, res)=> {
     res.send(afviklere);
 });
 
+app.get('/getAfvikerVagtFraBegivenhed/:begivenhedsid', async (req,res) => {
+    let id = req.params.begivenhedsid;
+   let afvikler = await controller.getAfvikerVagtFraBegivenhed(id);
+   res.send(afvikler);
+});
+
 
 //POST endpoints
 app.post('/opretBruger', async (req, res) => {

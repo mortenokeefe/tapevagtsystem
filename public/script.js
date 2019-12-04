@@ -794,36 +794,119 @@ async function åbenRedigerEvent(begivenhedsid) {
 
     let afvikler = begivenhedResponse[2][0];
 
-    let begivenhedHTML ='';
+    //hvad er afviklervagtens id
+    let ep2 = '/getAfvikerVagtFraBegivenhed/' + begivenhedsid;
+    let afviklervagt = await GET(ep2);
+    console.log('dette er afviklervagten');
+    console.log(afviklervagt);
+    let begivenhedHTML = '';
 
     const side = await fetch('/redigerevent.hbs');
     const begivenhedText = await side.text();
     const compiledTemplate = Handlebars.compile(begivenhedText);
-    if(afvikler) {
+    if (afvikler) {
 
-        begivenhedHTML += compiledTemplate({
-            navn: begivenhed.navn,
-            dato: begivenhed.dato,
-            beskrivelse: begivenhed.beskrivelse,
-            afvikler: afvikler.fornavn + " " + afvikler.efternavn
-        });
-    }
-    else {
         let dat = new Date(begivenhed.dato);
-        console.log(dat);
-        let dat2 = dat.toLocaleDateString();
-        console.log(dat2);
+        let dat2 = dat.toISOString().substring(0, 10);
+
         begivenhedHTML += compiledTemplate({
             navn: begivenhed.navn,
             dato: dat2,
             beskrivelse: begivenhed.beskrivelse,
-            afvikler: 'ingen afvikler'
+            afvikler: afvikler.fornavn + " " + afvikler.efternavn
+        });
+        begivenhedHTML += '<br>';
+        begivenhedHTML += '<p>Afvikler</p>' + afvikler.fornavn + ' ' + afvikler.efternavn;
+        begivenhedHTML += '<button class="fjernafvikler" id="'+ afviklervagt._id +'">Fjern afvikler</button>';
+
+        let div = document.getElementById('begivenhedcontent');
+        div.innerHTML = begivenhedHTML;
+
+        let fknap = document.getElementsByClassName('fjernafvikler');
+        fknap[0].onclick = async function () {
+            console.log('prøver at fjerne vagt...............');
+            let vagtid = fknap[0].id;
+            let s = await POST('/fjernfrivilligfravagt', {vagtid: vagtid})
+            if (s.ok) {
+                cleartab();
+                getBegivenhed(id);
+            }
+        }
+
+    } else {
+        let dat = new Date(begivenhed.dato);
+        let dat2 = dat.toISOString().substring(0, 10);
+        begivenhedHTML += compiledTemplate({
+            navn: begivenhed.navn,
+            dato: dat2,
+            beskrivelse: begivenhed.beskrivelse,
         });
 
+        //endpoint skal være /afviklere
+        let afviklere = await GET('/afviklere');
+        const tildelhbs = await fetch('/tildel.hbs');
+        const tildelText = await tildelhbs.text();
+        begivenhedHTML += tildelText;
+        //id skal være vagtid?
+        let knapHTML = 'Ingen afvikler   <button class="tildelknap" id="' + afviklervagt._id +'">Tilknyt afvikler</button><div id="1" class="modal"><div class="modal-content"> <span class="close">&times;</span>';
+
+        let afviklerehbs = await fetch('/afvikler.hbs');
+        let afviklereText = await afviklerehbs.text();
+        const frivilligeTemplate = Handlebars.compile(afviklereText);
+        //1 skal være vagtid
+        knapHTML += '<select class="select" id="' + afviklervagt._id + '" size="10" style="width: 80%">';
+        for (let afvikler of afviklere) {
+            knapHTML += frivilligeTemplate({
+                afviklerid: afvikler._id,
+                navn: afvikler.fornavn + ' ' + afvikler.efternavn
+            });
+        }
+        knapHTML += '</select><br>';
+        //1 skal være vagtid
+        knapHTML += '<button class="popupknap" id="' + afviklervagt._id + '">Tilknyt afvikler</button>';
+        knapHTML += '</div></div>';
+        begivenhedHTML += knapHTML;
+
+        let div = document.getElementById('begivenhedcontent');
+        div.innerHTML = begivenhedHTML;
+
+        var modals = document.getElementsByClassName("modal");
+
+        // Get the button that opens the modal
+        var btns = document.getElementsByClassName("tildelknap");
+
+        // Get the <span> element that closes the modal
+        var spans = document.getElementsByClassName("close");
+
+        var tildelbtns = document.getElementsByClassName('popupknap');
+
+        var selects = document.getElementsByClassName('select');
+
+        for (let index = 0; index < btns.length; index++) {
+            // When the user clicks the button, open the modal
+            btns[index].onclick = function () {
+                modals[index].style.display = "block";
+            }
+
+            tildelbtns[index].onclick = async function () {
+
+                let vagtid = btns[index].id;
+                let afviklerid = selects[index].value;
+                let o = {vagtid: vagtid, frivilligid: afviklerid};
+                console.log(o);
+                await POST('/adminTilfoejVagtTilBruger', o);
+
+                //lukker vindue
+                modals[index].style.display = "none";
+                cleartab();
+                åbenRedigerEvent(begivenhedsid);
+            }
+            spans[index].onclick = function () {
+                modals[index].style.display = "none";
+            }
+        }
     }
 
-    let div = document.getElementById('begivenhedcontent');
-    div.innerHTML = begivenhedHTML;
 
 }
 

@@ -252,6 +252,8 @@ exports.setFravær = async function setFravær(vagtId){
     return  await Vagt.findOneAndUpdate(filter, update);
 }
 
+
+
 exports.getVagterTilSalg = async function getVagterTilSalg() {
     //henter vagtejer, begivenhed og dato
     //alle vagter med status 2 = til salg
@@ -338,6 +340,17 @@ exports.getAfviklere = async function getAfviklere(){
 
 }
 
+exports.getAfvikerVagtFraBegivenhed = async function getAfvikerVagtFraBegivenhed(begivenhedsid) {
+    let afvikler;
+   let vagter = await exports.getVagterFraBegivenhed(begivenhedsid);
+   for (let vagt of vagter) {
+       if (vagt.vagtType == 1) {
+           afvikler = vagt;
+       }
+   }
+   return afvikler;
+}
+
 
 
 async function main() {
@@ -345,7 +358,7 @@ async function main() {
     let admin = await exports.newBruger('Admin', 'Administratorsen', '88888888', 'admin', 'admin', 0, 1, 'admin@tapeaarhus.dk', undefined);
 
 }
-      // main();
+       // main();
 
      // main();
 async function main2() {
