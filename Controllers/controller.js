@@ -272,6 +272,7 @@ exports.getVagterTilSalg = async function getVagterTilSalg() {
         // console.log(frivillig, "frivillig");
         let o = {vagt: vagt, begivenhed: begivenhed.navn, bruger: frivillig.fornavn + ' ' + frivillig.efternavn, dato: dato};
         //console.log(o, "o");
+        if(vagt.startTid >= new Date(Date.now()))
         vagtermedinfo.push(o);
     }
     // console.log(vagtermedinfo);

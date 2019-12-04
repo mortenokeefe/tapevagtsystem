@@ -48,7 +48,7 @@ async function getBrugere() {
                 telefonnummer: bruger.telefonnummer,
                 email: bruger.email,
                 brugernavn: bruger.brugernavn,
-                fravær: await getFraværsProcent(bruger.brugernavn)
+                fravær: await getFraværsProcent(bruger.brugernavn)+'%'
 
             });
         }
@@ -456,7 +456,7 @@ async function setFravær(vagtId){
             const url = '/setFravaer';
             const data = {vagtId: vagtId};
             await PUT(data, url);
-            update();
+
         }
 
     }
@@ -537,13 +537,12 @@ async function åbenOpretEventVindue()
 
     let html =  'navn:<br> <input type="text" name="navn" id="bNameTxt"><br>' +
         'dato:<br> <input type="date" name="bday" id="bDate"><br>'+
-        ' beskrivelse:<br><textarea rows="10" cols="50" id="bBeskrivelseTxt"></textarea><br>' +
-        'antal frivillige:<br> <input type="number" name="antalfrivillige" id="bAntalFrivillige"><br>'+
-    '<button id ="opretBegivenhedButton"> opret begivenhed</button>';
+        'beskrivelse:<br><textarea rows="10" cols="50" id="bBeskrivelseTxt"></textarea><br>' +
+        'antal frivillige:<br> <input type="number" name="antalfrivillige" id="bAntalFrivillige"><br>';
 
     const afviklere = await getAfviklere();
     console.log(afviklere, " afviklere");
-    let afviklerehtml = "<br><label>Afvikler</label><br><select id='afviklereSelect'> ";
+    let afviklerehtml = "<label>Afvikler</label><br><select id='afviklereSelect'> ";
 
     for (let a of afviklere)
     {
@@ -553,7 +552,7 @@ async function åbenOpretEventVindue()
     }
     afviklerehtml += "<option value='undefined'> Ingen</option>";
     afviklerehtml += "</select>";
-    html += afviklerehtml;
+    html += afviklerehtml + '<br><br><button id ="opretBegivenhedButton"> opret begivenhed</button>';;
 
 
     let div = document.getElementById('begivenhedcontent');
@@ -655,7 +654,14 @@ async function getBegivenhed(id) {
 
              if(brugertype ==1)
              {
-                 vagterhtml += '<button class="fraværKnap" id="' + vagt._id + '">Skift fraværsstatus</button>';
+                 let fraværsstatus;
+                 if(vagt.fravær)
+                 fraværsstatus ='fraværende';
+                 else
+                     fraværsstatus ='deltagende';
+
+
+                 vagterhtml += ' : ' +fraværsstatus+'<button class="fraværKnap" id="' + vagt._id + '">Skift fraværsstatus</button>';
              }
 
 
@@ -752,6 +758,8 @@ async function getBegivenhed(id) {
         {
             k.onclick = function(){
                 setFravær(k.id);
+                cleartab();
+                getBegivenhed(id);
             }
         }
     }

@@ -84,7 +84,11 @@ app.get('/mineVagter', async (req, res) => {
         samlet.begivenhed = begivenhed.navn;
         samlet.id = vagt._id;
         samlet.status = vagt.status;
-        vagterView.push(samlet);
+        let nu = new Date( Date.now());
+        if(vagt.startTid > nu) {
+            vagterView.push(samlet)
+        }
+
     }
     res.send(vagterView);
 });
@@ -226,27 +230,33 @@ app.post('/update', async (req, res) => {
 
 app.put('/setFravaer', async (req, res) =>{
     let vagtId = req.body.vagtId;
+    await controller.setFravær(vagtId);
+    res.send({ok:true});
 
 });
 
 
 
-app.get('/mineVagter', async (req, res) =>{
-    let vagter = await controller.getVagterFraBruger(req.session.brugernavn);
-    let vagterView = [];
-    for (let vagt of vagter)
-    {
-        let samlet = {dato: 'dato', begivenhed : 'begivenhed', id : 'id'};
-        dateConverted = vagt.startTid;
-        samlet.dato = new Date(dateConverted).toLocaleDateString();
-        let begivenhed = await controller.getBegivenhed(vagt.begivenhed);
-        samlet.begivenhed = begivenhed.navn;
-        samlet.id = vagt._id;
-        vagterView.push(samlet)
-    }
-    res.send(vagterView);
-
-});
+// app.get('/mineVagter', async (req, res) =>{
+//     let vagter = await controller.getVagterFraBruger(req.session.brugernavn);
+//     let vagterView = [];
+//     for (let vagt of vagter)
+//     {
+//         let samlet = {dato: 'dato', begivenhed : 'begivenhed', id : 'id'};
+//         dateConverted = vagt.startTid;
+//         samlet.dato = new Date(dateConverted).toLocaleDateString();
+//         let begivenhed = await controller.getBegivenhed(vagt.begivenhed);
+//         samlet.begivenhed = begivenhed.navn;
+//         samlet.id = vagt._id;
+//         let nu = Date.now();
+//         console.log(vagt.dato, "vagt.dato", nu, "nu") ;
+//         if(vagt.dato > nu) {
+//             vagterView.push(samlet)
+//         }
+//     }
+//     res.send(vagterView);
+//
+// });
 
 //login
 
