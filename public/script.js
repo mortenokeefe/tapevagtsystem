@@ -265,7 +265,7 @@ async function loadhtml() {
     }
     if(brugertype ==1) //afvikler
     {
-        forside = await fetch('/forside.hbs');
+        forside = await fetch('/forsideafvikler.hbs');
 
     }
     if (brugertype ==2) //frivillig
@@ -317,7 +317,7 @@ async function getBrugersVagter() {
         const brugerResponse = await GET('/mineVagter');
         const hbs = await fetch('/vagt.hbs');
         const vagtTxt = await hbs.text();
-
+        const brugertype = await getBrugertype();
         const compiledTemplate = Handlebars.compile(vagtTxt);
         let mineVagterHTML = '<table><tr><th> Mine Vagter</th></tr>';
 
@@ -327,10 +327,12 @@ async function getBrugersVagter() {
                 begivenhed: vagt.begivenhed,
                 id: vagt.id
             });
-            if (vagt.status != 2) {
-                mineVagterHTML += '<button class="sætVagtTilSalgButton" id="' + vagt.id + '"> Sæt til salg</button>';
-            } else {
-                mineVagterHTML += ' TIL SALG!';
+            if(brugertype !=1) {
+                if (vagt.status != 2) {
+                    mineVagterHTML += '<button class="sætVagtTilSalgButton" id="' + vagt.id + '"> Sæt til salg</button>';
+                } else {
+                    mineVagterHTML += ' TIL SALG!';
+                }
             }
             mineVagterHTML += '</td></tr>';
         });
@@ -471,7 +473,7 @@ async function getBegivenheder() {
         const brugertype = await getBrugertype();
         if(brugertype ==0)                                       //   smider knappen på
         {
-            brugereHTML += '<br> <button id="åbenOpretBegivenhedButton"> ny begivenhed</button>';
+            brugereHTML += '<br> <button id="åbenOpretBegivenhedButton" style="height: 50px "> Ny begivenhed</button>';
         }
 
 
