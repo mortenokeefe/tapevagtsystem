@@ -208,6 +208,11 @@ app.post('/overtagvagt', async (req, res) =>{
 
 });
 
+app.post('/fjernfrivilligfravagt', async (req, res) => {
+   let vagtid = req.body.vagtid;
+   await controller.fjernFrivilligFraVagt(vagtid);
+    res.send({ok:true});
+});
 
 app.post('/update', async (req, res) => {
     console.log('jaja');
@@ -234,6 +239,7 @@ app.get('/mineVagter', async (req, res) =>{
 });
 
 //login
+
 
 app.post('/login', async (request, response) => {
     const {brugernavn, password} = request.body;
