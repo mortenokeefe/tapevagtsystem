@@ -363,6 +363,7 @@ async function getVagterTilSalg() {
         const vagterResponse = await GET('/vagtertilsalg');
         const hbs = await fetch('/salg.hbs');
         const vagterText = await hbs.text();
+        const brugertype = await getBrugertype();
 
         const compiledTemplate = Handlebars.compile(vagterText);
         let brugereHTML = '<table><tr><th>Begivenhed</th><th>Dato</th><th>Frivillig</th><th></th></tr>';
@@ -381,11 +382,17 @@ async function getVagterTilSalg() {
         vagterResponse.forEach(vagt => {
             let knap = document.getElementById(vagt.vagt._id);
             //knap.onclick = overtagvagt;
+            if (brugertype == 0) {
+               // knap.innerHTML = '';
+                knap.hidden = true;
+            } else {
+
             knap.onclick = function () {
 
 
                 overtagvagt(vagt.vagt._id);
             };
+        }
         });
 
     } catch (e) {
