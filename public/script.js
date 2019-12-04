@@ -596,7 +596,7 @@ async function getBegivenhed(id) {
     const begivenhedText = await side.text();
     const compiledTemplate = Handlebars.compile(begivenhedText);
     if(afvikler) {
-         begivenhedHTML = compiledTemplate({
+         begivenhedHTML += compiledTemplate({
             navn: begivenhed.navn,
             dato: begivenhed.dato,
             beskrivelse: begivenhed.beskrivelse,
@@ -604,7 +604,7 @@ async function getBegivenhed(id) {
         });
     }
     else {
-                        begivenhedHTML = compiledTemplate({
+                        begivenhedHTML += compiledTemplate({
                              navn: begivenhed.navn,
                             dato: begivenhed.dato,
                             beskrivelse: begivenhed.beskrivelse,
@@ -810,7 +810,7 @@ async function åbenRedigerEvent(begivenhedsid) {
             let s = await POST('/fjernfrivilligfravagt', {vagtid: vagtid})
             if (s.ok) {
                 cleartab();
-                getBegivenhed(id);
+                åbenRedigerEvent(begivenhed._id);
             }
         }
 
