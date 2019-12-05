@@ -484,9 +484,9 @@ exports.findFrivilligeDerIkkeHarEnVagtPåBegivenhed = async function findFrivill
 
 async function main() {
 
-    let admin = await exports.newBruger('Admin', 'Jensen', '88888888', 'admin', 'admin', 0, 1, 'admin@tapeaarhus.dk', undefined);
-    let afvikler = await exports.newBruger('Afvikler', 'Afvikler', '88888888', 'af', 'af', 1, 1, 'admin@tapeaarhus.dk', undefined);
-    let frivillig = await exports.newBruger('Fri', 'Villig', '88888888', 'fri', 'fri', 2, 1, 'admin@tapeaarhus.dk', undefined);
+    let admin = await exports.newBruger('Admin', 'Jensen', '88888888', 'admin', 'admin', 0, 0, 'admin@tapeaarhus.dk', undefined);
+    let afvikler = await exports.newBruger('Afvikler', 'Afvikler', '88888888', 'af', 'af', 1, 0, 'admin@tapeaarhus.dk', undefined);
+    let frivillig = await exports.newBruger('Fri', 'Villig', '88888888', 'fri', 'fri', 2, 0, 'admin@tapeaarhus.dk', undefined);
 
 }
           // main();
