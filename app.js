@@ -331,6 +331,11 @@ app.delete('/clearDatabase/' , async (req, res) =>{
     res.sendStatus(200);
 });
 
+app.delete('/sletbegivenhed/:begivenhedsid', async (req, res) => {
+    let id = req.params.begivenhedsid;
+   await controller.sletBegivenhed(id);
+});
+
 app.get('/vagtertilsalg', async (req, res) => {
    let vagter = await controller.getVagterTilSalg();
    res.send(vagter);

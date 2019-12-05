@@ -323,12 +323,12 @@ exports.redigerBegivenhed = async function redigerBegivenhed(begivenhedsid, navn
     //hvis antalfrivillige er blevet forøget
     if (begivenhed.antalFrivillige < antalfrivillige) {
         let ektravagter = antalfrivillige - begivenhed.antalFrivillige;
-        for (let vagt of ektravagter) {
+        for (let index = ektravagter; index > 0; index--) {
             let tid = d.setHours('20', '00');
-            let v = exports.newVagt(tid, false, undefined, 0, 0, undefined, begivenhed)
+            let v = await exports.newVagt(tid, false, undefined, 0, 0, undefined, begivenhed)
             await exports.addVagtToBegivenhed(begivenhed, v);
         }
-        const update = {navn: navn, dato: d, beskrivelse: beskrivelse};
+        const update = {navn: navn, dato: d, beskrivelse: beskrivelse, antalFrivillige: antalfrivillige};
         return await Begivenhed.findOneAndUpdate(filter, update);
     }
     //hvis antalfrivillige er blevet mindre
@@ -383,6 +383,10 @@ exports.deleteBruger = async function deleteBruger(brugernavn) {
     }
     return Bruger.deleteOne({brugernavn: brugernavn});
 };
+
+exports.sletBegivenhed = async function sletBegivenhed(id) {
+    return Begivenhed.deleteOne({_id: id});
+}
 
 exports.getCalendarEvents = function getCalendarEvents(options){
     return Begivenhed.find(options)
@@ -485,7 +489,7 @@ async function main() {
     let frivillig = await exports.newBruger('Fri', 'Villig', '88888888', 'fri', 'fri', 2, 1, 'admin@tapeaarhus.dk', undefined);
 
 }
-          main();
+          // main();
 
      // main();
 async function main2() {

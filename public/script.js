@@ -626,7 +626,8 @@ async function getBegivenhed(id) {
 
     if (brugertype == 0) {
         console.log('bruger er admin');
-        begivenhedHTML += '<button class="redigerknap" id="' + id + '">Rediger begivenhed</button><br>';
+        begivenhedHTML += '<button class="redigerknap" id="' + id + '">Rediger begivenhed</button>    ';
+        begivenhedHTML += '<button class="sletknap" id="' + id + '">Slet begivenhed</button><br>';
     }
 
 
@@ -765,6 +766,15 @@ async function getBegivenhed(id) {
         let redigerknap = document.getElementsByClassName('redigerknap');
         redigerknap[0].onclick = async function () {
             åbenRedigerEvent(id);
+        }
+        let sletknap = document.getElementsByClassName('sletknap');
+        sletknap[0].onclick = async function () {
+            let svar = confirm('Er du sikker på, at du vil slette begivenheden?');
+            if(svar) {
+                await DELETE('/sletbegivenhed/' + id)
+                    .then(cleartab())
+                        .then(loadCalendar());
+            }
         }
     }
 
