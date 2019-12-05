@@ -38,7 +38,7 @@ app.get('/sebegivenhed/:begivenhedsid', async (req, res) => {
 });
 
 app.get('/begivenheder' , async (req, res )=>{
-    let events = await controller.getBegivnheder();
+    let events = await controller.getBegivenheder();
    // console.log( events);
     res.send(events)
 
@@ -76,19 +76,21 @@ app.get('/vagter', async (req, res)=> {
 app.get('/mineVagter', async (req, res) => {
     let vagter = await controller.getVagterFraBruger(req.session.brugernavn);
     let vagterView = [];
-    for (let vagt of vagter) {
-        let samlet = {dato: 'dato', begivenhed: 'begivenhed', id: 'id', status: 'status'};
-        dateConverted = vagt.startTid;
-        samlet.dato = new Date(dateConverted).toLocaleDateString();
-        let begivenhed = await controller.getBegivenhed(vagt.begivenhed);
-        samlet.begivenhed = begivenhed.navn;
-        samlet.id = vagt._id;
-        samlet.status = vagt.status;
-        let nu = new Date( Date.now());
-        if(vagt.startTid > nu) {
-            vagterView.push(samlet)
-        }
+    if(vagter.length >0) {
+        for (let vagt of vagter) {
+            let samlet = {dato: 'dato', begivenhed: 'begivenhed', id: 'id', status: 'status'};
+            dateConverted = vagt.startTid;
+            samlet.dato = new Date(dateConverted).toLocaleDateString();
+            let begivenhed = await controller.getBegivenhed(vagt.begivenhed);
+            samlet.begivenhed = begivenhed.navn;
+            samlet.id = vagt._id;
+            samlet.status = vagt.status;
+            let nu = new Date(Date.now());
+            if (vagt.startTid > nu) {
+                vagterView.push(samlet)
+            }
 
+        }
     }
     res.send(vagterView);
 });
@@ -141,6 +143,12 @@ app.get('/checkForLedigeVagter/:begivenhedsid/:antal', async (req,res) => {
     let svar = await controller.checkForLedigeVagter(id, antal);
     res.send(svar);
 });
+
+app.get('/FrivilligeDerIkkeHarEnVagtPaaBegivenhed/:begivenhedsid', async (req, res) => {
+    let id = req.params.begivenhedsid;
+    let frivillige = await controller.findFrivilligeDerIkkeHarEnVagtPåBegivenhed(id);
+    res.send(frivillige);
+})
 
 
 //POST endpoints
@@ -327,8 +335,14 @@ app.delete('/deleteBruger/:brugernavn' , async (req, res) =>{
 });
 
 app.delete('/clearDatabase/' , async (req, res) =>{
-    await controller.clearDatabase()
-    res.sendStatus(200);
+    console.log("enter app /cleardatabase");
+    await controller.clearDatabase();
+    res.send({ok:true});
+});
+
+app.delete('/sletbegivenhed/:begivenhedsid', async (req, res) => {
+    let id = req.params.begivenhedsid;
+   await controller.sletBegivenhed(id);
 });
 
 app.get('/vagtertilsalg', async (req, res) => {

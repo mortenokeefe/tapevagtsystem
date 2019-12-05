@@ -184,8 +184,9 @@ async function sletBruger() {
 
 async function clearDatabase() {
     try {
+       let brugertype = await getBrugertype();
         let svar = confirm("Er du sikker på, at du vil slette alle begivenheder og vagter, før dagens dato?");
-        if (await getBrugertype() === 0 && svar) {
+        if (brugertype == 0 && svar) {
             let url = "/clearDatabase/";
             let response = await DELETE(url);
             console.log("DELETE: %o", response);
@@ -395,6 +396,7 @@ async function getVagterTilSalg() {
         const vagterResponse = await GET('/vagtertilsalg');
         const hbs = await fetch('/salg.hbs');
         const vagterText = await hbs.text();
+        let brugertype = getBrugertype();
 
         const compiledTemplate = Handlebars.compile(vagterText);
         let brugereHTML = '<table><tr><th>Begivenhed</th><th>Dato</th><th>Frivillig</th><th></th></tr>';
@@ -527,7 +529,7 @@ async function getBegivenheder() {
         const brugertype = await getBrugertype();
         if(brugertype ==0)                                       //   smider knappen på
         {
-            brugereHTML += '<br> <button id="åbenOpretBegivenhedButton" > Ny begivenhed</button> <button id="ClearDatabase"> Clear database</button>';
+            brugereHTML += '<br> <button id="åbenOpretBegivenhedButton" style="height: 50px "> ny begivenhed</button> <button id="ClearDatabase"> Slet gamle begivenheder</button>';
         }
 
 
@@ -548,17 +550,32 @@ async function clickBegivenhed(eventId) {
 }
 async function opretBegivenhed(navn, dato, beskrivelse, antalFrivillige, afvikler)
 {
-    console.log(navn + dato + beskrivelse + antalFrivillige);
+
     const url = '/opretBegivenhed';
     let realDate = new Date(dato);
+    if(navn.length ==0 || dato ==null  ){
+
+        alert('du har enten ikke valgt 1 navn, eller 1 dato ');
+    }
+    else {
     try {
-        await POST(url, {navn: navn, dato: realDate, beskrivelse: beskrivelse, antalFrivillige : antalFrivillige, afvikler : afvikler });
+        await POST(url, {
+            navn: navn,
+            dato: realDate,
+            beskrivelse: beskrivelse,
+            antalFrivillige: antalFrivillige,
+            afvikler: afvikler
+        });
     }
-    catch (e) {
-        console.log(e.name + ": " + e.message);
+
+    catch
+        (e)
+        {
+            console.log(e.name + ": " + e.message);
+        }
+        cleartab();
+        update();
     }
-    cleartab();
-    update();
 }
 
 async function åbenOpretEventVindue()
@@ -634,7 +651,8 @@ async function getBegivenhed(id) {
 
     if (brugertype == 0) {
         console.log('bruger er admin');
-        begivenhedHTML += '<button class="redigerknap" id="' + id + '">Rediger begivenhed</button><br>';
+        begivenhedHTML += '<button class="redigerknap" id="' + id + '">Rediger begivenhed</button>    ';
+        begivenhedHTML += '<button class="sletknap" id="' + id + '">Slet begivenhed</button><br>';
     }
 
 
@@ -706,7 +724,7 @@ async function getBegivenhed(id) {
             vagterhtml += index + '. ' + 'Ledig   ';
             //hvis man er admin skal man kunne tildele vagter:
             if (brugertype == 0) {
-                let frivillige = await GET('/frivillige');
+                let frivillige = await GET('/FrivilligeDerIkkeHarEnVagtPaaBegivenhed/' + id);
                 const tildelhbs = await fetch('/tildel.hbs');
                 const tildelText = await tildelhbs.text();
                 vagterhtml += tildelText;
@@ -774,6 +792,15 @@ async function getBegivenhed(id) {
         let redigerknap = document.getElementsByClassName('redigerknap');
         redigerknap[0].onclick = async function () {
             åbenRedigerEvent(id);
+        }
+        let sletknap = document.getElementsByClassName('sletknap');
+        sletknap[0].onclick = async function () {
+            let svar = confirm('Er du sikker på, at du vil slette begivenheden?');
+            if(svar) {
+                await DELETE('/sletbegivenhed/' + id)
+                    .then(cleartab())
+                        .then(loadCalendar());
+            }
         }
     }
 
@@ -969,15 +996,22 @@ async function åbenRedigerEvent(begivenhedsid) {
     let knap = document.getElementsByClassName('gemændringer');
     knap[0].onclick = async function () {
         let navn = document.getElementById('begivenhednavn').value;
-        let dato = document.getElementById('begivenheddato').value;
+        let dato = document.getElementById('begivenheddato').valueAsDate;
         let beskrivelse = document.getElementById('begivenhedbeskrivelse').value;
         let antalfrivillige = document.getElementById('begivenhedantalfrivillige').value;
-        let o = {begivenhedsid, navn, dato, beskrivelse, antalfrivillige};
-        let checksvar = await GET('/checkForLedigeVagter/' + begivenhedsid + '/' + antalfrivillige);
-        console.log(checksvar);
-        // await PUT(o, '/redigerBegivenhed');
-        // cleartab();
-        // getBegivenhed(begivenhedsid);
+        if (navn.length == 0 || dato == null) {
+            alert('du har enten ikke valgt 1 navn eller 1 dato');
+        } else {
+            let o = {begivenhedsid, navn, dato, beskrivelse, antalfrivillige};
+            let checksvar = await GET('/checkForLedigeVagter/' + begivenhedsid + '/' + antalfrivillige);
+            if (checksvar) {
+                await PUT(o, '/redigerBegivenhed');
+                cleartab();
+                getBegivenhed(begivenhedsid);
+            } else {
+                alert('Det må du ikke');
+            }
+        }
     }
 
 }

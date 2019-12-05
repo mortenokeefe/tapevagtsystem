@@ -68,3 +68,13 @@ background-color: white;
 select{
     background-color: white;
 }
+.tekstmedbaggrund{
+    background-color: white;
+}
+tr{
+    background-color: white;
+}
+.nextline{
+    word-wrap: break-word;
+    background-color: white;
+}

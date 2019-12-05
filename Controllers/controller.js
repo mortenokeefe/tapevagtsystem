@@ -88,16 +88,21 @@ exports.newBegivenhed = async function newBegivenhed(navn, dato, beskrivelse, an
 }
 
 exports.clearDatabase = async function clearDatabase() {
+    console.log ("enter clearDatabase");
     let date = Date.now();
-    let begivenheder = await exports.getBegivnheder();
-    for (let i = 0; i < begivenheder.length; i++) {
-        if (date > begivenheder[i].dato) {
-            let vagter = await exports.getVagterFraBegivenhed(begivenheder[i]._id);
-            for (let j = 0; j < vagter.length; j++) {
-                await exports.fjernFrivilligFraVagt(vagter[j]._id)
-                await Vagt.remove(vagter[j]);
+    let begivenheder = await exports.getBegivenheder();
+    for (let b of begivenheder) {
+        if (date > b.dato) {
+            console.log(b._id, "begivenhed ID");
+            let vagter = await exports.getVagterFraBegivenhed(b._id);
+            console.log(vagter.length, "vager længde");
+            for (let v of vagter) {
+                console.log(b._id,"begivenhed", v._id,"vagt");
+                await exports.fjernFrivilligFraVagt(v._id).then(
+                 Vagt.deleteOne(v._id));
+
             }
-            await Begivenhed.remove(begivenheder[i])
+            await Begivenhed.deleteOne(b);
         }
     }
 }
@@ -151,7 +156,7 @@ exports.getFraværForBruger = async function getFraværForBruger(brugernavn) {
         return 0;
 }
 
-exports.getBegivnheder = async function getBegivenheder() {
+exports.getBegivenheder = async function getBegivenheder() {
     //henter begivenheder for næste måned
     // let datenow = new Date(Date.now());
     // let month1 = datenow.getMonth();
@@ -216,6 +221,7 @@ exports.fjernFrivilligFraVagt = async function fjernFrivilligFraVagt(vagtid) {
         vagt.status = 0;
         await bruger.update({$pull: {vagter: vagtid}});
         bruger.save();
+        vagt.save();
     }
     }
 
@@ -337,16 +343,17 @@ exports.redigerBegivenhed = async function redigerBegivenhed(begivenhedsid, navn
     //hvis antalfrivillige er blevet forøget
     if (begivenhed.antalFrivillige < antalfrivillige) {
         let ektravagter = antalfrivillige - begivenhed.antalFrivillige;
-        for (let vagt of ektravagter) {
+        for (let index = ektravagter; index > 0; index--) {
             let tid = d.setHours('20', '00');
-            let v = exports.newVagt(tid, false, undefined, 0, 0, undefined, begivenhed)
+            let v = await exports.newVagt(tid, false, undefined, 0, 0, undefined, begivenhed)
             await exports.addVagtToBegivenhed(begivenhed, v);
         }
-        const update = {navn: navn, dato: d, beskrivelse: beskrivelse};
+        const update = {navn: navn, dato: d, beskrivelse: beskrivelse, antalFrivillige: antalfrivillige};
         return await Begivenhed.findOneAndUpdate(filter, update);
     }
     //hvis antalfrivillige er blevet mindre
     else if (begivenhed.antalFrivillige > antalfrivillige) {
+        console.log(antalfrivillige, ' skal fjernes fra event');
         let vagterderskalfjernes = begivenhed.antalFrivillige - antalfrivillige;
         while (vagterderskalfjernes > 0) {
             await exports.fjerneNæsteLedigeVagtFraBegivenhed(begivenhedsid);
@@ -397,6 +404,10 @@ exports.deleteBruger = async function deleteBruger(brugernavn) {
     return Bruger.deleteOne({brugernavn: brugernavn});
 };
 
+exports.sletBegivenhed = async function sletBegivenhed(id) {
+    return Begivenhed.deleteOne({_id: id});
+}
+
 exports.getCalendarEvents = function getCalendarEvents(options){
     return Begivenhed.find(options)
 }
@@ -427,14 +438,15 @@ exports.checkForLedigeVagter = async function checkForLedigeVagter(begivenhedsId
     let antalVagterDerSkalVæreLedige = (begivenhed.vagter.length-1)-antal;
     for(let vagt of begivenhed.vagter)
     {
-
-        if (vagt.status ==0 && vagt.type ==0)
+    let v = await exports.getVagtFraId(vagt);
+        if (v.status ==0 && v.vagtType ==0)
         {
             counter++;
             if(counter == antalVagterDerSkalVæreLedige)
             break;
         }
     }
+
     if(counter >= antalVagterDerSkalVæreLedige)
     return true;
     else
@@ -442,14 +454,19 @@ exports.checkForLedigeVagter = async function checkForLedigeVagter(begivenhedsId
 }
 exports.fjerneNæsteLedigeVagtFraBegivenhed = async function fjerneNæsteLedigeVagtFraBegivenhed(begivenhedsId)
 {
+    console.log('fjernenæste');
     let begivenhed = await exports.getBegivenhed(begivenhedsId);
     let fjernet = false;
     for(let vagt of begivenhed.vagter)
     {
-        if (vagt.status ==0 && vagt.type ==0)
+        console.log('for loop');
+        let v = await exports.getVagtFraId(vagt);
+        if (v.status ==0 && v.vagtType ==0)
         {
-            begivenhed.update({$pull: {vagter: vagt._id}});
-            Vagt.deleteOne({_id: vagt._id});
+            console.log('if')
+            await begivenhed.update({$pull: {vagter: v._id}});
+            begivenhed.antalFrivillige--;
+            await Vagt.deleteOne(v);
             begivenhed.save();
             fjernet = true;
             break;
@@ -457,6 +474,30 @@ exports.fjerneNæsteLedigeVagtFraBegivenhed = async function fjerneNæsteLedigeV
         }
     }
     return fjernet;
+}
+
+exports.findFrivilligeDerIkkeHarEnVagtPåBegivenhed = async function findFrivilligeDerIkkeHarEnVagtPåBegivenhed(begivenhedId){
+    let brugere = await exports.getBrugere();
+    let list = [];
+    for(let b of brugere)
+    {
+        if(b.brugertype ==2) {
+            let harvagt = false;
+            for (let v of b.vagter) {
+                let vagt = await exports.getVagtFraId(v);
+                if (vagt.begivenhed.toString() == begivenhedId.toString()) {
+                    harvagt = true;
+                    break;
+                }
+            }
+            if (!harvagt) {
+                list.push(b);
+            }
+        }
+    }
+    return list;
+
+
 }
 
 
@@ -468,7 +509,7 @@ async function main() {
     let frivillig = await exports.newBruger('Fri', 'Villig', '88888888', 'fri', 'fri', 2, 1, 'admin@tapeaarhus.dk', undefined);
 
 }
-         //< main();
+          // main();
 
      // main();
 async function main2() {
