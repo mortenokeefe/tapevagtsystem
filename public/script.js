@@ -31,7 +31,7 @@ function makeFrivilligHTML() {
 
 async function getBrugere() {
     try {
-        document.getElementById('frivilligcontent').innerHTML = '';
+        document.getElementById('frivilligcontent').innerHTML = null;
         if (await getBrugertype() === 0) {
             makeFrivilligHTML()
         }
@@ -92,6 +92,14 @@ async function GET(url) {
     if (response.status !== OK)
         throw new Error("GET status code " + response.status);
     return await response.json();
+};
+
+async function GETtext(url) {
+    const OK = 200;
+    let response = await fetch(url);
+    if (response.status !== OK)
+        throw new Error("GET status code " + response.status);
+    return await response.text();
 };
 
 async function opretBruger() {
@@ -738,8 +746,9 @@ async function getBegivenhed(id) {
                     console.log(frivillig);
                     knapHTML += frivilligeTemplate({
                         frivilligid: frivillig._id,
-                       navn: frivillig.fornavn + ' ' + frivillig.efternavn
-                    });
+                       navn: frivillig.fornavn + ' ' + frivillig.efternavn,
+                      //  antalVagter: await GETtext('/getAntalVagterTilbage' + frivillig.brugernavn)
+                });
                 }
                 knapHTML += '</select><br>';
                 knapHTML += '<button class="popupknap" id="'+ vagt._id +'">Tildel valgt</button>';
@@ -934,6 +943,7 @@ async function åbenRedigerEvent(begivenhedsid) {
             knapHTML += frivilligeTemplate({
                 afviklerid: afvikler._id,
                 navn: afvikler.fornavn + ' ' + afvikler.efternavn
+
             });
         }
         knapHTML += '</select><br>';

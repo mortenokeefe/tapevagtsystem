@@ -32,8 +32,22 @@ button {
 
 #ClearDatabase {
     position :fixed;
-    bottom:2%;
-    right:2%;
+    top:20%;
+    left:25%;
+    size: 20px;
+    border-radius: 4px;
+    color: snow;
+    background-color: darkslateblue;
+
+}
+#åbenOpretBegivenhedButton {
+    position :fixed;
+    top:20%;
+    left:15%;
+    size: 20px;
+    border-radius: 4px;
+    color: snow;
+    background-color: darkslateblue;
 }
 
 .img-container {
