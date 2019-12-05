@@ -398,6 +398,24 @@ exports.checkForLedigeVagter = async function checkForLedigeVagter(begivenhedsId
     else
         return false;
 }
+exports.fjerneNæsteLedigeVagtFraBegivenhed = async function fjerneNæsteLedigeVagtFraBegivenhed(begivenhedsId)
+{
+    let begivenhed = await getBegivenhed(begivenhedsId);
+    let fjernet = false;
+    for(let vagt of begivenhed.vagter)
+    {
+        if (vagt.status ==0 && vagt.type ==0)
+        {
+            begivenhed.update({$pull: {vagter: vagt._id}});
+            Vagt.deleteOne({_id: vagt._id});
+            begivenhed.save();
+            fjernet = true;
+            break;
+
+        }
+    }
+    return fjernet;
+}
 
 
 
