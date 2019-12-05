@@ -337,7 +337,7 @@ exports.redigerBegivenhed = async function redigerBegivenhed(begivenhedsid, navn
     else if (begivenhed.antalFrivillige > antalfrivillige) {
         let vagterderskalfjernes = begivenhed.antalFrivillige - antalfrivillige;
         while (vagterderskalfjernes > 0) {
-            //fjern 1 vagt
+            await exports.fjerneNæsteLedigeVagtFraBegivenhed(begivenhedsid);
             vagterderskalfjernes--;
     }
         const update = {navn: navn, dato: d, beskrivelse: beskrivelse};
@@ -409,7 +409,7 @@ exports.getAfvikerVagtFraBegivenhed = async function getAfvikerVagtFraBegivenhed
 }
 
 exports.checkForLedigeVagter = async function checkForLedigeVagter(begivenhedsId, antal){
-    let begivenhed = await getBegivenhed(begivenhedsId);
+    let begivenhed = await exports.getBegivenhed(begivenhedsId);
 
     let counter =0;
     for(let vagt of begivenhed.vagter)
