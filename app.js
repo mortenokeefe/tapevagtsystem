@@ -142,6 +142,12 @@ app.get('/checkForLedigeVagter/:begivenhedsid/:antal', async (req,res) => {
     res.send(svar);
 });
 
+app.get('/FrivilligeDerIkkeHarEnVagtPaaBegivenhed/:begivenhedsid', async (req, res) => {
+    let id = req.params.begivenhedsid;
+    let frivillige = await controller.findFrivilligeDerIkkeHarEnVagtPåBegivenhed(id);
+    res.send(frivillige);
+})
+
 
 //POST endpoints
 app.post('/opretBruger', async (req, res) => {

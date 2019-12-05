@@ -698,7 +698,7 @@ async function getBegivenhed(id) {
             vagterhtml += index + '. ' + 'Ledig   ';
             //hvis man er admin skal man kunne tildele vagter:
             if (brugertype == 0) {
-                let frivillige = await GET('/frivillige');
+                let frivillige = await GET('/FrivilligeDerIkkeHarEnVagtPaaBegivenhed/' + id);
                 const tildelhbs = await fetch('/tildel.hbs');
                 const tildelText = await tildelhbs.text();
                 vagterhtml += tildelText;
