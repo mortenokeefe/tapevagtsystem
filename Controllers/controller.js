@@ -412,24 +412,25 @@ exports.checkForLedigeVagter = async function checkForLedigeVagter(begivenhedsId
     let begivenhed = await exports.getBegivenhed(begivenhedsId);
 
     let counter =0;
+    let antalVagterDerSkalVæreLedige = (begivenhed.vagter.length-1)-antal;
     for(let vagt of begivenhed.vagter)
     {
 
         if (vagt.status ==0 && vagt.type ==0)
         {
             counter++;
-            if(counter == antal)
+            if(counter == antalVagterDerSkalVæreLedige)
             break;
         }
     }
-    if(counter >= antal)
+    if(counter >= antalVagterDerSkalVæreLedige)
     return true;
     else
         return false;
 }
 exports.fjerneNæsteLedigeVagtFraBegivenhed = async function fjerneNæsteLedigeVagtFraBegivenhed(begivenhedsId)
 {
-    let begivenhed = await getBegivenhed(begivenhedsId);
+    let begivenhed = await exports.getBegivenhed(begivenhedsId);
     let fjernet = false;
     for(let vagt of begivenhed.vagter)
     {
