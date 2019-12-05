@@ -451,6 +451,31 @@ exports.fjerneNæsteLedigeVagtFraBegivenhed = async function fjerneNæsteLedigeV
     return fjernet;
 }
 
+exports.findFrivilligeDerIkkeHarEnVagtPåBegivenhed = async function findFrivilligeDerIkkeHarEnVagtPåBegivenhed(begivenhedId){
+    let brugere = await exports.getBrugere();
+    let list = [];
+    for(let b of brugere)
+    {
+        let harvagt = false;
+        for(let v of b.vagter)
+        {
+            let vagt = await exports.getVagtFraId(v);
+            if(vagt.begivenhed.toString() == begivenhedId.toString())
+            {
+                harvagt = true;
+                break;
+            }
+        }
+        if(!harvagt)
+        {
+            list.push(b);
+        }
+    }
+    return list;
+
+
+}
+
 
 
 async function main() {
