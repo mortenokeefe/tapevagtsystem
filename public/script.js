@@ -954,10 +954,14 @@ async function åbenRedigerEvent(begivenhedsid) {
         let antalfrivillige = document.getElementById('begivenhedantalfrivillige').value;
         let o = {begivenhedsid, navn, dato, beskrivelse, antalfrivillige};
         let checksvar = await GET('/checkForLedigeVagter/' + begivenhedsid + '/' + antalfrivillige);
-        console.log(checksvar);
-        // await PUT(o, '/redigerBegivenhed');
-        // cleartab();
-        // getBegivenhed(begivenhedsid);
+        if (checksvar) {
+            await PUT(o, '/redigerBegivenhed');
+            cleartab();
+            getBegivenhed(begivenhedsid);
+        }
+        else {
+            alert('Det må du ikke');
+        }
     }
 
 }

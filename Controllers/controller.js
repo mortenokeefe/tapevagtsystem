@@ -335,6 +335,7 @@ exports.redigerBegivenhed = async function redigerBegivenhed(begivenhedsid, navn
     }
     //hvis antalfrivillige er blevet mindre
     else if (begivenhed.antalFrivillige > antalfrivillige) {
+        console.log(antalfrivillige, ' skal fjernes fra event');
         let vagterderskalfjernes = begivenhed.antalFrivillige - antalfrivillige;
         while (vagterderskalfjernes > 0) {
             await exports.fjerneNæsteLedigeVagtFraBegivenhed(begivenhedsid);
@@ -415,14 +416,15 @@ exports.checkForLedigeVagter = async function checkForLedigeVagter(begivenhedsId
     let antalVagterDerSkalVæreLedige = (begivenhed.vagter.length-1)-antal;
     for(let vagt of begivenhed.vagter)
     {
-
-        if (vagt.status ==0 && vagt.type ==0)
+    let v = await exports.getVagtFraId(vagt);
+        if (v.status ==0 && v.vagtType ==0)
         {
             counter++;
             if(counter == antalVagterDerSkalVæreLedige)
             break;
         }
     }
+
     if(counter >= antalVagterDerSkalVæreLedige)
     return true;
     else
@@ -430,14 +432,19 @@ exports.checkForLedigeVagter = async function checkForLedigeVagter(begivenhedsId
 }
 exports.fjerneNæsteLedigeVagtFraBegivenhed = async function fjerneNæsteLedigeVagtFraBegivenhed(begivenhedsId)
 {
+    console.log('fjernenæste');
     let begivenhed = await exports.getBegivenhed(begivenhedsId);
     let fjernet = false;
     for(let vagt of begivenhed.vagter)
     {
-        if (vagt.status ==0 && vagt.type ==0)
+        console.log('for loop');
+        let v = await exports.getVagtFraId(vagt);
+        if (v.status ==0 && v.vagtType ==0)
         {
-            begivenhed.update({$pull: {vagter: vagt._id}});
-            Vagt.deleteOne({_id: vagt._id});
+            console.log('if')
+            await begivenhed.update({$pull: {vagter: v._id}});
+            begivenhed.antalFrivillige--;
+            await Vagt.deleteOne(v);
             begivenhed.save();
             fjernet = true;
             break;
