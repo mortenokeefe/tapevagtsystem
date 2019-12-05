@@ -4592,7 +4592,7 @@ Docs & License: https://fullcalendar.io/
             prevYear: 'prev year',
             nextYear: 'next year',
             year: 'year',
-            today: 'today',
+            today: 'Today',
             month: 'month',
             week: 'week',
             day: 'day',

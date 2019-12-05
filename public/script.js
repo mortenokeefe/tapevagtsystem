@@ -94,6 +94,14 @@ async function GET(url) {
     return await response.json();
 };
 
+async function GETtext(url) {
+    const OK = 200;
+    let response = await fetch(url);
+    if (response.status !== OK)
+        throw new Error("GET status code " + response.status);
+    return await response.text();
+};
+
 async function opretBruger() {
     try {
         if (await getBrugertype() === 0) {
@@ -519,7 +527,7 @@ async function getBegivenheder() {
         const brugertype = await getBrugertype();
         if(brugertype ==0)                                       //   smider knappen på
         {
-            brugereHTML += '<br> <button id="åbenOpretBegivenhedButton" style="height: 50px "> ny begivenhed</button> <button id="ClearDatabase"> ClearDatabase</button>';
+            brugereHTML += '<br> <button id="åbenOpretBegivenhedButton" > Ny begivenhed</button> <button id="ClearDatabase"> Clear database</button>';
         }
 
 
@@ -720,8 +728,9 @@ async function getBegivenhed(id) {
                     console.log(frivillig);
                     knapHTML += frivilligeTemplate({
                         frivilligid: frivillig._id,
-                       navn: frivillig.fornavn + ' ' + frivillig.efternavn
-                    });
+                       navn: frivillig.fornavn + ' ' + frivillig.efternavn,
+                      //  antalVagter: await GETtext('/getAntalVagterTilbage' + frivillig.brugernavn)
+                });
                 }
                 knapHTML += '</select><br>';
                 knapHTML += '<button class="popupknap" id="'+ vagt._id +'">Tildel valgt</button>';
@@ -907,6 +916,7 @@ async function åbenRedigerEvent(begivenhedsid) {
             knapHTML += frivilligeTemplate({
                 afviklerid: afvikler._id,
                 navn: afvikler.fornavn + ' ' + afvikler.efternavn
+
             });
         }
         knapHTML += '</select><br>';

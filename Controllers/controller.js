@@ -182,6 +182,21 @@ exports.getVagtFraId = async function getVagtFraId(id) {
     return Vagt.findOne({_id: id}).exec();
 }
 
+exports.getNaesteMaanedsVagter = async function getNaesteMaanedsVagter(brugernavn) {
+    let count = 0;
+     let datenow = new Date();
+     let month1 = datenow.getMonth();
+     let year1 = datenow.getFullYear();
+    let naestemaaned = new Date(year1, month1+2, 0,1,0 );
+    let vagter = await exports.getVagterFraBruger(brugernavn);
+    for (let i = 0; i < vagter.length; i++) {
+        if (vagter[i].startTid.getMonth() === naestemaaned.getMonth()) {
+            count++;
+        }
+    }
+    return count;
+}
+
 exports.addVagtToBruger = async function addVagtToBruger(brugernavn, id) {
     const vagt = await exports.getVagtFraId(id._id);
     const bruger = await exports.getBruger(brugernavn);
