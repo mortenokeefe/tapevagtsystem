@@ -154,8 +154,8 @@ app.post('/opretBruger', async (req, res) => {
 });*/
 
 app.put('/redigerBegivenhed', async (req,res) => {
-   const {begivenhedsid, navn, dato, beskrivelse} = req.body;
-   await controller.redigerBegivenhed(begivenhedsid, navn, dato, beskrivelse);
+   const {begivenhedsid, navn, dato, beskrivelse, antalfrivillige} = req.body;
+   await controller.redigerBegivenhed(begivenhedsid, navn, dato, beskrivelse, antalfrivillige);
     res.sendStatus(200);
 });
 

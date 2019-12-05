@@ -314,11 +314,40 @@ exports.setVagtStatus = async function setVagtStatus(id, newStatus)
 
 }
 
-exports.redigerBegivenhed = async function redigerBegivenhed(begivenhedsid, navn, dato, beskrivelse) {
+
+
+exports.redigerBegivenhed = async function redigerBegivenhed(begivenhedsid, navn, dato, beskrivelse, antalfrivillige) {
+    let begivenhed = await exports.getBegivenhed(begivenhedsid);
+    let vagter = await exports.getVagterFraBegivenhed(begivenhedsid);
     const filter = {_id: begivenhedsid};
     let d = new Date(dato);
-    const update = {navn: navn, dato: d, beskrivelse: beskrivelse};
-    return await Begivenhed.findOneAndUpdate(filter, update);
+
+    //hvis antalfrivillige er blevet forøget
+    if (begivenhed.antalFrivillige < antalfrivillige) {
+        let ektravagter = antalfrivillige - begivenhed.antalFrivillige;
+        for (let vagt of ektravagter) {
+            let tid = d.setHours('20', '00');
+            let v = exports.newVagt(tid, false, undefined, 0, 0, undefined, begivenhed)
+            await exports.addVagtToBegivenhed(begivenhed, v);
+        }
+        const update = {navn: navn, dato: d, beskrivelse: beskrivelse};
+        return await Begivenhed.findOneAndUpdate(filter, update);
+    }
+    //hvis antalfrivillige er blevet mindre
+    else if (begivenhed.antalFrivillige > antalfrivillige) {
+        let vagterderskalfjernes = begivenhed.antalFrivillige - antalfrivillige;
+        while (vagterderskalfjernes > 0) {
+            //fjern 1 vagt
+            vagterderskalfjernes--;
+    }
+        const update = {navn: navn, dato: d, beskrivelse: beskrivelse};
+        return await Begivenhed.findOneAndUpdate(filter, update);
+    }
+    //hvis antalfrivillige er uændret
+    else {
+        const update = {navn: navn, dato: d, beskrivelse: beskrivelse};
+        return await Begivenhed.findOneAndUpdate(filter, update);
+    }
 }
 
 exports.getVagterFraBegivenhed = async function getVagterFraBegivenhed(begivenhedsid) {
@@ -388,7 +417,7 @@ async function main() {
     let frivillig = await exports.newBruger('Fri', 'Villig', '88888888', 'fri', 'fri', 2, 1, 'admin@tapeaarhus.dk', undefined);
 
 }
-         // main();
+         //< main();
 
      // main();
 async function main2() {

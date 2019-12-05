@@ -951,7 +951,8 @@ async function åbenRedigerEvent(begivenhedsid) {
         let navn = document.getElementById('begivenhednavn').value;
         let dato = document.getElementById('begivenheddato').value;
         let beskrivelse = document.getElementById('begivenhedbeskrivelse').value;
-        let o = {begivenhedsid, navn, dato, beskrivelse};
+        let antalfrivillige = document.getElementById('begivenhedantalfrivillige').value;
+        let o = {begivenhedsid, navn, dato, beskrivelse, antalfrivillige};
         await PUT(o, '/redigerBegivenhed');
         cleartab();
         getBegivenhed(begivenhedsid);
