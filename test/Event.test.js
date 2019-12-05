@@ -86,7 +86,13 @@ describe('integrationstest', () =>{
     it('controller tilmeld begivenhed ', async function (){
         let frivillig = await controller.newBruger('frivillig','test','11223344','fri','fri',2,0,'fri@fri.dk',undefined);
         let b1 = await controller.newBegivenhed('FestAften3',date1, 'abefest', 4,undefined, undefined);
-        let frivilligFraDb = await controller.getBrugerFraId()
+        let frivilligFraDb = await controller.getBrugerFraId(frivillig);
+        let bFromDb = await controller.getBegivenhed(b1);
+        await controller.tilmeldBegivenhed(frivilligFraDb.brugernavn, bFromDb);
+        let vagterFrivillig = await controller.getVagterFraBruger(frivilligFraDb.brugernavn);
+        let vagterEvent = await controller.getVagterFraBegivenhed(bFromDb);
+        vagterFrivillig[0]._id.toString().should.be.equal(vagterEvent[0]._id.toString());
+
     });
 });
 
