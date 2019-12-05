@@ -484,7 +484,7 @@ async function main() {
     let frivillig = await exports.newBruger('Fri', 'Villig', '88888888', 'fri', 'fri', 2, 1, 'admin@tapeaarhus.dk', undefined);
 
 }
-          // main();
+          main();
 
      // main();
 async function main2() {
