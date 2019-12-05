@@ -311,11 +311,40 @@ exports.setVagtStatus = async function setVagtStatus(id, newStatus)
 
 }
 
-exports.redigerBegivenhed = async function redigerBegivenhed(begivenhedsid, navn, dato, beskrivelse) {
+
+
+exports.redigerBegivenhed = async function redigerBegivenhed(begivenhedsid, navn, dato, beskrivelse, antalfrivillige) {
+    let begivenhed = await exports.getBegivenhed(begivenhedsid);
+    let vagter = await exports.getVagterFraBegivenhed(begivenhedsid);
     const filter = {_id: begivenhedsid};
     let d = new Date(dato);
-    const update = {navn: navn, dato: d, beskrivelse: beskrivelse};
-    return await Begivenhed.findOneAndUpdate(filter, update);
+
+    //hvis antalfrivillige er blevet forøget
+    if (begivenhed.antalFrivillige < antalfrivillige) {
+        let ektravagter = antalfrivillige - begivenhed.antalFrivillige;
+        for (let vagt of ektravagter) {
+            let tid = d.setHours('20', '00');
+            let v = exports.newVagt(tid, false, undefined, 0, 0, undefined, begivenhed)
+            await exports.addVagtToBegivenhed(begivenhed, v);
+        }
+        const update = {navn: navn, dato: d, beskrivelse: beskrivelse};
+        return await Begivenhed.findOneAndUpdate(filter, update);
+    }
+    //hvis antalfrivillige er blevet mindre
+    else if (begivenhed.antalFrivillige > antalfrivillige) {
+        let vagterderskalfjernes = begivenhed.antalFrivillige - antalfrivillige;
+        while (vagterderskalfjernes > 0) {
+            await exports.fjerneNæsteLedigeVagtFraBegivenhed(begivenhedsid);
+            vagterderskalfjernes--;
+    }
+        const update = {navn: navn, dato: d, beskrivelse: beskrivelse};
+        return await Begivenhed.findOneAndUpdate(filter, update);
+    }
+    //hvis antalfrivillige er uændret
+    else {
+        const update = {navn: navn, dato: d, beskrivelse: beskrivelse};
+        return await Begivenhed.findOneAndUpdate(filter, update);
+    }
 }
 
 exports.getVagterFraBegivenhed = async function getVagterFraBegivenhed(begivenhedsid) {
@@ -376,6 +405,45 @@ exports.getAfvikerVagtFraBegivenhed = async function getAfvikerVagtFraBegivenhed
    return afvikler;
 }
 
+exports.checkForLedigeVagter = async function checkForLedigeVagter(begivenhedsId, antal){
+    let begivenhed = await exports.getBegivenhed(begivenhedsId);
+
+    let counter =0;
+    let antalVagterDerSkalVæreLedige = (begivenhed.vagter.length-1)-antal;
+    for(let vagt of begivenhed.vagter)
+    {
+
+        if (vagt.status ==0 && vagt.type ==0)
+        {
+            counter++;
+            if(counter == antalVagterDerSkalVæreLedige)
+            break;
+        }
+    }
+    if(counter >= antalVagterDerSkalVæreLedige)
+    return true;
+    else
+        return false;
+}
+exports.fjerneNæsteLedigeVagtFraBegivenhed = async function fjerneNæsteLedigeVagtFraBegivenhed(begivenhedsId)
+{
+    let begivenhed = await exports.getBegivenhed(begivenhedsId);
+    let fjernet = false;
+    for(let vagt of begivenhed.vagter)
+    {
+        if (vagt.status ==0 && vagt.type ==0)
+        {
+            begivenhed.update({$pull: {vagter: vagt._id}});
+            Vagt.deleteOne({_id: vagt._id});
+            begivenhed.save();
+            fjernet = true;
+            break;
+
+        }
+    }
+    return fjernet;
+}
+
 
 
 async function main() {
@@ -385,7 +453,7 @@ async function main() {
     let frivillig = await exports.newBruger('Fri', 'Villig', '88888888', 'fri', 'fri', 2, 1, 'admin@tapeaarhus.dk', undefined);
 
 }
-         // main();
+         //< main();
 
      // main();
 async function main2() {

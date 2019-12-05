@@ -961,10 +961,13 @@ async function åbenRedigerEvent(begivenhedsid) {
         let navn = document.getElementById('begivenhednavn').value;
         let dato = document.getElementById('begivenheddato').value;
         let beskrivelse = document.getElementById('begivenhedbeskrivelse').value;
-        let o = {begivenhedsid, navn, dato, beskrivelse};
-        await PUT(o, '/redigerBegivenhed');
-        cleartab();
-        getBegivenhed(begivenhedsid);
+        let antalfrivillige = document.getElementById('begivenhedantalfrivillige').value;
+        let o = {begivenhedsid, navn, dato, beskrivelse, antalfrivillige};
+        let checksvar = await GET('/checkForLedigeVagter/' + begivenhedsid + '/' + antalfrivillige);
+        console.log(checksvar);
+        // await PUT(o, '/redigerBegivenhed');
+        // cleartab();
+        // getBegivenhed(begivenhedsid);
     }
 
 }
