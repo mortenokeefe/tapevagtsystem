@@ -31,7 +31,7 @@ function makeFrivilligHTML() {
 
 async function getBrugere() {
     try {
-        document.getElementById('frivilligcontent').innerHTML = null;
+        document.getElementById('frivilligcontent').innerHTML = '';
         if (await getBrugertype() === 0) {
             makeFrivilligHTML()
         }
@@ -388,6 +388,7 @@ async function getVagterTilSalg() {
         const vagterResponse = await GET('/vagtertilsalg');
         const hbs = await fetch('/salg.hbs');
         const vagterText = await hbs.text();
+        let brugertype = getBrugertype();
 
         const compiledTemplate = Handlebars.compile(vagterText);
         let brugereHTML = '<table><tr><th>Begivenhed</th><th>Dato</th><th>Frivillig</th><th></th></tr>';
