@@ -93,9 +93,7 @@ exports.clearDatabase = async function clearDatabase() {
     for (let i = 0; i < begivenheder.length; i++) {
         if (date > begivenheder[i].dato) {
             let vagter = await exports.getVagterFraBegivenhed(begivenheder[i]._id);
-            console.log(vagter.length)
             for (let j = 0; j < vagter.length; j++) {
-                console.log(j)
                 await exports.fjernFrivilligFraVagt(vagter[j]._id)
                 await Vagt.remove(vagter[j]);
             }
@@ -202,7 +200,6 @@ exports.fjernFrivilligFraVagt = async function fjernFrivilligFraVagt(vagtid) {
         vagt.bruger = undefined;
         vagt.status = 0;
         await bruger.update({$pull: {vagter: vagtid}});
-        vagt.save();
         bruger.save();
     }
     }
