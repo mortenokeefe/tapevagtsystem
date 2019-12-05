@@ -456,19 +456,18 @@ exports.findFrivilligeDerIkkeHarEnVagtPåBegivenhed = async function findFrivill
     let list = [];
     for(let b of brugere)
     {
-        let harvagt = false;
-        for(let v of b.vagter)
-        {
-            let vagt = await exports.getVagtFraId(v);
-            if(vagt.begivenhed.toString() == begivenhedId.toString())
-            {
-                harvagt = true;
-                break;
+        if(b.brugertype ==2) {
+            let harvagt = false;
+            for (let v of b.vagter) {
+                let vagt = await exports.getVagtFraId(v);
+                if (vagt.begivenhed.toString() == begivenhedId.toString()) {
+                    harvagt = true;
+                    break;
+                }
             }
-        }
-        if(!harvagt)
-        {
-            list.push(b);
+            if (!harvagt) {
+                list.push(b);
+            }
         }
     }
     return list;
