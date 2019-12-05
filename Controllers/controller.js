@@ -379,19 +379,24 @@ exports.getAfvikerVagtFraBegivenhed = async function getAfvikerVagtFraBegivenhed
    return afvikler;
 }
 
-exports.checkForLedigeVagter = async function checkForLedigeVagter(begivenhedsId){
+exports.checkForLedigeVagter = async function checkForLedigeVagter(begivenhedsId, antal){
     let begivenhed = await getBegivenhed(begivenhedsId);
-    let ledigeVagter = false;
+
+    let counter =0;
     for(let vagt of begivenhed.vagter)
     {
 
         if (vagt.status ==0 && vagt.type ==0)
         {
-            ledigeVagter= true;
+            counter++;
+            if(counter == antal)
             break;
         }
     }
-    return ledigeVagter;
+    if(counter >= antal)
+    return true;
+    else
+        return false;
 }
 
 
