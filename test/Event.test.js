@@ -92,7 +92,6 @@ describe('integrationstest', () =>{
         let vagterFrivillig = await controller.getVagterFraBruger(frivilligFraDb.brugernavn);
         let vagterEvent = await controller.getVagterFraBegivenhed(bFromDb);
         vagterFrivillig[0]._id.toString().should.be.equal(vagterEvent[0]._id.toString());
-
     });
 });
 
