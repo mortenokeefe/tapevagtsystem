@@ -88,16 +88,21 @@ exports.newBegivenhed = async function newBegivenhed(navn, dato, beskrivelse, an
 }
 
 exports.clearDatabase = async function clearDatabase() {
+    console.log ("enter clearDatabase");
     let date = Date.now();
-    let begivenheder = await exports.getBegivnheder();
-    for (let i = 0; i < begivenheder.length; i++) {
-        if (date > begivenheder[i].dato) {
-            let vagter = await exports.getVagterFraBegivenhed(begivenheder[i]._id);
-            for (let j = 0; j < vagter.length; j++) {
-                await exports.fjernFrivilligFraVagt(vagter[j]._id)
-                await Vagt.remove(vagter[j]);
+    let begivenheder = await exports.getBegivenheder();
+    for (let b of begivenheder) {
+        if (date > b.dato) {
+            console.log(b._id, "begivenhed ID");
+            let vagter = await exports.getVagterFraBegivenhed(b._id);
+            console.log(vagter.length, "vager længde");
+            for (let v of vagter) {
+                console.log(b._id,"begivenhed", v._id,"vagt");
+                await exports.fjernFrivilligFraVagt(v._id).then(
+                 Vagt.deleteOne(v._id));
+
             }
-            await Begivenhed.remove(begivenheder[i])
+            await Begivenhed.deleteOne(b);
         }
     }
 }
@@ -151,7 +156,7 @@ exports.getFraværForBruger = async function getFraværForBruger(brugernavn) {
         return 0;
 }
 
-exports.getBegivnheder = async function getBegivenheder() {
+exports.getBegivenheder = async function getBegivenheder() {
     //henter begivenheder for næste måned
     // let datenow = new Date(Date.now());
     // let month1 = datenow.getMonth();
