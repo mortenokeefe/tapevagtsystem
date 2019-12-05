@@ -87,6 +87,23 @@ exports.newBegivenhed = async function newBegivenhed(navn, dato, beskrivelse, an
     return begivenhed;
 }
 
+exports.clearDatabase = async function clearDatabase() {
+    let date = Date.now();
+    let begivenheder = await exports.getBegivnheder();
+    for (let i = 0; i < begivenheder.length; i++) {
+        if (date > begivenheder[i].dato) {
+            let vagter = await exports.getVagterFraBegivenhed(begivenheder[i]._id);
+            console.log(vagter.length)
+            for (let j = 0; j < vagter.length; j++) {
+                console.log(j)
+                await exports.fjernFrivilligFraVagt(vagter[j]._id)
+                await Vagt.remove(vagter[j]);
+            }
+            await Begivenhed.remove(begivenheder[i])
+        }
+    }
+}
+
 exports.newBruger = function newBruger(fornavn, efternavn, telefonnummer, brugernavn, password, brugertype, tilstand, email, vagter) {
     const bruger = new Bruger({
         fornavn,
@@ -180,14 +197,16 @@ exports.addVagtToBruger = async function addVagtToBruger(brugernavn, id) {
 
 exports.fjernFrivilligFraVagt = async function fjernFrivilligFraVagt(vagtid) {
     let vagt = await exports.getVagtFraId(vagtid);
-    let bruger = await exports.getBrugerFraId(vagt.bruger);
-    let brugernavn = bruger.brugernavn;
-    vagt.bruger = undefined;
-    vagt.status = 0;
-    await bruger.update({$pull: {vagter: vagtid}});
-    vagt.save();
-    bruger.save();
-}
+    if (vagt.status === 1) {
+        let bruger = await exports.getBrugerFraId(vagt.bruger);
+        vagt.bruger = undefined;
+        vagt.status = 0;
+        await bruger.update({$pull: {vagter: vagtid}});
+        vagt.save();
+        bruger.save();
+    }
+    }
+
 
 exports.tilmeldBegivenhed = async function tilmeldBegivenhed(brugernavn, begivenhedsid) {
     begivenhed = await exports.getBegivenhed(begivenhedsid);

@@ -30,6 +30,12 @@ button {
     border: none;
 }
 
+#ClearDatabase {
+    position :fixed;
+    bottom:2%;
+    right:2%;
+}
+
 .img-container {
     text-align: center;
     display: block;
