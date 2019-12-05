@@ -70,7 +70,14 @@ async function getBrugere() {
                 if (tempbruger !== "" && tempbruger !== lis[i])
                     tempbruger.style.color = 'black';
                 tempbruger = lis.item(i);
-                console.log(bruger)
+                frivillig.querySelector('#fornavn').value = bruger.fornavn
+                frivillig.querySelector('#efternavn').value = bruger.efternavn
+                frivillig.querySelector('#telefonnummer').value = bruger.telefonnummer
+                frivillig.querySelector('#brugernavn').value = bruger.brugernavn
+                frivillig.querySelector('#password').value = bruger.password
+                frivillig.querySelector('#brugertype').value = bruger.brugertype
+                frivillig.querySelector('#tilstand').value = bruger.tilstand
+                frivillig.querySelector('#email').value = bruger.email
             }
         }
 
@@ -169,11 +176,14 @@ async function sletBruger() {
 
 async function clearDatabase() {
     try {
-        if (await getBrugertype() === 0) {
+        let svar = confirm("Er du sikker på, at du vil slette alle begivenheder og vagter, før dagens dato?");
+        if (await getBrugertype() === 0 && svar) {
             let url = "/clearDatabase/";
             let response = await DELETE(url);
             console.log("DELETE: %o", response);
-            await update()
+            await loadhtml();
+            document.getElementById("defaultOpen").click();
+
         }
     } catch (e) {
         console.log(e.name + ": " + e.message);
@@ -951,10 +961,17 @@ async function åbenRedigerEvent(begivenhedsid) {
         let navn = document.getElementById('begivenhednavn').value;
         let dato = document.getElementById('begivenheddato').value;
         let beskrivelse = document.getElementById('begivenhedbeskrivelse').value;
-        let o = {begivenhedsid, navn, dato, beskrivelse};
-        await PUT(o, '/redigerBegivenhed');
-        cleartab();
-        getBegivenhed(begivenhedsid);
+        let antalfrivillige = document.getElementById('begivenhedantalfrivillige').value;
+        let o = {begivenhedsid, navn, dato, beskrivelse, antalfrivillige};
+        let checksvar = await GET('/checkForLedigeVagter/' + begivenhedsid + '/' + antalfrivillige);
+        if (checksvar) {
+            await PUT(o, '/redigerBegivenhed');
+            cleartab();
+            getBegivenhed(begivenhedsid);
+        }
+        else {
+            alert('Det må du ikke');
+        }
     }
 
 }
