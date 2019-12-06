@@ -69,6 +69,13 @@ app.get('/brugertype', async (req, res) =>
     let brugertype = {brugertype: bruger.brugertype};
     res.send(brugertype);
 });
+
+app.get('/getbrugeridforbrugerloggetind', async (req,res) => {
+    let brugernavn = req.session.brugernavn;
+    let bruger = await controller.getBruger(brugernavn);
+    res.send(bruger._id);
+});
+
 app.get('/vagter', async (req, res)=> {
    let vagter //= controller.getVagter();
     res.send(vagter);
@@ -214,9 +221,12 @@ app.post('/adminTilfoejVagtTilBruger', async(req,res) =>{
     res.send({ok:true}); // fix fejlsikring senere
 });
 
-app.get('/getDenneMaanedsVagter/:brugernavn',  async(req,res) =>{
-    const brugernavn = req.params.brugernavn;
-    let antal = await controller.getDenneMaanedsVagter(brugernavn);
+app.get('/getDenneMaanedsVagter/:begivenhedsid/:frivilligid',  async(req,res) =>{
+    const begivenhedsid = req.params.begivenhedsid;
+    let id = req.params.frivilligid;
+    let frivillig = await controller.getBrugerFraId(id);
+    let antal = await controller.getDenneMaanedsVagter(begivenhedsid, frivillig.brugernavn);
+     // console.log(antal + 'antal' + frivillig.brugernavn + 'brugernavn');
     res.send({antalvagter: antal});
 });
 

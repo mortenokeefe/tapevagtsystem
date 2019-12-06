@@ -115,7 +115,7 @@ async function opretBruger() {
                 let response = await POSTBruger(data, url);
                 cleartab()
                 await getBrugere()
-                console.log("POST: %o", response);
+                // console.log("POST: %o", response);
             } else if (!data.telefonnummer.match("^\\d{8}$")) {
                 alert("et telefonnummer skal være 8 tal langt")
             } else {
@@ -140,13 +140,13 @@ async function updateBruger() {
                 "tilstand": frivillig.querySelector('#tilstand').value,
                 "email": frivillig.querySelector('#email').value,
             };
-            console.log(data);
+            // console.log(data);
             let url = "/updateBruger/" + bruger.brugernavn;
             if (data.fornavn.length > 0 && data.efternavn.length > 0 && data.telefonnummer.match("^\\d{8}$")
                 && data.password.length > 0 && data.email.length > 0) {
 
                     let response = await PUT(data, url);
-                    console.log("POST: %o", response);
+                    // console.log("POST: %o", response);
 
             } else if (!data.telefonnummer.match("^\\d{8}$")) {
                 alert("et telefonnummer skal være 8 tal langt")
@@ -165,7 +165,7 @@ async function sletBruger() {
             let brugernavn = bruger.brugernavn;
             let url = "/deleteBruger/" + brugernavn;
             let response = await DELETE(url);
-            console.log("DELETE: %o", response);
+            // console.log("DELETE: %o", response);
             await getBrugere();
         }
     } catch (e) {
@@ -180,7 +180,7 @@ async function clearDatabase() {
         if (brugertype == 0 && svar) {
             let url = "/clearDatabase/";
             let response = await DELETE(url);
-            console.log("DELETE: %o", response);
+            // console.log("DELETE: %o", response);
             await loadhtml();
             document.getElementById("defaultOpen").click();
 
@@ -315,7 +315,7 @@ login.onclick = async () => {
     try {
         const svar = await POST("/login", {brugernavn: navn.value, password: password.value});
         if (svar.ok) {
-            console.log(svar.type);
+            // console.log(svar.type);
             // //hvis login er ok, vises brugere - testtest
             // const forside = await fetch('/forside.hbs');
             // const brugereText = await forside.text();
@@ -413,9 +413,7 @@ async function getVagterTilSalg() {
             } else {
 
             knap.onclick = function () {
-
-
-                overtagvagt(vagt.vagt._id);
+                overtagvagt(vagt.vagt._id, vagt.vagt.begivenhed);
             };
         }
         });
@@ -425,17 +423,49 @@ async function getVagterTilSalg() {
     }
 }
 
-async function overtagvagt(id) {
+async function overtagvagt(vagtid, begivenhedsid) {
     try {
         let svar = confirm("er du sikker?");
 
         // console.log('Du har trykket på knappen med ID: ' + event.target.id + " og overtager vagten");
         // let id = {id: event.target.id};
         if (svar) {
-            await POST('/overtagvagt', {id: id});
+            let begivenhed = await GET('/sebegivenhed/' + begivenhedsid);
+            let brugerid = await GET('/getbrugeridforbrugerloggetind');
+            //hvis man ikke er en del af dem, må man ikke tage vagten
+            let frivillige = begivenhed[1];
+            let påbegivenhed = false;
+            for (let frivillig of frivillige) {
+                if (frivillig.bruger == brugerid) {
+                    console.log('du er allerde på beginvehd');
+                    påbegivenhed = true;
+                break;
+                }
+            }
 
-            await getVagterTilSalg();
-            update();
+            let vagtermin = false;
+            let minevagter = await GET('/mineVagter');
+            for (let vagt of minevagter) {
+                if (vagt.id == vagtid) {
+                    console.log('vagten er din');
+                    vagtermin = true;
+                }
+            }
+            if (!påbegivenhed) {
+                await POST('/overtagvagt', {id: vagtid});
+
+                await getVagterTilSalg();
+                update();
+            }
+            else if (påbegivenhed && vagtermin) {
+                await POST('/overtagvagt', {id: vagtid});
+
+                await getVagterTilSalg();
+                update();
+            }
+            else {
+                alert('Du kan kun tage et vagt per begivenhed.');
+            }
         }
     } catch (e) {
         console.log(e.name + " " + e.message + " overtag vagt");
@@ -494,8 +524,8 @@ async function setFravær(vagtId){
 function removeElement(elementId) {
     // Removes an element from the document
     let element = document.getElementById(elementId);
-    console.log(element);
-    console.log(element.parentNode);
+    // console.log(element);
+    // console.log(element.parentNode);
     element.parentNode.removeChild(element);
 }
 
@@ -585,12 +615,12 @@ async function åbenOpretEventVindue()
         'antal frivillige:<br> <input type="number" name="antalfrivillige" id="bAntalFrivillige"><br>';
 
     const afviklere = await getAfviklere();
-    console.log(afviklere, " afviklere");
+    // console.log(afviklere, " afviklere");
     let afviklerehtml = "<label>Afvikler</label><br><select id='afviklereSelect'> ";
 
     for (let a of afviklere)
     {
-        console.log(a, "afviklere loop");
+        // console.log(a, "afviklere loop");
            let navn = a.fornavn +", "+ a.efternavn;
           afviklerehtml += "<option value='"+a._id+"'>"+navn+"</option>";
     }
@@ -644,14 +674,14 @@ async function getBegivenhed(id) {
     let frivillige = begivenhedResponse[1];
     let afvikler = begivenhedResponse[2][0];
    // console.log(afvikler, "getbegivnehed");
-    console.log(afvikler, "getbegivnehed");
+   //  console.log(afvikler, "getbegivnehed");
 
     //lav fjern og rediger knap såfremt brugertype=admin
 
     let begivenhedHTML ='<br>';
 
     if (brugertype == 0) {
-        console.log('bruger er admin');
+        // console.log('bruger er admin');
         begivenhedHTML += '<button class="redigerknap" id="' + id + '">Rediger begivenhed</button>    ';
         begivenhedHTML += '<button class="sletknap" id="' + id + '">Slet begivenhed</button><br>';
     }
@@ -758,9 +788,10 @@ async function getBegivenhed(id) {
                 const frivilligeTemplate = Handlebars.compile(frivilligeText);
                 knapHTML += '<select class="select" id="' + vagt._id +'" size="10" style="width: 80%">';
                 for (let frivillig of frivillige) {
-                    let g = await GET('/getDenneMaanedsVagter/' + frivillig.brugernavn);
+                     // console.log(frivillig);
+                    let g = await GET('/getDenneMaanedsVagter/' + begivenhed._id + '/' + frivillig._id);
                     let antalv = g.antalvagter;
-                    console.log(frivillig);
+                    // console.log(frivillig);
                     knapHTML += frivilligeTemplate({
                         frivilligid: frivillig._id,
                        navn: frivillig.fornavn + ' ' + frivillig.efternavn,
@@ -896,7 +927,7 @@ async function åbenRedigerEvent(begivenhedsid) {
     let ep2 = '/getAfvikerVagtFraBegivenhed/' + begivenhedsid;
     let afviklervagt = await GET(ep2);
     console.log('dette er afviklervagten');
-    console.log(afviklervagt);
+    // console.log(afviklervagt);
     let begivenhedHTML = '';
 
     const side = await fetch('/redigerevent.hbs');
@@ -930,7 +961,7 @@ async function åbenRedigerEvent(begivenhedsid) {
 
         let fknap = document.getElementsByClassName('fjernafvikler');
         fknap[0].onclick = async function () {
-            console.log('prøver at fjerne vagt...............');
+            // console.log('prøver at fjerne vagt...............');
             let vagtid = fknap[0].id;
             let s = await POST('/fjernfrivilligfravagt', {vagtid: vagtid})
             if (s.ok) {
@@ -1008,7 +1039,7 @@ async function åbenRedigerEvent(begivenhedsid) {
                 let vagtid = btns[index].id;
                 let afviklerid = selects[index].value;
                 let o = {vagtid: vagtid, frivilligid: afviklerid};
-                console.log(o);
+                // console.log(o);
                 await POST('/adminTilfoejVagtTilBruger', o);
 
                 //lukker vindue
@@ -1040,9 +1071,27 @@ async function åbenRedigerEvent(begivenhedsid) {
         let sluttid =  begivenhed.tidSlut;
         let starttid = dato;
 
+
+        let o = {begivenhedsid, navn, dato, beskrivelse, logbog, antalfrivillige,starttid, sluttid};
+        await PUT(o, '/redigerBegivenhed');
+        åbenRedigerEvent(begivenhedsid);
+    }
+    for(i = 0; i<begivenhed.logbog.length;i++){
+        let postButton = document.getElementById(""+i)
+        console.log(postButton, "postbutton")
+        postButton.onclick = async function(){
+                    begivenhed.logbog.splice(postButton.id, 1)
+        let begivenhedsid = begivenhed._id
+        let navn = begivenhed.navn
+        let dato = begivenhed.dato
+        let beskrivelse = begivenhed.beskrivelse
+        let logbog = begivenhed.logbog
+        let antalfrivillige = begivenhed.antalfrivillige
+
         let o = {begivenhedsid, navn, dato, beskrivelse, logbog, antalfrivillige, starttid, sluttid};
         await PUT(o, '/redigerBegivenhed');
         åbenRedigerEvent(begivenhedsid);
+        }
     }
 
     let knap = document.getElementsByClassName('gemændringer');
@@ -1077,7 +1126,7 @@ async function tilmeldBegivenhed(event) {
         let begivenhedsid = event.target.id;
         let s = await POST('/tilmeldmigbegivenhed', {"id": begivenhedsid})
         if (s.ok) {
-            console.log('prøver at slette content');
+            // console.log('prøver at slette content');
             await cleartab()
                 .then(getBegivenhed(begivenhedsid));
 

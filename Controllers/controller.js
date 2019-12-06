@@ -213,15 +213,18 @@ exports.getVagtFraId = async function getVagtFraId(id) {
 }
 
 
-exports.getDenneMaanedsVagter = async function getDenneMaanedsVagter(brugernavn) {
+exports.getDenneMaanedsVagter = async function getDenneMaanedsVagter(begivenhedsid, brugernavn) {
+    // console.log('kører getDenneMaanedsVagter i controller');
     let count = 0;
-     let datenow = new Date();
-     let month1 = datenow.getMonth();
-     let year1 = datenow.getFullYear();
-    let dennemaaned = new Date(year1, month1+1, 0,1,0 );
+    let begivenhed = await exports.getBegivenhed(begivenhedsid);
+    let d = begivenhed.dato;
+    let begivenhedmaaned = new Date(d);
     let vagter = await exports.getVagterFraBruger(brugernavn);
-    for (let i = 0; i < vagter.length; i++) {
-        if (vagter[i].startTid.getMonth() === dennemaaned.getMonth()) {
+
+    for (let vagt of vagter) {
+        let vagtdato = vagt.startTid;
+        let vagtmåned = vagtdato.getMonth();
+        if (vagt.startTid.getMonth() === begivenhedmaaned.getMonth()) {
             count++;
         }
     }
