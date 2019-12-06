@@ -8,7 +8,6 @@ body{
 
     background-color: white;
 
-    background-image: url('https://scontent-amt2-1.xx.fbcdn.net/v/t1.0-9/70350078_952500711754522_6838972400759996416_o.jpg?_nc_cat=108&_nc_ohc=owtDljz8MdEAQnBPqK1fAv033NNAEX6scWG38fe0uNpxnITbQrZKTGABQ&_nc_ht=scontent-amt2-1.xx&oh=e270fdcf3e2b75af82cbc90a6162d394&oe=5E429A5F');  background-size: cover;
     background-repeat: no-repeat;
 
     background-size: 1000px 600px;
@@ -32,8 +31,8 @@ button {
 
 #ClearDatabase {
     position :fixed;
-    top:20%;
-    left:25%;
+    top:130px;
+    left:305px;
     size: 20px;
     border-radius: 4px;
     color: snow;
@@ -42,8 +41,8 @@ button {
 }
 #åbenOpretBegivenhedButton {
     position :fixed;
-    top:20%;
-    left:15%;
+    top:130px;
+    left:190px;
     size: 20px;
     border-radius: 4px;
     color: snow;
