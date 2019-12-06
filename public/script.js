@@ -53,31 +53,32 @@ async function getBrugere() {
             });
         }
         brugereHTML += '</ul>';
-
-        let frivillig = document.getElementById('frivilligcontent')
-        frivillig.innerHTML += brugereHTML;
-        let opretbutton = frivillig.querySelector('#opretbruger');
-        opretbutton.onclick = opretBruger;
-        let deletebutton = frivillig.querySelector('#deletebruger');
-        deletebutton.onclick = sletBruger;
-        let updatebruger = frivillig.querySelector('#updatebruger');
-        updatebruger.onclick = updateBruger;
-        let lis = frivillig.getElementsByTagName("li");
-        for (let i = 0; i < lis.length; i++) {
-            lis[i].onclick = function () {
-                bruger = brugereResponse[i];
-                lis[i].style.color = 'gray';
-                if (tempbruger !== "" && tempbruger !== lis[i])
-                    tempbruger.style.color = 'black';
-                tempbruger = lis.item(i);
-                frivillig.querySelector('#fornavn').value = bruger.fornavn
-                frivillig.querySelector('#efternavn').value = bruger.efternavn
-                frivillig.querySelector('#telefonnummer').value = bruger.telefonnummer
-                frivillig.querySelector('#brugernavn').value = bruger.brugernavn
-                frivillig.querySelector('#password').value = bruger.password
-                frivillig.querySelector('#brugertype').value = bruger.brugertype
-                frivillig.querySelector('#tilstand').value = bruger.tilstand
-                frivillig.querySelector('#email').value = bruger.email
+            let frivillig = document.getElementById('frivilligcontent')
+            frivillig.innerHTML += brugereHTML;
+        if (await getBrugertype() === 0) {
+            let opretbutton = frivillig.querySelector('#opretbruger');
+            opretbutton.onclick = opretBruger;
+            let deletebutton = frivillig.querySelector('#deletebruger');
+            deletebutton.onclick = sletBruger;
+            let updatebruger = frivillig.querySelector('#updatebruger');
+            updatebruger.onclick = updateBruger;
+            let lis = frivillig.getElementsByTagName("li");
+            for (let i = 0; i < lis.length; i++) {
+                lis[i].onclick = function () {
+                    bruger = brugereResponse[i];
+                    lis[i].style.color = 'gray';
+                    if (tempbruger !== "" && tempbruger !== lis[i])
+                        tempbruger.style.color = 'black';
+                    tempbruger = lis.item(i);
+                    frivillig.querySelector('#fornavn').value = bruger.fornavn
+                    frivillig.querySelector('#efternavn').value = bruger.efternavn
+                    frivillig.querySelector('#telefonnummer').value = bruger.telefonnummer
+                    frivillig.querySelector('#brugernavn').value = "";
+                    frivillig.querySelector('#password').value = bruger.password
+                    frivillig.querySelector('#brugertype').value = bruger.brugertype
+                    frivillig.querySelector('#tilstand').value = bruger.tilstand
+                    frivillig.querySelector('#email').value = bruger.email
+                }
             }
         }
 
@@ -92,14 +93,6 @@ async function GET(url) {
     if (response.status !== OK)
         throw new Error("GET status code " + response.status);
     return await response.json();
-};
-
-async function GETtext(url) {
-    const OK = 200;
-    let response = await fetch(url);
-    if (response.status !== OK)
-        throw new Error("GET status code " + response.status);
-    return await response.text();
 };
 
 async function opretBruger() {
@@ -151,9 +144,7 @@ async function updateBruger() {
             let url = "/updateBruger/" + bruger.brugernavn;
             if (data.fornavn.length > 0 && data.efternavn.length > 0 && data.telefonnummer.match("^\\d{8}$")
                 && data.password.length > 0 && data.email.length > 0) {
-                if (frivillig.querySelector('#brugernavn').value.length > 0) {
-                    return alert("Et brugernavn kan ikke opdateres")
-                }
+
                     let response = await PUT(data, url);
                     console.log("POST: %o", response);
 
@@ -530,7 +521,7 @@ async function getBegivenheder() {
         const brugertype = await getBrugertype();
         if(brugertype ==0)                                       //   smider knappen på
         {
-            brugereHTML += '<br> <button id="åbenOpretBegivenhedButton" style="height: 50px "> ny begivenhed</button> <button id="ClearDatabase"> Slet gamle begivenheder</button>';
+            brugereHTML += '<br> <button id="åbenOpretBegivenhedButton"> ny begivenhed</button> <button id="ClearDatabase"> Slet gamle begivenheder</button>';
         }
 
 
@@ -565,6 +556,7 @@ async function opretBegivenhed(navn, dato, beskrivelse, antalFrivillige, afvikle
             dato: realDate,
             beskrivelse: beskrivelse,
             antalFrivillige: antalFrivillige,
+            logbog: [],
             afvikler: afvikler,
             starttid : starttid,
             sluttid : sluttid
@@ -673,6 +665,7 @@ async function getBegivenhed(id) {
             navn: begivenhed.navn,
             dato: begivenhed.dato,
             beskrivelse: begivenhed.beskrivelse,
+             logbog: begivenhed.logbog,
             afvikler: afvikler.fornavn + " " + afvikler.efternavn
         });
     }
@@ -681,6 +674,7 @@ async function getBegivenhed(id) {
                              navn: begivenhed.navn,
                             dato: begivenhed.dato,
                             beskrivelse: begivenhed.beskrivelse,
+                            logbog: begivenhed.logbog,
                              afvikler: 'ingen afvikler'
                              });
 
@@ -703,7 +697,11 @@ async function getBegivenhed(id) {
               // console.log(brugere);
               mig = brugere.minbruger;
               let bruger = brugere.bruger;
-             vagterhtml += index + '. ' + bruger.fornavn + ' ' + bruger.efternavn;
+              if (brugertype === 0 || brugertype === 1)
+             vagterhtml += index + '. ' + bruger.fornavn + ' ' + bruger.efternavn + " " + bruger.telefonnummer;
+              else {
+                  vagterhtml += index + '. ' + bruger.fornavn + ' ' + bruger.efternavn;
+              }
              //hvis brugerttype=admin
              if (brugertype == 0) {
                  vagterhtml += '<button class="fjernknap" id="' + vagt._id + '">Fjern frivillig</button>';
@@ -889,7 +887,6 @@ async function åbenRedigerEvent(begivenhedsid) {
     const begivenhedResponse = await GET(endpoint);
 
     let begivenhed = begivenhedResponse[0];
-
     let afvikler = begivenhedResponse[2][0];
 
     //hvad er afviklervagtens id
@@ -903,7 +900,6 @@ async function åbenRedigerEvent(begivenhedsid) {
     const begivenhedText = await side.text();
     const compiledTemplate = Handlebars.compile(begivenhedText);
     if (afvikler) {
-
         let dat = new Date(begivenhed.dato);
         let dat2 = dat.toISOString().substring(0, 10);
 
@@ -914,7 +910,8 @@ async function åbenRedigerEvent(begivenhedsid) {
             sluttid: begivenhed.sluttid,
             beskrivelse: begivenhed.beskrivelse,
             afvikler: afvikler.fornavn + " " + afvikler.efternavn,
-            antalfrivillige: begivenhed.antalFrivillige
+            antalfrivillige: begivenhed.antalFrivillige,
+            logbog: begivenhed.logbog
         });
         begivenhedHTML += '<br>';
         begivenhedHTML += '<p>Afvikler</p>' + afvikler.fornavn + ' ' + afvikler.efternavn;
@@ -944,7 +941,8 @@ async function åbenRedigerEvent(begivenhedsid) {
             starttid: begivenhed.startTid,
             sluttid: begivenhed.sluttid,
             beskrivelse: begivenhed.beskrivelse,
-            antalfrivillige: begivenhed.antalFrivillige
+            antalfrivillige: begivenhed.antalFrivillige,
+            logbog: begivenhed.logbog
         });
 
         //endpoint skal være /afviklere
@@ -1014,6 +1012,27 @@ async function åbenRedigerEvent(begivenhedsid) {
         }
     }
     //mangler antal frivillige
+    let logbogGemKnap = document.getElementById("gemLogbog");
+    logbogGemKnap.onclick = async function(){
+        let brugernavn = await GET("/bruger/api/getcurrentbrugernavn")
+        console.log(brugernavn)
+        begivenhed.logbog.push(
+            {entry: document.getElementById("logBogsEntry").value,
+            by: brugernavn.brugernavn
+            })
+        console.log(begivenhed.logbog, "logbog")
+        let begivenhedsid = begivenhed._id
+        let navn = begivenhed.navn
+        let dato = begivenhed.dato
+        let beskrivelse = begivenhed.beskrivelse
+        let logbog = begivenhed.logbog
+        let antalfrivillige = begivenhed.antalfrivillige
+
+        let o = {begivenhedsid, navn, dato, beskrivelse, logbog, antalfrivillige};
+        await PUT(o, '/redigerBegivenhed');
+        åbenRedigerEvent(begivenhedsid);
+    }
+
     let knap = document.getElementsByClassName('gemændringer');
     knap[0].onclick = async function () {
         let navn = document.getElementById('begivenhednavn').value;
@@ -1042,7 +1061,7 @@ async function åbenRedigerEvent(begivenhedsid) {
 async function tilmeldBegivenhed(event) {
     let svar = confirm('Er du sikker på at du vil tilmelde dig begivenheden?');
     if (svar) {
-        begivenhedsid = event.target.id;
+        let begivenhedsid = event.target.id;
         let s = await POST('/tilmeldmigbegivenhed', {"id": begivenhedsid})
         if (s.ok) {
             console.log('prøver at slette content');

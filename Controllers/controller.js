@@ -362,7 +362,7 @@ exports.setVagtStatus = async function setVagtStatus(id, newStatus)
 
 
 
-exports.redigerBegivenhed = async function redigerBegivenhed(begivenhedsid, navn, dato, beskrivelse, antalfrivillige, starttidspunkt, sluttidspunkt) {
+exports.redigerBegivenhed = async function redigerBegivenhed(begivenhedsid, navn, dato, beskrivelse, logbog, antalfrivillige, starttidspunkt, sluttidspunkt) {
     let begivenhed = await exports.getBegivenhed(begivenhedsid);
     let vagter = await exports.getVagterFraBegivenhed(begivenhedsid);
     const filter = {_id: begivenhedsid};
@@ -395,7 +395,7 @@ exports.redigerBegivenhed = async function redigerBegivenhed(begivenhedsid, navn
             let v = await exports.newVagt(tid, false, undefined, 0, 0, undefined, begivenhed, tidSlut)
             await exports.addVagtToBegivenhed(begivenhed, v);
         }
-        const update = {navn: navn, dato: realDate, beskrivelse: beskrivelse, antalFrivillige: antalfrivillige};
+        const update = {navn: navn, dato: realDate, beskrivelse: beskrivelse, antalFrivillige: antalfrivillige, logbog :logbog};
         return await Begivenhed.findOneAndUpdate(filter, update);
     }
     //hvis antalfrivillige er blevet mindre
@@ -406,12 +406,12 @@ exports.redigerBegivenhed = async function redigerBegivenhed(begivenhedsid, navn
             await exports.fjerneNæsteLedigeVagtFraBegivenhed(begivenhedsid);
             vagterderskalfjernes--;
     }
-        const update = {navn: navn, dato: realDate, beskrivelse: beskrivelse, tidSlut : tidSlut};
+        const update = {navn: navn, dato: realDate, beskrivelse: beskrivelse, tidSlut : tidSlut, logbog:logbog};
         return await Begivenhed.findOneAndUpdate(filter, update);
     }
     //hvis antalfrivillige er uændret
     else {
-        const update = {navn: navn, dato: realDate, beskrivelse: beskrivelse, tidSlut :tidSlut};
+        const update = {navn: navn, dato: realDate, beskrivelse: beskrivelse, tidSlut :tidSlut, logbog:logbog};
         return await Begivenhed.findOneAndUpdate(filter, update);
     }
 }
@@ -419,6 +419,13 @@ exports.redigerBegivenhed = async function redigerBegivenhed(begivenhedsid, navn
 exports.getVagterFraBegivenhed = async function getVagterFraBegivenhed(begivenhedsid) {
     let vagter = await Vagt.find({"begivenhed" : begivenhedsid}).exec();
     return vagter;
+}
+
+exports.updateBegivenhed = async function updateBegivenhed(id, updatedValues){
+     return Begivenhed.update({_id: id},
+        {
+            $set: updatedValues
+        })
 }
 
 exports.seBegivenhed = async function seBegivenhed(id) {
@@ -535,8 +542,6 @@ exports.fjerneNæsteLedigeVagtFraBegivenhed = async function fjerneNæsteLedigeV
 }
 
 exports.findFrivilligeDerIkkeHarEnVagtPåBegivenhed = async function findFrivilligeDerIkkeHarEnVagtPåBegivenhed(begivenhedId){
-    let timestart = new Date( Date.now());
-    let tStart = timestart.getTime();
     let brugere = await exports.getBrugere();
     let list = [];
     for(let b of brugere)
@@ -555,9 +560,6 @@ exports.findFrivilligeDerIkkeHarEnVagtPåBegivenhed = async function findFrivill
             }
         }
     }
-
-
-
     return list;
 
 
@@ -575,9 +577,10 @@ async function main() {
 
     let b1 = await exports.newBegivenhed('jaja', d1, 'alsudhas',4,undefined,undefined, d1, d2);
 }
+          // main();
   //main();
 
-      // main();
+     // main();
 async function main2() {
 
 }

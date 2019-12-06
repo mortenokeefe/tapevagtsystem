@@ -150,6 +150,9 @@ app.get('/FrivilligeDerIkkeHarEnVagtPaaBegivenhed/:begivenhedsid', async (req, r
     res.send(frivillige);
 })
 
+app.get('/bruger/api/getCurrentBrugernavn', async (req, res)=>{
+    res.send({brugernavn: req.session.brugernavn})
+})
 
 //POST endpoints
 app.post('/opretBruger', async (req, res) => {
