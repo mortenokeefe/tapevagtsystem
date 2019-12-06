@@ -100,7 +100,6 @@ exports.clearDatabase = async function clearDatabase() {
                 console.log(b._id,"begivenhed", v._id,"vagt");
                 await exports.fjernFrivilligFraVagt(v._id).then(
                  Vagt.deleteOne(v._id));
-
             }
             await Begivenhed.deleteOne(b);
         }

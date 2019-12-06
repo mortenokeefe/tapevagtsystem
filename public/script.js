@@ -53,34 +53,34 @@ async function getBrugere() {
             });
         }
         brugereHTML += '</ul>';
-
-        let frivillig = document.getElementById('frivilligcontent')
-        frivillig.innerHTML += brugereHTML;
-        let opretbutton = frivillig.querySelector('#opretbruger');
-        opretbutton.onclick = opretBruger;
-        let deletebutton = frivillig.querySelector('#deletebruger');
-        deletebutton.onclick = sletBruger;
-        let updatebruger = frivillig.querySelector('#updatebruger');
-        updatebruger.onclick = updateBruger;
-        let lis = frivillig.getElementsByTagName("li");
-        for (let i = 0; i < lis.length; i++) {
-            lis[i].onclick = function () {
-                bruger = brugereResponse[i];
-                lis[i].style.color = 'gray';
-                if (tempbruger !== "" && tempbruger !== lis[i])
-                    tempbruger.style.color = 'black';
-                tempbruger = lis.item(i);
-                frivillig.querySelector('#fornavn').value = bruger.fornavn
-                frivillig.querySelector('#efternavn').value = bruger.efternavn
-                frivillig.querySelector('#telefonnummer').value = bruger.telefonnummer
-                frivillig.querySelector('#brugernavn').value = bruger.brugernavn
-                frivillig.querySelector('#password').value = bruger.password
-                frivillig.querySelector('#brugertype').value = bruger.brugertype
-                frivillig.querySelector('#tilstand').value = bruger.tilstand
-                frivillig.querySelector('#email').value = bruger.email
+            let frivillig = document.getElementById('frivilligcontent')
+            frivillig.innerHTML += brugereHTML;
+        if (await getBrugertype() === 0) {
+            let opretbutton = frivillig.querySelector('#opretbruger');
+            opretbutton.onclick = opretBruger;
+            let deletebutton = frivillig.querySelector('#deletebruger');
+            deletebutton.onclick = sletBruger;
+            let updatebruger = frivillig.querySelector('#updatebruger');
+            updatebruger.onclick = updateBruger;
+            let lis = frivillig.getElementsByTagName("li");
+            for (let i = 0; i < lis.length; i++) {
+                lis[i].onclick = function () {
+                    bruger = brugereResponse[i];
+                    lis[i].style.color = 'gray';
+                    if (tempbruger !== "" && tempbruger !== lis[i])
+                        tempbruger.style.color = 'black';
+                    tempbruger = lis.item(i);
+                    frivillig.querySelector('#fornavn').value = bruger.fornavn
+                    frivillig.querySelector('#efternavn').value = bruger.efternavn
+                    frivillig.querySelector('#telefonnummer').value = bruger.telefonnummer
+                    frivillig.querySelector('#brugernavn').value = "";
+                    frivillig.querySelector('#password').value = bruger.password
+                    frivillig.querySelector('#brugertype').value = bruger.brugertype
+                    frivillig.querySelector('#tilstand').value = bruger.tilstand
+                    frivillig.querySelector('#email').value = bruger.email
+                }
             }
         }
-
     } catch (e) {
         console.log(e.name + ": " + e.message);
     }
@@ -151,9 +151,7 @@ async function updateBruger() {
             let url = "/updateBruger/" + bruger.brugernavn;
             if (data.fornavn.length > 0 && data.efternavn.length > 0 && data.telefonnummer.match("^\\d{8}$")
                 && data.password.length > 0 && data.email.length > 0) {
-                if (frivillig.querySelector('#brugernavn').value.length > 0) {
-                    return alert("Et brugernavn kan ikke opdateres")
-                }
+
                     let response = await PUT(data, url);
                     console.log("POST: %o", response);
 
