@@ -221,7 +221,7 @@ exports.fjernFrivilligFraVagt = async function fjernFrivilligFraVagt(vagtid) {
         await bruger.update({$pull: {vagter: vagtid}});
         bruger.save();
         vagt.save();
-    }
+        }
     }
 
 

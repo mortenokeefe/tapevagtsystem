@@ -528,7 +528,7 @@ async function getBegivenheder() {
         const brugertype = await getBrugertype();
         if(brugertype ==0)                                       //   smider knappen på
         {
-            brugereHTML += '<br> <button id="åbenOpretBegivenhedButton" style="height: 50px "> ny begivenhed</button> <button id="ClearDatabase"> Slet gamle begivenheder</button>';
+            brugereHTML += '<br> <button id="åbenOpretBegivenhedButton"> ny begivenhed</button> <button id="ClearDatabase"> Slet gamle begivenheder</button>';
         }
 
 
@@ -693,7 +693,11 @@ async function getBegivenhed(id) {
               // console.log(brugere);
               mig = brugere.minbruger;
               let bruger = brugere.bruger;
-             vagterhtml += index + '. ' + bruger.fornavn + ' ' + bruger.efternavn;
+              if (brugertype === 0 || brugertype === 1)
+             vagterhtml += index + '. ' + bruger.fornavn + ' ' + bruger.efternavn + " " + bruger.telefonnummer;
+              else {
+                  vagterhtml += index + '. ' + bruger.fornavn + ' ' + bruger.efternavn;
+              }
              //hvis brugerttype=admin
              if (brugertype == 0) {
                  vagterhtml += '<button class="fjernknap" id="' + vagt._id + '">Fjern frivillig</button>';
@@ -746,7 +750,6 @@ async function getBegivenhed(id) {
                     knapHTML += frivilligeTemplate({
                         frivilligid: frivillig._id,
                        navn: frivillig.fornavn + ' ' + frivillig.efternavn,
-                      //  antalVagter: await GETtext('/getAntalVagterTilbage' + frivillig.brugernavn)
                 });
                 }
                 knapHTML += '</select><br>';
