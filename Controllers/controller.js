@@ -334,11 +334,11 @@ exports.getVagterTilSalg = async function getVagterTilSalg() {
        // console.log(vagt, "vagt");
         let begivenhed = await exports.getBegivenhed(vagt.begivenhed);
         // console.log(begivenhed, "begivenhed");
-        let dato = new Date(vagt.startTid).toLocaleDateString();
+        let dato = new Date(vagt.startTid);
         // console.log(dato);
         let frivillig = await exports.getBrugerFraId(vagt.bruger);
         // console.log(frivillig, "frivillig");
-        let o = {vagt: vagt, begivenhed: begivenhed.navn, bruger: frivillig.fornavn + ' ' + frivillig.efternavn, dato: dato};
+        let o = {vagt: vagt, begivenhed: begivenhed.navn, bruger: frivillig.fornavn + ' ' + frivillig.efternavn, dato: dato, tidSlut : vagt.slutTid};
         //console.log(o, "o");
         if(vagt.startTid >= new Date(Date.now()))
         vagtermedinfo.push(o);
