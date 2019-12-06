@@ -347,7 +347,7 @@ async function getBrugersVagter() {
         const vagtTxt = await hbs.text();
         const brugertype = await getBrugertype();
         const compiledTemplate = Handlebars.compile(vagtTxt);
-        let mineVagterHTML = '<table><tr><th> Mine Vagter</th></tr>';
+        let mineVagterHTML = '<table><tr><th> Mine Vagter</th></tr> <tr><th>Event</th><th>Dato</th> <th>Sluttidspunkt</th></tr><tr><td>';
 
 
 
@@ -365,7 +365,7 @@ async function getBrugersVagter() {
             });
             if(brugertype !=1) {
                 if (vagt.status != 2) {
-                    mineVagterHTML += '<button class="sætVagtTilSalgButton" id="' + vagt.id + '"> Sæt til salg</button>';
+                    mineVagterHTML += '<td><button class="sætVagtTilSalgButton" id="' + vagt.id + '"> Sæt til salg</button></td>';
                 } else {
                     mineVagterHTML += ' TIL SALG!';
                 }
