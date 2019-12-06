@@ -214,10 +214,10 @@ app.post('/adminTilfoejVagtTilBruger', async(req,res) =>{
     res.send({ok:true}); // fix fejlsikring senere
 });
 
-app.get('getAntalVagterTilbage:brugernavn',  async(req,res) =>{
+app.get('/getDenneMaanedsVagter/:brugernavn',  async(req,res) =>{
     const brugernavn = req.params.brugernavn;
-    let antal = controller.getNaesteMaanedsVagter(brugernavn);
-    res.send(antal)
+    let antal = await controller.getDenneMaanedsVagter(brugernavn);
+    res.send({antalvagter: antal});
 });
 
 app.post('/tilfoejVagtTilBruger', async(req,res) =>{
