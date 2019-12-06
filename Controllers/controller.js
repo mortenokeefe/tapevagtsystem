@@ -98,13 +98,18 @@ exports.clearDatabase = async function clearDatabase() {
             console.log(vagter.length, "vager længde");
             for (let v of vagter) {
                 console.log(b._id,"begivenhed", v._id,"vagt");
-                await exports.fjernFrivilligFraVagt(v._id).then(
-                 Vagt.deleteOne(v._id));
+                await exports.fjernFrivilligFraVagt(v._id).then(exports.sletVagt(v._id));
+
 
             }
             await Begivenhed.deleteOne(b);
         }
     }
+}
+exports.sletVagt = async function sletVagt(id){
+    Vagt.deleteOne({_id : id}, function(err){
+        if (err) console.log(err);
+    });
 }
 
 exports.newBruger = function newBruger(fornavn, efternavn, telefonnummer, brugernavn, password, brugertype, tilstand, email, vagter) {
@@ -215,13 +220,15 @@ exports.addVagtToBruger = async function addVagtToBruger(brugernavn, id) {
 
 exports.fjernFrivilligFraVagt = async function fjernFrivilligFraVagt(vagtid) {
     let vagt = await exports.getVagtFraId(vagtid);
-    if (vagt.status === 1) {
-        let bruger = await exports.getBrugerFraId(vagt.bruger);
-        vagt.bruger = undefined;
-        vagt.status = 0;
-        await bruger.update({$pull: {vagter: vagtid}});
-        bruger.save();
-        vagt.save();
+    if(vagt) {
+        if (vagt.status === 1) {
+            let bruger = await exports.getBrugerFraId(vagt.bruger);
+            vagt.bruger = undefined;
+            vagt.status = 0;
+            await bruger.update({$pull: {vagter: vagtid}});
+            bruger.save();
+           // vagt.save();
+        }
     }
     }
 
