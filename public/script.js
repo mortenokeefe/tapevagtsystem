@@ -1185,6 +1185,10 @@ async function cleartab() {
     bg1.innerHTML = '';
 }
 
+async function logud () {
+    window.location.replace('index.html');
+}
+
 async function openPane(evt, tabName) {
     // Declare all variables
     var i, tabcontent, tablinks;
@@ -1214,11 +1218,9 @@ async function openPane(evt, tabName) {
         getBegivenheder();
         loadCalendar();
 
+    }
         document.getElementById('begivenhedercontent')
 
-
-
-    }
     if (tabName == 'Mine vagter'){
         cleartab();
         getBrugersVagter();
@@ -1228,5 +1230,8 @@ async function openPane(evt, tabName) {
         getVagterTilSalg();
     }
 
+    if (tabName == 'Log ud') {
+        logud();
+    }
 
 }
