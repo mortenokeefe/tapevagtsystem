@@ -347,7 +347,7 @@ async function getBrugersVagter() {
         const vagtTxt = await hbs.text();
         const brugertype = await getBrugertype();
         const compiledTemplate = Handlebars.compile(vagtTxt);
-        let mineVagterHTML = '<table><tr><th> Mine Vagter</th></tr> <tr><th>Event</th><th>Dato</th> <th>Sluttidspunkt</th></tr><tr><td>';
+        let mineVagterHTML = '<table><tr><th> Mine Vagter</th></tr> <tr><th>Begivenhed</th><th>Dato</th> <th>Sluttidspunkt</th></tr><tr><td>';
 
 
 
