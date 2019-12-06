@@ -739,15 +739,23 @@ async function getBegivenhed(id) {
                 });
                 let frivilligehbs = await fetch('/frivillig.hbs');
                 let frivilligeText = await frivilligehbs.text();
-                console.log(frivilligeText);
+                let d = new Date(begivenhed.dato);
+                const måneder = ["januar", "februar", "marts", "april", "maj", "juni",
+                    "juli", "august", "september", "oktober", "november", "december"
+                ];
+                let begivenhedsmåned = måneder[d.getMonth()];
+
                 const frivilligeTemplate = Handlebars.compile(frivilligeText);
                 knapHTML += '<select class="select" id="' + vagt._id +'" size="10" style="width: 80%">';
                 for (let frivillig of frivillige) {
+                    let g = await GET('/getDenneMaanedsVagter/' + frivillig.brugernavn);
+                    let antalv = g.antalvagter;
                     console.log(frivillig);
                     knapHTML += frivilligeTemplate({
                         frivilligid: frivillig._id,
                        navn: frivillig.fornavn + ' ' + frivillig.efternavn,
-                      //  antalVagter: await GETtext('/getAntalVagterTilbage' + frivillig.brugernavn)
+                        antalvagter: antalv,
+                        måned: begivenhedsmåned
                 });
                 }
                 knapHTML += '</select><br>';
