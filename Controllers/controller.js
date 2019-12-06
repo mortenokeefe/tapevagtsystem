@@ -1,10 +1,11 @@
 const nodemailer = require('nodemailer');
+const bcrypt = require('bcryptjs');
 
 function mailOptions(request) {
     let mail = {
         from: 'tapetestmail@gmail.com',
         to: request,
-        subject: 'Test',
+        subject: 'Solgt valgt',
         text: 'Din vagt er blevet solgt'
     }
     return mail;
@@ -154,7 +155,9 @@ exports.updateBruger = async function newBruger(fornavn, efternavn, telefonnumme
     bruger.fornavn = fornavn;
     bruger.efternavn = efternavn;
     bruger.telefonnummer = telefonnummer;
-    bruger.password = password;
+    if(password){
+        bruger.password = password;
+    }
     bruger.brugertype = brugertype;
     bruger.tilstand = tilstand;
     bruger.email = email;
@@ -573,17 +576,9 @@ exports.findFrivilligeDerIkkeHarEnVagtPåBegivenhed = async function findFrivill
 
 
 async function main() {
-
-    let admin = await exports.newBruger('Admin', 'Jensen', '88888888', 'admin', 'admin', 0, 0, 'admin@tapeaarhus.dk', undefined);
-    let afvikler = await exports.newBruger('Afvikler', 'Afvikler', '88888888', 'af', 'af', 1, 0, 'admin@tapeaarhus.dk', undefined);
-    let frivillig = await exports.newBruger('Fri', 'Villig', '88888888', 'fri', 'fri', 2, 0, 'admin@tapeaarhus.dk', undefined);
-    // let d1 = new Date('1995-12-17T20:00:00');
-    // let d2 = new Date('1995-12-18T02:00:00');
-    //
-    // let b1 = await exports.newBegivenhed('jaja', d1, 'alsudhas',4,undefined,undefined, d1, d2);
+    let salt = await bcrypt.hash("admin", bcrypt.genSaltSync(12)).then(async function(hashedPassword) {
+        let admin = await exports.newBruger('Admin2', 'Jensen', '88888888', 'admin2', hashedPassword, 0, 0, 'admin@tapeaarhus.dk', undefined);
+    });
 }
-          // main();
-//main();
 
-     // main();
-
+main()

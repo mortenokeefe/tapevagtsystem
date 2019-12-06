@@ -164,13 +164,7 @@ app.get('/bruger/api/getCurrentBrugernavn', async (req, res)=>{
 })
 
 //POST endpoints
-app.post('/opretBruger', async (req, res) => {
-    const {fornavn, efternavn, telefonnummer, brugernavn, password, brugertype, tilstand, email} = req.body;
-    controller.newBruger(fornavn, efternavn, telefonnummer, brugernavn, password, brugertype, tilstand, email, undefined);
-    res.sendStatus(201);
-});
-
-/*app.post('/opretBruger' , async (req, res) =>{
+app.post('/opretBruger' , async (req, res) =>{
     console.log(req.body);
     const {fornavn, efternavn, telefonnummer, brugernavn, password, brugertype, tilstand, email} = req.body;
     let salt = await bcrypt.hash(password, bcrypt.genSaltSync(12)).then(function(hashedPassword) {
@@ -178,7 +172,7 @@ app.post('/opretBruger', async (req, res) => {
     })
     console.log(salt);
     res.sendStatus(201);
-});*/
+});
 
 app.put('/redigerBegivenhed', async (req,res) => {
    const {begivenhedsid, navn, dato, beskrivelse, logbog, antalfrivillige, starttid, sluttid} = req.body;
@@ -189,9 +183,16 @@ app.put('/redigerBegivenhed', async (req,res) => {
 app.put('/updateBruger/:brugernavn' , async (req, res) =>{
     const {fornavn, efternavn, telefonnummer, password, brugertype, tilstand, email} = req.body;
     const filterbrugernavn = req.params.brugernavn;
-    await controller.updateBruger(fornavn, efternavn, telefonnummer, password, brugertype, tilstand, email, filterbrugernavn);
+    if (password) {
+    await bcrypt.hash(password, bcrypt.genSaltSync(12)).then( async function(hashedPassword) {
+        await controller.updateBruger(fornavn, efternavn, telefonnummer,  hashedPassword, brugertype, tilstand, email, filterbrugernavn);
+    })}
+    else {
+        await controller.updateBruger(fornavn, efternavn, telefonnummer,  password, brugertype, tilstand, email, filterbrugernavn);
+    }
     res.sendStatus(200);
 });
+
 
 app.post('/opretBegivenhed' , async (req, res) =>{
     console.log("opretter begivenhed");
@@ -254,7 +255,6 @@ app.post('/overtagvagt', async (req, res) =>{
    let vagtid = req.body.id;
    // console.log(brugerloggedind + ' ønsker at overtage vagten med id: ' + vagtid);
     let email = await controller.getEmailFraVagtId(vagtid);
-
    await controller.overtagVagt(brugerloggedind, vagtid)
        .then(res.send({ok: true})).then(controller.sendmail(email));
 
@@ -264,10 +264,6 @@ app.post('/fjernfrivilligfravagt', async (req, res) => {
    let vagtid = req.body.vagtid;
    await controller.fjernFrivilligFraVagt(vagtid);
     res.send({ok:true});
-});
-
-app.post('/update', async (req, res) => {
-    console.log('jaja');
 });
 
 app.put('/setFravaer', async (req, res) =>{
@@ -310,8 +306,7 @@ app.post('/login', async (request, response) => {
     if (check == null)
         response.send({ok: false});
     else {
-        //if (bcrypt.compareSync(password, check.password) && brugernavn)
-        if (password === check.password && brugernavn) {
+        if (bcrypt.compareSync(password, check.password) && brugernavn) {
             request.session.brugernavn = brugernavn;
             request.session.brugertype = check.brugertype;
             response.send({ok: true, type: 'admin'});
