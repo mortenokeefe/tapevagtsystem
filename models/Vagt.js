@@ -27,7 +27,8 @@ const vagt = new Schema({
     status: Number, // ledig 0 optaget 1 til salg 2
     vagtType: Number, // 0 frivilligvagt , 1 afviklervagt
     bruger: {type: ObjectId, ref: 'Bruger'},
-    begivenhed: {type: ObjectId, ref: 'Begivenhed'}
+    begivenhed: {type: ObjectId, ref: 'Begivenhed'},
+    slutTid : Date
 });
 
 vagt.methods.toString = function() {

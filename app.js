@@ -169,8 +169,8 @@ app.post('/opretBruger', async (req, res) => {
 });*/
 
 app.put('/redigerBegivenhed', async (req,res) => {
-   const {begivenhedsid, navn, dato, beskrivelse, antalfrivillige} = req.body;
-   await controller.redigerBegivenhed(begivenhedsid, navn, dato, beskrivelse, antalfrivillige);
+   const {begivenhedsid, navn, dato, beskrivelse, antalfrivillige, starttid, sluttid} = req.body;
+   await controller.redigerBegivenhed(begivenhedsid, navn, dato, beskrivelse, antalfrivillige, starttid, sluttid);
     res.sendStatus(200);
 });
 
@@ -184,9 +184,9 @@ app.put('/updateBruger/:brugernavn' , async (req, res) =>{
 app.post('/opretBegivenhed' , async (req, res) =>{
     console.log("opretter begivenhed");
 
-    const {navn, dato, beskrivelse, antalFrivillige, afvikler} = req.body;
+    const {navn, dato, beskrivelse, antalFrivillige, afvikler, starttid, sluttid} = req.body;
     console.log(navn + dato + beskrivelse + antalFrivillige);
-   await controller.newBegivenhed(navn, dato, beskrivelse, antalFrivillige, undefined, afvikler);
+   await controller.newBegivenhed(navn, dato, beskrivelse, antalFrivillige, undefined, afvikler, starttid, sluttid);
     res.send({ok:true}); // fix fejlsikring senere
 });
 app.post('/opretVagt', async(req,res)=> {

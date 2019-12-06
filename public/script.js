@@ -549,7 +549,7 @@ async function getBegivenheder() {
 async function clickBegivenhed(eventId) {
     getBegivenhed(eventId);
 }
-async function opretBegivenhed(navn, dato, beskrivelse, antalFrivillige, afvikler)
+async function opretBegivenhed(navn, dato, beskrivelse, antalFrivillige, afvikler, starttid, sluttid)
 {
 
     const url = '/opretBegivenhed';
@@ -565,7 +565,9 @@ async function opretBegivenhed(navn, dato, beskrivelse, antalFrivillige, afvikle
             dato: realDate,
             beskrivelse: beskrivelse,
             antalFrivillige: antalFrivillige,
-            afvikler: afvikler
+            afvikler: afvikler,
+            starttid : starttid,
+            sluttid : sluttid
         });
     }
 
@@ -585,6 +587,8 @@ async function åbenOpretEventVindue()
 
     let html =  'navn:<br> <input type="text" name="navn" id="bNameTxt"><br>' +
         'dato:<br> <input type="date" name="bday" id="bDate"><br>'+
+        'starttidspunkt:<br> <input type="time" name ="starttidspunkt" id="bStartTid" ><br>'+
+        'sluttidspunkt: <br> <input type="time" name ="slutttidspunkt" id="bSlutTid" ><br>'+
         'beskrivelse:<br><textarea rows="10" cols="50" id="bBeskrivelseTxt"></textarea><br>' +
         'antal frivillige:<br> <input type="number" name="antalfrivillige" id="bAntalFrivillige"><br>';
 
@@ -609,16 +613,20 @@ async function åbenOpretEventVindue()
     document.getElementById('opretBegivenhedButton').onclick = async function () {
         let navn = document.getElementById('bNameTxt').value;
         let dato = document.getElementById('bDate').valueAsDate;
+        let starttid = document.getElementById('bStartTid').valueAsDate;
+        let sluttid = document.getElementById('bSlutTid').valueAsDate;
         let beskrivelse = document.getElementById('bBeskrivelseTxt').value;
         let antalFrivillige = document.getElementById('bAntalFrivillige').value;
         let afviklerId = document.getElementById('afviklereSelect').value;
         if(afviklerId != 'undefined') {
+            console.log(starttid, "starttid", sluttid,"sluttid");
             let afvikler = await getBruger(afviklerId);
-            opretBegivenhed(navn, dato, beskrivelse, antalFrivillige, afvikler);
+            opretBegivenhed(navn, dato, beskrivelse, antalFrivillige, afvikler,starttid,sluttid);
                //console.log(afvikler, "script opret event afvikler");  
         }
             else {
-                     opretBegivenhed(navn, dato, beskrivelse, antalFrivillige, undefined);
+                console.log(starttid, "starttid", sluttid,"sluttid");
+                     opretBegivenhed(navn, dato, beskrivelse, antalFrivillige, undefined,starttid,sluttid);
         }
 
 
@@ -902,6 +910,8 @@ async function åbenRedigerEvent(begivenhedsid) {
         begivenhedHTML += compiledTemplate({
             navn: begivenhed.navn,
             dato: dat2,
+            starttid: begivenhed.startTid,
+            sluttid: begivenhed.sluttid,
             beskrivelse: begivenhed.beskrivelse,
             afvikler: afvikler.fornavn + " " + afvikler.efternavn,
             antalfrivillige: begivenhed.antalFrivillige
@@ -931,6 +941,8 @@ async function åbenRedigerEvent(begivenhedsid) {
         begivenhedHTML += compiledTemplate({
             navn: begivenhed.navn,
             dato: dat2,
+            starttid: begivenhed.startTid,
+            sluttid: begivenhed.sluttid,
             beskrivelse: begivenhed.beskrivelse,
             antalfrivillige: begivenhed.antalFrivillige
         });
@@ -1006,12 +1018,14 @@ async function åbenRedigerEvent(begivenhedsid) {
     knap[0].onclick = async function () {
         let navn = document.getElementById('begivenhednavn').value;
         let dato = document.getElementById('begivenheddato').valueAsDate;
+        let starttid = document.getElementById('bRStartTid').valueAsDate;
+        let sluttid = document.getElementById('bRSlutTid').valueAsDate;
         let beskrivelse = document.getElementById('begivenhedbeskrivelse').value;
         let antalfrivillige = document.getElementById('begivenhedantalfrivillige').value;
         if (navn.length == 0 || dato == null) {
             alert('du har enten ikke valgt 1 navn eller 1 dato');
         } else {
-            let o = {begivenhedsid, navn, dato, beskrivelse, antalfrivillige};
+            let o = {begivenhedsid, navn, dato, beskrivelse, antalfrivillige, starttid, sluttid };
             let checksvar = await GET('/checkForLedigeVagter/' + begivenhedsid + '/' + antalfrivillige);
             if (checksvar) {
                 await PUT(o, '/redigerBegivenhed');
