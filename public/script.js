@@ -347,17 +347,25 @@ async function getBrugersVagter() {
         const vagtTxt = await hbs.text();
         const brugertype = await getBrugertype();
         const compiledTemplate = Handlebars.compile(vagtTxt);
-        let mineVagterHTML = '<table><tr><th> Mine Vagter</th></tr>';
+        let mineVagterHTML = '<table><tr><th> Mine Vagter</th></tr> <tr><th>Begivenhed</th><th>Dato</th> <th>Sluttidspunkt</th></tr><tr><td>';
+
+
 
         brugerResponse.forEach(vagt => {
+            let realDateStart = new Date(vagt.dato);
+            let realDateSlut = new Date(vagt.tidSlut);
+            console.log(vagt.startTid, vagt.tidSlut);
+            console.log(realDateStart, realDateSlut);
+
             mineVagterHTML += compiledTemplate({
-                dato: vagt.dato,
+                dato: realDateStart.toLocaleDateString() +' ' +realDateStart.toLocaleTimeString([],{hour :'2-digit',minute: '2-digit'}),
+                sluttid : realDateSlut.toLocaleDateString() +' ' +realDateSlut.toLocaleTimeString([],{hour :'2-digit',minute: '2-digit'}),
                 begivenhed: vagt.begivenhed,
                 id: vagt.id
             });
             if(brugertype !=1) {
                 if (vagt.status != 2) {
-                    mineVagterHTML += '<button class="sætVagtTilSalgButton" id="' + vagt.id + '"> Sæt til salg</button>';
+                    mineVagterHTML += '<td><button class="sætVagtTilSalgButton" id="' + vagt.id + '"> Sæt til salg</button></td>';
                 } else {
                     mineVagterHTML += ' TIL SALG!';
                 }
@@ -391,12 +399,17 @@ async function getVagterTilSalg() {
         let brugertype = await getBrugertype();
 
         const compiledTemplate = Handlebars.compile(vagterText);
-        let brugereHTML = '<table><tr><th>Begivenhed</th><th>Dato</th><th>Frivillig</th><th></th></tr>';
+        let brugereHTML = '<table><tr><th>Begivenhed</th><th>Dato</th><th>Sluttidspunkt</th><th>Frivillig</th><th></th></tr>';
 
         vagterResponse.forEach(vagt => {
+            let realDateStart = new Date(vagt.dato);
+            let realDateSlut = new Date(vagt.tidSlut);
+            console.log(vagt.dato, vagt.tidSlut);
             brugereHTML += compiledTemplate({
+
                 begivenhed: vagt.begivenhed,
-                dato: vagt.dato,
+                dato: realDateStart.toLocaleDateString() +' ' +realDateStart.toLocaleTimeString([],{hour :'2-digit',minute: '2-digit'}),
+                sluttid : realDateSlut.toLocaleDateString() +' ' +realDateSlut.toLocaleTimeString([],{hour :'2-digit',minute: '2-digit'}),
                 bruger: vagt.bruger,
                 id: vagt.vagt._id
             });
@@ -690,11 +703,13 @@ async function getBegivenhed(id) {
     const side = await fetch('/begivenhed.hbs');
     const begivenhedText = await side.text();
     const compiledTemplate = Handlebars.compile(begivenhedText);
+    let realDateStart = new Date(begivenhed.dato);
+    let realDateSlut = new Date(begivenhed.tidSlut);
     if(afvikler) {
          begivenhedHTML += compiledTemplate({
             navn: begivenhed.navn,
-            dato: begivenhed.dato,
-             sluttid : begivenhed.tidSlut,
+            dato: realDateStart.toLocaleDateString() +' ' +realDateStart.toLocaleTimeString([],{hour :'2-digit',minute: '2-digit'}),
+             sluttid : realDateSlut.toLocaleDateString() +' ' + realDateSlut.toLocaleTimeString([],{hour :'2-digit',minute: '2-digit'}),
             beskrivelse: begivenhed.beskrivelse,
             afvikler: afvikler.fornavn + " " + afvikler.efternavn
 
@@ -703,8 +718,8 @@ async function getBegivenhed(id) {
     else {
                         begivenhedHTML += compiledTemplate({
                              navn: begivenhed.navn,
-                            dato: begivenhed.dato,
-                            sluttid: begivenhed.tidSlut,
+                            dato: realDateStart.toLocaleDateString() +' ' +realDateStart.toLocaleTimeString([],{hour :'2-digit',minute: '2-digit'}),
+                            sluttid : realDateSlut.toLocaleDateString() +' ' + realDateSlut.toLocaleTimeString([],{hour :'2-digit',minute: '2-digit'}),
                             beskrivelse: begivenhed.beskrivelse,
                              afvikler: 'ingen afvikler'
                              });
