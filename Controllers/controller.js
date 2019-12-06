@@ -106,11 +106,7 @@ exports.clearDatabase = async function clearDatabase() {
         }
     }
 }
-exports.sletVagt = async function sletVagt(id){
-    Vagt.deleteOne({_id : id}, function(err){
-        if (err) console.log(err);
-    });
-}
+
 
 exports.newBruger = function newBruger(fornavn, efternavn, telefonnummer, brugernavn, password, brugertype, tilstand, email, vagter) {
     const bruger = new Bruger({
