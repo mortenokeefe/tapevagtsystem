@@ -259,9 +259,10 @@ function loadCalendar() {
                 const id = info.event.extendedProps.complete._id
                 clickBegivenhed(id)
             },
+            displayEventTime: false,
             eventColor: "green",
             eventRender: function(info){
-                info.el.append( info.event.extendedProps.description + "      Ledige vagter: " + info.event.extendedProps.antalLedigeVagter);
+                info.el.append( "Ledige vagter: " + info.event.extendedProps.antalLedigeVagter);
                 if(info.event.extendedProps.antalLedigeVagter == 0){
                     info.el.style.backgroundColor = 'red'
                     info.el.style.borderColor = 'red'
