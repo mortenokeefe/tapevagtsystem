@@ -98,13 +98,15 @@ exports.clearDatabase = async function clearDatabase() {
             console.log(vagter.length, "vager længde");
             for (let v of vagter) {
                 console.log(b._id,"begivenhed", v._id,"vagt");
-                await exports.fjernFrivilligFraVagt(v._id).then(
-                 Vagt.deleteOne(v._id));
+                await exports.fjernFrivilligFraVagt(v._id).then(exports.sletVagt(v._id));
+
+
             }
             await Begivenhed.deleteOne(b);
         }
     }
 }
+
 
 exports.newBruger = function newBruger(fornavn, efternavn, telefonnummer, brugernavn, password, brugertype, tilstand, email, vagter) {
     const bruger = new Bruger({
@@ -186,15 +188,16 @@ exports.getVagtFraId = async function getVagtFraId(id) {
     return Vagt.findOne({_id: id}).exec();
 }
 
-exports.getNaesteMaanedsVagter = async function getNaesteMaanedsVagter(brugernavn) {
+
+exports.getDenneMaanedsVagter = async function getDenneMaanedsVagter(brugernavn) {
     let count = 0;
      let datenow = new Date();
      let month1 = datenow.getMonth();
      let year1 = datenow.getFullYear();
-    let naestemaaned = new Date(year1, month1+2, 0,1,0 );
+    let dennemaaned = new Date(year1, month1+1, 0,1,0 );
     let vagter = await exports.getVagterFraBruger(brugernavn);
     for (let i = 0; i < vagter.length; i++) {
-        if (vagter[i].startTid.getMonth() === naestemaaned.getMonth()) {
+        if (vagter[i].startTid.getMonth() === dennemaaned.getMonth()) {
             count++;
         }
     }
@@ -214,14 +217,16 @@ exports.addVagtToBruger = async function addVagtToBruger(brugernavn, id) {
 
 exports.fjernFrivilligFraVagt = async function fjernFrivilligFraVagt(vagtid) {
     let vagt = await exports.getVagtFraId(vagtid);
-    if (vagt.status === 1) {
-        let bruger = await exports.getBrugerFraId(vagt.bruger);
-        vagt.bruger = undefined;
-        vagt.status = 0;
-        await bruger.update({$pull: {vagter: vagtid}});
-        bruger.save();
-        vagt.save();
+    if(vagt) {
+        if (vagt.status === 1) {
+            let bruger = await exports.getBrugerFraId(vagt.bruger);
+            vagt.bruger = undefined;
+            vagt.status = 0;
+            await bruger.update({$pull: {vagter: vagtid}});
+            bruger.save();
+           // vagt.save();
         }
+    }
     }
 
 
@@ -403,7 +408,18 @@ exports.deleteBruger = async function deleteBruger(brugernavn) {
     return Bruger.deleteOne({brugernavn: brugernavn});
 };
 
+exports.sletVagt = async function sletVagt(vagtid) {
+    return Vagt.deleteOne({_id: vagtid});
+}
+
 exports.sletBegivenhed = async function sletBegivenhed(id) {
+    let vagter = await exports.getVagterFraBegivenhed(id);
+    for (let vagt of vagter) {
+        await exports.fjernFrivilligFraVagt(vagt._id);
+    }
+    for (let v of vagter) {
+        await exports.sletVagt(v._id);
+    }
     return Begivenhed.deleteOne({_id: id});
 }
 
@@ -503,9 +519,9 @@ exports.findFrivilligeDerIkkeHarEnVagtPåBegivenhed = async function findFrivill
 
 async function main() {
 
-    let admin = await exports.newBruger('Admin', 'Jensen', '88888888', 'admin', 'admin', 0, 1, 'admin@tapeaarhus.dk', undefined);
-    let afvikler = await exports.newBruger('Afvikler', 'Afvikler', '88888888', 'af', 'af', 1, 1, 'admin@tapeaarhus.dk', undefined);
-    let frivillig = await exports.newBruger('Fri', 'Villig', '88888888', 'fri', 'fri', 2, 1, 'admin@tapeaarhus.dk', undefined);
+    let admin = await exports.newBruger('Admin', 'Jensen', '88888888', 'admin', 'admin', 0, 0, 'admin@tapeaarhus.dk', undefined);
+    let afvikler = await exports.newBruger('Afvikler', 'Afvikler', '88888888', 'af', 'af', 1, 0, 'admin@tapeaarhus.dk', undefined);
+    let frivillig = await exports.newBruger('Fri', 'Villig', '88888888', 'fri', 'fri', 2, 0, 'admin@tapeaarhus.dk', undefined);
 
 }
           // main();

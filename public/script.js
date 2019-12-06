@@ -81,6 +81,7 @@ async function getBrugere() {
                 }
             }
         }
+
     } catch (e) {
         console.log(e.name + ": " + e.message);
     }
@@ -92,14 +93,6 @@ async function GET(url) {
     if (response.status !== OK)
         throw new Error("GET status code " + response.status);
     return await response.json();
-};
-
-async function GETtext(url) {
-    const OK = 200;
-    let response = await fetch(url);
-    if (response.status !== OK)
-        throw new Error("GET status code " + response.status);
-    return await response.text();
 };
 
 async function opretBruger() {
@@ -395,7 +388,7 @@ async function getVagterTilSalg() {
         const vagterResponse = await GET('/vagtertilsalg');
         const hbs = await fetch('/salg.hbs');
         const vagterText = await hbs.text();
-        let brugertype = getBrugertype();
+        let brugertype = await getBrugertype();
 
         const compiledTemplate = Handlebars.compile(vagterText);
         let brugereHTML = '<table><tr><th>Begivenhed</th><th>Dato</th><th>Frivillig</th><th></th></tr>';
@@ -415,7 +408,7 @@ async function getVagterTilSalg() {
             let knap = document.getElementById(vagt.vagt._id);
             //knap.onclick = overtagvagt;
             if (brugertype == 0) {
-               // knap.innerHTML = '';
+                // knap.innerHTML = '';
                 knap.hidden = true;
             } else {
 
@@ -742,14 +735,23 @@ async function getBegivenhed(id) {
                 });
                 let frivilligehbs = await fetch('/frivillig.hbs');
                 let frivilligeText = await frivilligehbs.text();
-                console.log(frivilligeText);
+                let d = new Date(begivenhed.dato);
+                const måneder = ["januar", "februar", "marts", "april", "maj", "juni",
+                    "juli", "august", "september", "oktober", "november", "december"
+                ];
+                let begivenhedsmåned = måneder[d.getMonth()];
+
                 const frivilligeTemplate = Handlebars.compile(frivilligeText);
                 knapHTML += '<select class="select" id="' + vagt._id +'" size="10" style="width: 80%">';
                 for (let frivillig of frivillige) {
+                    let g = await GET('/getDenneMaanedsVagter/' + frivillig.brugernavn);
+                    let antalv = g.antalvagter;
                     console.log(frivillig);
                     knapHTML += frivilligeTemplate({
                         frivilligid: frivillig._id,
                        navn: frivillig.fornavn + ' ' + frivillig.efternavn,
+                        antalvagter: antalv,
+                        måned: begivenhedsmåned
                 });
                 }
                 knapHTML += '</select><br>';
