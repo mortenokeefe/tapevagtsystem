@@ -696,7 +696,6 @@ async function getBegivenhed(id) {
             dato: begivenhed.dato,
              sluttid : begivenhed.tidSlut,
             beskrivelse: begivenhed.beskrivelse,
-             logbog: begivenhed.logbog,
             afvikler: afvikler.fornavn + " " + afvikler.efternavn
 
         });
@@ -707,7 +706,6 @@ async function getBegivenhed(id) {
                             dato: begivenhed.dato,
                             sluttid: begivenhed.tidSlut,
                             beskrivelse: begivenhed.beskrivelse,
-                            logbog: begivenhed.logbog,
                              afvikler: 'ingen afvikler'
                              });
 
@@ -821,6 +819,15 @@ async function getBegivenhed(id) {
     }
 
         begivenhedHTML += vagterhtml;
+
+    const logbogside = await fetch('/logbog.hbs');
+    const logbogText = await logbogside.text();
+    const logbogTemplate = Handlebars.compile(logbogText);
+
+    begivenhedHTML += logbogTemplate({
+        logbog: begivenhed.logbog
+    });
+
     let div = document.getElementById('begivenhedcontent');
     div.innerHTML = begivenhedHTML;
 
