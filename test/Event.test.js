@@ -49,10 +49,9 @@ describe('unittest', () =>{
         checkForUndefined.should.be.equal(true);
          b1.vagter.length.should.be.equal(5);
        // return  controller.newBegivenhed('FestAften',date1, 'abefest', 4,undefined, undefined);
-
     });
     it('controller opret begivenhed med afvikler', async function () {
-        let afvikler = await controller.newBruger('jens','brouw','12345678','jaja','jaja',1,0,'jaja@jaja.dk',undefined);
+            let afvikler = await controller.newBruger('jens','brouw','12345678','jaja','jaja',1,0,'jaja@jaja.dk',undefined);
         let b1 = await controller.newBegivenhed('FestAften2',date1, 'abefest', 4,undefined, afvikler);
         b1.navn.should.be.equal('FestAften2')
         b1.dato.should.be.equal(date1);

@@ -74,7 +74,6 @@ async function getBrugere() {
                     frivillig.querySelector('#efternavn').value = bruger.efternavn
                     frivillig.querySelector('#telefonnummer').value = bruger.telefonnummer
                     frivillig.querySelector('#brugernavn').value = "";
-                    frivillig.querySelector('#password').value = bruger.password
                     frivillig.querySelector('#brugertype').value = bruger.brugertype
                     frivillig.querySelector('#tilstand').value = bruger.tilstand
                     frivillig.querySelector('#email').value = bruger.email
@@ -143,9 +142,11 @@ async function updateBruger() {
             // console.log(data);
             let url = "/updateBruger/" + bruger.brugernavn;
             if (data.fornavn.length > 0 && data.efternavn.length > 0 && data.telefonnummer.match("^\\d{8}$")
-                && data.password.length > 0 && data.email.length > 0) {
+                && data.email.length > 0) {
 
                     let response = await PUT(data, url);
+                cleartab()
+                await getBrugere()
                     // console.log("POST: %o", response);
 
             } else if (!data.telefonnummer.match("^\\d{8}$")) {
