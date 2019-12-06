@@ -2,17 +2,23 @@
 <p><span class = "tekstmedbaggrund">Dato: {{dato}}</span></p><br>
 <p><span class = "tekstmedbaggrund">Sluttidspunkt: {{sluttid}}</span></p><br>
 <p><span class="nextline">Beskrivelse: {{beskrivelse}}</span></p><br>
-<p>Logbog: </p>
-<table>
+<p><span class = "tekstmedbaggrund">Afvikler: {{afvikler}}</span></p><br>
+<p id="logBogTitle">Logbog: </p>
+<table id="logBogTable">
     <tr>
         <th>Logbogspost</th>
         <th>Forfatter</th>
+        <th></th>
     </tr>
     {{#each logbog}}
         <tr>
             <th>{{entry}}</th>
             <th>{{by}}</th>
+            <th><button id="{{@index}}">Slet post</button></th>
         </tr>
+
     {{/each}}
 </table>
-<p><span class = "tekstmedbaggrund">Afvikler: {{afvikler}}</span></p><br>
+<p id="addLogbog">Tilføj til logbog: </p><textarea rows="3" cols="50" id="logBogsEntry"></textarea><br>
+<button id="gemLogbog">Gem Logbog</button>
+<br>
