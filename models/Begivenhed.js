@@ -47,6 +47,7 @@ const begivenhed = new Schema({
     beskrivelse: String,
     antalFrivillige: Number,
     vagter: [{type: ObjectId, ref: 'Vagt'}],
+    tidSlut : Date,
     logbog: []
 });
 

@@ -42,7 +42,7 @@ const Vagt = require('../models/Vagt');
 const Bruger = require('../models/Bruger');
 
 
-exports.newVagt = function newVagt(startTid, fravær, fraværsBeskrivelse, status, vagtType, bruger, begivenhed) {
+exports.newVagt = function newVagt(startTid, fravær, fraværsBeskrivelse, status, vagtType, bruger, begivenhed, slutTid) {
     const vagt = new Vagt({
         startTid,
         fravær,
@@ -50,31 +50,55 @@ exports.newVagt = function newVagt(startTid, fravær, fraværsBeskrivelse, statu
         status,
         vagtType,
         bruger,
-        begivenhed
+        begivenhed,
+        slutTid
     });
     return vagt.save();
 };
 
-exports.newBegivenhed = async function newBegivenhed(navn, dato, beskrivelse, antalFrivillige, vagter, afvikler) {
+exports.newBegivenhed = async function newBegivenhed(navn, dato, beskrivelse, antalFrivillige, vagter, afvikler,starttidspunkt, sluttidspunkt) {
+
+   // console.log(dato + "controller");
+    console.log(dato, "dato", starttidspunkt, "starttid", sluttidspunkt, "sluttidspunkt");
+    let realDate = new Date(dato); // wtf hvorfor skal man convertere det til en date 2 gange? det virker ikke ellers
+    let realDateStart = new Date(starttidspunkt);
+    let realDateSlut = new Date(sluttidspunkt);
+    //beværk at kl 19 er den 20. time i døgnet, derfor hours = 20
+    let starttidhours= realDateStart.getHours()-1;
+    let starttidminutes = realDateStart.getMinutes();
+    let sluttidhours = realDateSlut.getHours()-1;
+    let sluttidminutes = realDateSlut.getMinutes();
+    let tid = realDate.setHours(starttidhours, starttidminutes);
+    console.log(tid, "tid", realDate,"realdate", dato, "date");
+    let tidSlut = new Date(realDate);
+    if(sluttidhours < starttidhours) //hvis event slutter efter kl 24:00
+    {
+
+        tidSlut.setHours(sluttidhours, sluttidminutes);
+        tidSlut.setDate(realDate.getDate()+1);
+    }
+    else {
+            tidSlut.setHours(sluttidhours, sluttidminutes);
+    }
+    console.log(tidSlut, "tidslut");
+    dato= realDate;
     const begivenhed = new Begivenhed({
         navn,
         dato,
         beskrivelse,
         antalFrivillige,
-        vagter
+        vagter,
+        tidSlut
     });
-   // console.log(dato + "controller");
-    let realDate = new Date(dato); // wtf hvorfor skal man convertere det til en date 2 gange? det virker ikke ellers
-    //beværk at kl 19 er den 20. time i døgnet, derfor hours = 20
-    let tid = realDate.setHours('20', '00');
+
     for (let i = 0; i < antalFrivillige; i++) {
-        begivenhed.vagter.push(await exports.newVagt(tid, false, undefined, 0, 0, undefined, begivenhed));
+        begivenhed.vagter.push(await exports.newVagt(tid, false, undefined, 0, 0, undefined, begivenhed, tidSlut));
     }
     if(afvikler){
-     begivenhed.vagter.push(await exports.newVagt(tid, false, undefined, 0, 1, afvikler, begivenhed));
+     begivenhed.vagter.push(await exports.newVagt(tid, false, undefined, 0, 1, afvikler, begivenhed,tidSlut));
      }
     else {
-        begivenhed.vagter.push(await exports.newVagt(tid, false, undefined, 0, 1, undefined, begivenhed));
+        begivenhed.vagter.push(await exports.newVagt(tid, false, undefined, 0, 1, undefined, begivenhed,tidSlut));
     }
     begivenhed.save();
 
@@ -189,15 +213,18 @@ exports.getVagtFraId = async function getVagtFraId(id) {
 }
 
 
-exports.getDenneMaanedsVagter = async function getDenneMaanedsVagter(brugernavn) {
+exports.getDenneMaanedsVagter = async function getDenneMaanedsVagter(begivenhedsid, brugernavn) {
+    // console.log('kører getDenneMaanedsVagter i controller');
     let count = 0;
-     let datenow = new Date();
-     let month1 = datenow.getMonth();
-     let year1 = datenow.getFullYear();
-    let dennemaaned = new Date(year1, month1+1, 0,1,0 );
+    let begivenhed = await exports.getBegivenhed(begivenhedsid);
+    let d = begivenhed.dato;
+    let begivenhedmaaned = new Date(d);
     let vagter = await exports.getVagterFraBruger(brugernavn);
-    for (let i = 0; i < vagter.length; i++) {
-        if (vagter[i].startTid.getMonth() === dennemaaned.getMonth()) {
+
+    for (let vagt of vagter) {
+        let vagtdato = vagt.startTid;
+        let vagtmåned = vagtdato.getMonth();
+        if (vagt.startTid.getMonth() === begivenhedmaaned.getMonth()) {
             count++;
         }
     }
@@ -339,21 +366,40 @@ exports.setVagtStatus = async function setVagtStatus(id, newStatus)
 
 
 
-exports.redigerBegivenhed = async function redigerBegivenhed(begivenhedsid, navn, dato, beskrivelse, logbog, antalfrivillige) {
+exports.redigerBegivenhed = async function redigerBegivenhed(begivenhedsid, navn, dato, beskrivelse, logbog, antalfrivillige, starttidspunkt, sluttidspunkt) {
     let begivenhed = await exports.getBegivenhed(begivenhedsid);
     let vagter = await exports.getVagterFraBegivenhed(begivenhedsid);
     const filter = {_id: begivenhedsid};
-    let d = new Date(dato);
+    let realDate = new Date(dato);
+
+    let realDateStart = new Date(starttidspunkt);
+    let realDateSlut = new Date(sluttidspunkt);
+    //beværk at kl 19 er den 20. time i døgnet, derfor hours = 20
+    let starttidhours= realDateStart.getHours()-1;
+    let starttidminutes = realDateStart.getMinutes();
+    let sluttidhours = realDateSlut.getHours()-1;
+    let sluttidminutes = realDateSlut.getMinutes();
+    let tidSlut = new Date(realDate);
+    if(sluttidhours < starttidhours) //hvis event slutter efter kl 24:00
+    {
+
+        tidSlut.setHours(sluttidhours, sluttidminutes);
+        tidSlut.setDate(realDate.getDate()+1);
+    }
+    else {
+        tidSlut.setHours(sluttidhours, sluttidminutes);
+    }
+    let tid = realDate.setHours(starttidhours, starttidminutes);
 
     //hvis antalfrivillige er blevet forøget
     if (begivenhed.antalFrivillige < antalfrivillige) {
         let ektravagter = antalfrivillige - begivenhed.antalFrivillige;
         for (let index = ektravagter; index > 0; index--) {
-            let tid = d.setHours('20', '00');
-            let v = await exports.newVagt(tid, false, undefined, 0, 0, undefined, begivenhed)
+
+            let v = await exports.newVagt(tid, false, undefined, 0, 0, undefined, begivenhed, tidSlut)
             await exports.addVagtToBegivenhed(begivenhed, v);
         }
-        const update = {navn: navn, dato: d, beskrivelse: beskrivelse, logbog:logbog, antalFrivillige: antalfrivillige};
+        const update = {navn: navn, dato: realDate, beskrivelse: beskrivelse, antalFrivillige: antalfrivillige, logbog :logbog};
         return await Begivenhed.findOneAndUpdate(filter, update);
     }
     //hvis antalfrivillige er blevet mindre
@@ -364,12 +410,12 @@ exports.redigerBegivenhed = async function redigerBegivenhed(begivenhedsid, navn
             await exports.fjerneNæsteLedigeVagtFraBegivenhed(begivenhedsid);
             vagterderskalfjernes--;
     }
-        const update = {navn: navn, dato: d, logbog:logbog, beskrivelse: beskrivelse};
+        const update = {navn: navn, dato: realDate, beskrivelse: beskrivelse, tidSlut : tidSlut, logbog:logbog};
         return await Begivenhed.findOneAndUpdate(filter, update);
     }
     //hvis antalfrivillige er uændret
     else {
-        const update = {navn: navn, dato: d, logbog:logbog, beskrivelse: beskrivelse};
+        const update = {navn: navn, dato: realDate, beskrivelse: beskrivelse, tidSlut :tidSlut, logbog:logbog};
         return await Begivenhed.findOneAndUpdate(filter, update);
     }
 }
@@ -530,9 +576,13 @@ async function main() {
     let admin = await exports.newBruger('Admin', 'Jensen', '88888888', 'admin', 'admin', 0, 0, 'admin@tapeaarhus.dk', undefined);
     let afvikler = await exports.newBruger('Afvikler', 'Afvikler', '88888888', 'af', 'af', 1, 0, 'admin@tapeaarhus.dk', undefined);
     let frivillig = await exports.newBruger('Fri', 'Villig', '88888888', 'fri', 'fri', 2, 0, 'admin@tapeaarhus.dk', undefined);
+    let d1 = new Date('1995-12-17T20:00:00');
+    let d2 = new Date('1995-12-18T02:00:00');
 
+    let b1 = await exports.newBegivenhed('jaja', d1, 'alsudhas',4,undefined,undefined, d1, d2);
 }
           // main();
+  //main();
 
      // main();
 async function main2() {
