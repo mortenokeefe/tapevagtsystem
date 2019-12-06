@@ -368,9 +368,10 @@ exports.setVagtStatus = async function setVagtStatus(id, newStatus)
 
 exports.redigerBegivenhed = async function redigerBegivenhed(begivenhedsid, navn, dato, beskrivelse, logbog, antalfrivillige, starttidspunkt, sluttidspunkt) {
     let begivenhed = await exports.getBegivenhed(begivenhedsid);
-    let vagter = await exports.getVagterFraBegivenhed(begivenhedsid);
+    //let vagter = await exports.getVagterFraBegivenhed(begivenhedsid);
     const filter = {_id: begivenhedsid};
     let realDate = new Date(dato);
+    console.log(dato, "dato", realDate, "realDate");
 
     let realDateStart = new Date(starttidspunkt);
     let realDateSlut = new Date(sluttidspunkt);
@@ -399,7 +400,7 @@ exports.redigerBegivenhed = async function redigerBegivenhed(begivenhedsid, navn
             let v = await exports.newVagt(tid, false, undefined, 0, 0, undefined, begivenhed, tidSlut)
             await exports.addVagtToBegivenhed(begivenhed, v);
         }
-        const update = {navn: navn, dato: realDate, beskrivelse: beskrivelse, antalFrivillige: antalfrivillige, logbog :logbog};
+        const update = {navn: navn, dato: realDate, beskrivelse: beskrivelse, antalFrivillige: antalfrivillige, logbog :logbog, tidSlut: tidSlut};
         return await Begivenhed.findOneAndUpdate(filter, update);
     }
     //hvis antalfrivillige er blevet mindre
@@ -410,12 +411,12 @@ exports.redigerBegivenhed = async function redigerBegivenhed(begivenhedsid, navn
             await exports.fjerneNæsteLedigeVagtFraBegivenhed(begivenhedsid);
             vagterderskalfjernes--;
     }
-        const update = {navn: navn, dato: realDate, beskrivelse: beskrivelse, tidSlut : tidSlut, logbog:logbog};
+        const update = {navn: navn, dato: realDate, beskrivelse: beskrivelse, tidSlut : tidSlut, logbog:logbog, tidSlut :tidSlut};
         return await Begivenhed.findOneAndUpdate(filter, update);
     }
     //hvis antalfrivillige er uændret
     else {
-        const update = {navn: navn, dato: realDate, beskrivelse: beskrivelse, tidSlut :tidSlut, logbog:logbog};
+        const update = {navn: navn, dato: realDate, beskrivelse: beskrivelse, tidSlut :tidSlut, logbog:logbog, tidSlut: tidSlut};
         return await Begivenhed.findOneAndUpdate(filter, update);
     }
 }

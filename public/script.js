@@ -694,15 +694,18 @@ async function getBegivenhed(id) {
          begivenhedHTML += compiledTemplate({
             navn: begivenhed.navn,
             dato: begivenhed.dato,
+             sluttid : begivenhed.tidSlut,
             beskrivelse: begivenhed.beskrivelse,
              logbog: begivenhed.logbog,
             afvikler: afvikler.fornavn + " " + afvikler.efternavn
+
         });
     }
     else {
                         begivenhedHTML += compiledTemplate({
                              navn: begivenhed.navn,
                             dato: begivenhed.dato,
+                            sluttid: begivenhed.tidSlut,
                             beskrivelse: begivenhed.beskrivelse,
                             logbog: begivenhed.logbog,
                              afvikler: 'ingen afvikler'
@@ -933,12 +936,16 @@ async function åbenRedigerEvent(begivenhedsid) {
     if (afvikler) {
         let dat = new Date(begivenhed.dato);
         let dat2 = dat.toISOString().substring(0, 10);
+        let dat3 = new Date(begivenhed.tidSlut);
+        let dat4 = dat3.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})
+        let dat5 = dat.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})
+
 
         begivenhedHTML += compiledTemplate({
             navn: begivenhed.navn,
             dato: dat2,
-            starttid: begivenhed.startTid,
-            sluttid: begivenhed.sluttid,
+            starttid : dat5,
+            sluttid: dat4,
             beskrivelse: begivenhed.beskrivelse,
             afvikler: afvikler.fornavn + " " + afvikler.efternavn,
             antalfrivillige: begivenhed.antalFrivillige,
@@ -966,11 +973,14 @@ async function åbenRedigerEvent(begivenhedsid) {
     } else {
         let dat = new Date(begivenhed.dato);
         let dat2 = dat.toISOString().substring(0, 10);
+        let dat3 = new Date(begivenhed.tidSlut);
+        let dat4 = dat3.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})
+        let dat5 = dat.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})
         begivenhedHTML += compiledTemplate({
             navn: begivenhed.navn,
             dato: dat2,
-            starttid: begivenhed.startTid,
-            sluttid: begivenhed.sluttid,
+            sluttid: dat4,
+            starttid: dat5,
             beskrivelse: begivenhed.beskrivelse,
             antalfrivillige: begivenhed.antalFrivillige,
             logbog: begivenhed.logbog
@@ -1051,17 +1061,40 @@ async function åbenRedigerEvent(begivenhedsid) {
             {entry: document.getElementById("logBogsEntry").value,
             by: brugernavn.brugernavn
             })
-        console.log(begivenhed.logbog, "logbog")
+        console.log(begivenhed.logbog, "logbog");
+        let begivenhedsid = begivenhed._id;
+        let navn = begivenhed.navn;
+        let dato = begivenhed.dato;
+        let beskrivelse = begivenhed.beskrivelse;
+        let logbog = begivenhed.logbog;
+        let antalfrivillige = begivenhed.antalfrivillige;
+        let sluttid =  begivenhed.tidSlut;
+        let starttid = dato;
+
+
+        let o = {begivenhedsid, navn, dato, beskrivelse, logbog, antalfrivillige,starttid, sluttid};
+        await PUT(o, '/redigerBegivenhed');
+        åbenRedigerEvent(begivenhedsid);
+    }
+    for(i = 0; i<begivenhed.logbog.length;i++){
+        let postButton = document.getElementById(""+i)
+        console.log(postButton, "postbutton")
+        postButton.onclick = async function(){
+                    begivenhed.logbog.splice(postButton.id, 1)
         let begivenhedsid = begivenhed._id
         let navn = begivenhed.navn
         let dato = begivenhed.dato
         let beskrivelse = begivenhed.beskrivelse
         let logbog = begivenhed.logbog
         let antalfrivillige = begivenhed.antalfrivillige
+            let sluttid =  begivenhed.tidSlut;
+            let starttid = dato;
 
-        let o = {begivenhedsid, navn, dato, beskrivelse, logbog, antalfrivillige};
+
+            let o = {begivenhedsid, navn, dato, beskrivelse, logbog, antalfrivillige, starttid, sluttid};
         await PUT(o, '/redigerBegivenhed');
         åbenRedigerEvent(begivenhedsid);
+        }
     }
 
     let knap = document.getElementsByClassName('gemændringer');
@@ -1075,7 +1108,8 @@ async function åbenRedigerEvent(begivenhedsid) {
         if (navn.length == 0 || dato == null) {
             alert('du har enten ikke valgt 1 navn eller 1 dato');
         } else {
-            let o = {begivenhedsid, navn, dato, beskrivelse, antalfrivillige, starttid, sluttid };
+            let logbog = begivenhed.logbog;
+            let o = {begivenhedsid, navn, dato, beskrivelse,logbog , antalfrivillige, starttid, sluttid };
             let checksvar = await GET('/checkForLedigeVagter/' + begivenhedsid + '/' + antalfrivillige);
             if (checksvar) {
                 await PUT(o, '/redigerBegivenhed');

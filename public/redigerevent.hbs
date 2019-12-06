@@ -8,12 +8,15 @@
         <tr>
             <th>Logbogspost</th>
             <th>Forfatter</th>
+            <th></th>
         </tr>
         {{#each logbog}}
             <tr>
                 <th>{{entry}}</th>
                 <th>{{by}}</th>
+                <th><button id="{{@index}}">Slet post</button></th>
             </tr>
+
         {{/each}}
     </table>
 <p>Tilføj til logbog: </p><textarea rows="3" cols="50" id="logBogsEntry"></textarea><br>
