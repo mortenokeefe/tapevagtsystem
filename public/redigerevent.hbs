@@ -1,4 +1,20 @@
 <p>Navn: </p><input id ="begivenhednavn" value="{{navn}}"><br>
 <p>Dato: </p><input type="date" name="bday" id="begivenheddato" value="{{dato}}"><br>
 <p>Beskrivelse: </p><textarea rows="10" cols="50" id="begivenhedbeskrivelse">{{beskrivelse}}</textarea><br>
+<p>Logbog: </p>
+    <table>
+        <tr>
+            <th>Logbogspost</th>
+            <th>Forfatter</th>
+        </tr>
+        {{#each logbog}}
+            <tr>
+                <th>{{entry}}</th>
+                <th>{{by}}</th>
+            </tr>
+        {{/each}}
+    </table>
+<p>Tilføj til logbog: </p><textarea rows="3" cols="50" id="logBogsEntry"></textarea><br>
+<button id="gemLogbog">Gem Logbog</button>
+<br>
 <p>Antal frivillige: </p><input type="number" id="begivenhedantalfrivillige" value="{{antalfrivillige}}"><br><br>
