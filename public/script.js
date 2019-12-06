@@ -367,7 +367,7 @@ async function getBrugersVagter() {
                 if (vagt.status != 2) {
                     mineVagterHTML += '<td><button class="sætVagtTilSalgButton" id="' + vagt.id + '"> Sæt til salg</button></td>';
                 } else {
-                    mineVagterHTML += ' TIL SALG!';
+                    mineVagterHTML += '<td> TIL SALG!</td>';
                 }
             }
             mineVagterHTML += '</td></tr>';
