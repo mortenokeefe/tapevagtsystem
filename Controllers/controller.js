@@ -4,7 +4,7 @@ function mailOptions(request) {
     let mail = {
         from: 'tapetestmail@gmail.com',
         to: request,
-        subject: 'Test',
+        subject: 'Solgt valgt',
         text: 'Din vagt er blevet solgt'
     }
     return mail;
@@ -316,13 +316,14 @@ exports.getVagterTilSalg = async function getVagterTilSalg() {
         if(vagt.startTid >= new Date(Date.now()))
         vagtermedinfo.push(o);
     }
-    // console.log(vagtermedinfo);
     return vagtermedinfo;
 }
 
 exports.overtagVagt = async function overtagVagt(bruger, vagtid) {
     let b = await exports.getBruger(bruger);
     let vagt = await exports.getVagtFraId(vagtid);
+    let begivenhed = await exports.getBegivenhed(vagt.begivenhed);
+    
     vagt.bruger = b;
     vagt.status = 1;
     vagt.save();
