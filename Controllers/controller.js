@@ -339,7 +339,7 @@ exports.setVagtStatus = async function setVagtStatus(id, newStatus)
 
 
 
-exports.redigerBegivenhed = async function redigerBegivenhed(begivenhedsid, navn, dato, beskrivelse, antalfrivillige) {
+exports.redigerBegivenhed = async function redigerBegivenhed(begivenhedsid, navn, dato, beskrivelse, logbog, antalfrivillige) {
     let begivenhed = await exports.getBegivenhed(begivenhedsid);
     let vagter = await exports.getVagterFraBegivenhed(begivenhedsid);
     const filter = {_id: begivenhedsid};
@@ -353,7 +353,7 @@ exports.redigerBegivenhed = async function redigerBegivenhed(begivenhedsid, navn
             let v = await exports.newVagt(tid, false, undefined, 0, 0, undefined, begivenhed)
             await exports.addVagtToBegivenhed(begivenhed, v);
         }
-        const update = {navn: navn, dato: d, beskrivelse: beskrivelse, antalFrivillige: antalfrivillige};
+        const update = {navn: navn, dato: d, beskrivelse: beskrivelse, logbog:logbog, antalFrivillige: antalfrivillige};
         return await Begivenhed.findOneAndUpdate(filter, update);
     }
     //hvis antalfrivillige er blevet mindre
@@ -364,12 +364,12 @@ exports.redigerBegivenhed = async function redigerBegivenhed(begivenhedsid, navn
             await exports.fjerneNæsteLedigeVagtFraBegivenhed(begivenhedsid);
             vagterderskalfjernes--;
     }
-        const update = {navn: navn, dato: d, beskrivelse: beskrivelse};
+        const update = {navn: navn, dato: d, logbog:logbog, beskrivelse: beskrivelse};
         return await Begivenhed.findOneAndUpdate(filter, update);
     }
     //hvis antalfrivillige er uændret
     else {
-        const update = {navn: navn, dato: d, beskrivelse: beskrivelse};
+        const update = {navn: navn, dato: d, logbog:logbog, beskrivelse: beskrivelse};
         return await Begivenhed.findOneAndUpdate(filter, update);
     }
 }
@@ -377,6 +377,13 @@ exports.redigerBegivenhed = async function redigerBegivenhed(begivenhedsid, navn
 exports.getVagterFraBegivenhed = async function getVagterFraBegivenhed(begivenhedsid) {
     let vagter = await Vagt.find({"begivenhed" : begivenhedsid}).exec();
     return vagter;
+}
+
+exports.updateBegivenhed = async function updateBegivenhed(id, updatedValues){
+     return Begivenhed.update({_id: id},
+        {
+            $set: updatedValues
+        })
 }
 
 exports.seBegivenhed = async function seBegivenhed(id) {

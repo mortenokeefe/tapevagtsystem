@@ -556,6 +556,7 @@ async function opretBegivenhed(navn, dato, beskrivelse, antalFrivillige, afvikle
             dato: realDate,
             beskrivelse: beskrivelse,
             antalFrivillige: antalFrivillige,
+            logbog: [],
             afvikler: afvikler
         });
     }
@@ -656,6 +657,7 @@ async function getBegivenhed(id) {
             navn: begivenhed.navn,
             dato: begivenhed.dato,
             beskrivelse: begivenhed.beskrivelse,
+             logbog: begivenhed.logbog,
             afvikler: afvikler.fornavn + " " + afvikler.efternavn
         });
     }
@@ -664,9 +666,9 @@ async function getBegivenhed(id) {
                              navn: begivenhed.navn,
                             dato: begivenhed.dato,
                             beskrivelse: begivenhed.beskrivelse,
+                            logbog: begivenhed.logbog,
                              afvikler: 'ingen afvikler'
                              });
-
     }
     //generer vagt text / knap
     // let v = await fetch('/eventvagt.hbs');
@@ -876,7 +878,6 @@ async function åbenRedigerEvent(begivenhedsid) {
     const begivenhedResponse = await GET(endpoint);
 
     let begivenhed = begivenhedResponse[0];
-
     let afvikler = begivenhedResponse[2][0];
 
     //hvad er afviklervagtens id
@@ -890,7 +891,6 @@ async function åbenRedigerEvent(begivenhedsid) {
     const begivenhedText = await side.text();
     const compiledTemplate = Handlebars.compile(begivenhedText);
     if (afvikler) {
-
         let dat = new Date(begivenhed.dato);
         let dat2 = dat.toISOString().substring(0, 10);
 
@@ -899,7 +899,8 @@ async function åbenRedigerEvent(begivenhedsid) {
             dato: dat2,
             beskrivelse: begivenhed.beskrivelse,
             afvikler: afvikler.fornavn + " " + afvikler.efternavn,
-            antalfrivillige: begivenhed.antalFrivillige
+            antalfrivillige: begivenhed.antalFrivillige,
+            logbog: begivenhed.logbog
         });
         begivenhedHTML += '<br>';
         begivenhedHTML += '<p>Afvikler</p>' + afvikler.fornavn + ' ' + afvikler.efternavn;
@@ -927,7 +928,8 @@ async function åbenRedigerEvent(begivenhedsid) {
             navn: begivenhed.navn,
             dato: dat2,
             beskrivelse: begivenhed.beskrivelse,
-            antalfrivillige: begivenhed.antalFrivillige
+            antalfrivillige: begivenhed.antalFrivillige,
+            logbog: begivenhed.logbog
         });
 
         //endpoint skal være /afviklere
@@ -997,6 +999,27 @@ async function åbenRedigerEvent(begivenhedsid) {
         }
     }
     //mangler antal frivillige
+    let logbogGemKnap = document.getElementById("gemLogbog");
+    logbogGemKnap.onclick = async function(){
+        let brugernavn = await GET("/bruger/api/getcurrentbrugernavn")
+        console.log(brugernavn)
+        begivenhed.logbog.push(
+            {entry: document.getElementById("logBogsEntry").value,
+            by: brugernavn.brugernavn
+            })
+        console.log(begivenhed.logbog, "logbog")
+        let begivenhedsid = begivenhed._id
+        let navn = begivenhed.navn
+        let dato = begivenhed.dato
+        let beskrivelse = begivenhed.beskrivelse
+        let logbog = begivenhed.logbog
+        let antalfrivillige = begivenhed.antalfrivillige
+
+        let o = {begivenhedsid, navn, dato, beskrivelse, logbog, antalfrivillige};
+        await PUT(o, '/redigerBegivenhed');
+        åbenRedigerEvent(begivenhedsid);
+    }
+
     let knap = document.getElementsByClassName('gemændringer');
     knap[0].onclick = async function () {
         let navn = document.getElementById('begivenhednavn').value;
@@ -1023,7 +1046,7 @@ async function åbenRedigerEvent(begivenhedsid) {
 async function tilmeldBegivenhed(event) {
     let svar = confirm('Er du sikker på at du vil tilmelde dig begivenheden?');
     if (svar) {
-        begivenhedsid = event.target.id;
+        let begivenhedsid = event.target.id;
         let s = await POST('/tilmeldmigbegivenhed', {"id": begivenhedsid})
         if (s.ok) {
             console.log('prøver at slette content');

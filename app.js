@@ -150,6 +150,9 @@ app.get('/FrivilligeDerIkkeHarEnVagtPaaBegivenhed/:begivenhedsid', async (req, r
     res.send(frivillige);
 })
 
+app.get('/bruger/api/getCurrentBrugernavn', async (req, res)=>{
+    res.send({brugernavn: req.session.brugernavn})
+})
 
 //POST endpoints
 app.post('/opretBruger', async (req, res) => {
@@ -169,8 +172,8 @@ app.post('/opretBruger', async (req, res) => {
 });*/
 
 app.put('/redigerBegivenhed', async (req,res) => {
-   const {begivenhedsid, navn, dato, beskrivelse, antalfrivillige} = req.body;
-   await controller.redigerBegivenhed(begivenhedsid, navn, dato, beskrivelse, antalfrivillige);
+   const {begivenhedsid, navn, dato, beskrivelse, logbog, antalfrivillige} = req.body;
+   await controller.redigerBegivenhed(begivenhedsid, navn, dato, beskrivelse, logbog,antalfrivillige);
     res.sendStatus(200);
 });
 
