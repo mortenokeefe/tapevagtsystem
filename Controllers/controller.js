@@ -323,7 +323,7 @@ exports.overtagVagt = async function overtagVagt(bruger, vagtid) {
     let b = await exports.getBruger(bruger);
     let vagt = await exports.getVagtFraId(vagtid);
     let begivenhed = await exports.getBegivenhed(vagt.begivenhed);
-    
+
     vagt.bruger = b;
     vagt.status = 1;
     vagt.save();
