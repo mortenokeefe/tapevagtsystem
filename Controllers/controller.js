@@ -122,9 +122,10 @@ exports.clearDatabase = async function clearDatabase() {
             console.log(vagter.length, "vager længde");
             for (let v of vagter) {
                 console.log(b._id,"begivenhed", v._id,"vagt");
-                await exports.fjernFrivilligFraVagt(v._id).then(exports.sletVagt(v._id));
-
-
+                await exports.fjernFrivilligFraVagt(v._id)
+            }
+            for (let v of vagter) {
+                await exports.sletVagt(v._id);
             }
             await Begivenhed.deleteOne(b);
         }
@@ -251,7 +252,7 @@ exports.fjernFrivilligFraVagt = async function fjernFrivilligFraVagt(vagtid) {
             vagt.status = 0;
             await bruger.update({$pull: {vagter: vagtid}});
             bruger.save();
-           // vagt.save();
+            vagt.save();
         }
     }
     }
@@ -410,12 +411,12 @@ exports.redigerBegivenhed = async function redigerBegivenhed(begivenhedsid, navn
             await exports.fjerneNæsteLedigeVagtFraBegivenhed(begivenhedsid);
             vagterderskalfjernes--;
     }
-        const update = {navn: navn, dato: realDate, beskrivelse: beskrivelse, tidSlut : tidSlut, logbog:logbog, tidSlut :tidSlut};
+        const update = {navn: navn, dato: realDate, beskrivelse: beskrivelse, logbog:logbog, tidSlut :tidSlut, antalfrivillige : antalfrivillige};
         return await Begivenhed.findOneAndUpdate(filter, update);
     }
     //hvis antalfrivillige er uændret
     else {
-        const update = {navn: navn, dato: realDate, beskrivelse: beskrivelse, tidSlut :tidSlut, logbog:logbog, tidSlut: tidSlut};
+        const update = {navn: navn, dato: realDate, beskrivelse: beskrivelse, logbog:logbog, tidSlut: tidSlut, antalfrivillige :antalfrivillige};
         return await Begivenhed.findOneAndUpdate(filter, update);
     }
 }
@@ -576,13 +577,13 @@ async function main() {
     let admin = await exports.newBruger('Admin', 'Jensen', '88888888', 'admin', 'admin', 0, 0, 'admin@tapeaarhus.dk', undefined);
     let afvikler = await exports.newBruger('Afvikler', 'Afvikler', '88888888', 'af', 'af', 1, 0, 'admin@tapeaarhus.dk', undefined);
     let frivillig = await exports.newBruger('Fri', 'Villig', '88888888', 'fri', 'fri', 2, 0, 'admin@tapeaarhus.dk', undefined);
-    let d1 = new Date('1995-12-17T20:00:00');
-    let d2 = new Date('1995-12-18T02:00:00');
-
-    let b1 = await exports.newBegivenhed('jaja', d1, 'alsudhas',4,undefined,undefined, d1, d2);
+    // let d1 = new Date('1995-12-17T20:00:00');
+    // let d2 = new Date('1995-12-18T02:00:00');
+    //
+    // let b1 = await exports.newBegivenhed('jaja', d1, 'alsudhas',4,undefined,undefined, d1, d2);
 }
           // main();
-  //main();
+//main();
 
      // main();
 async function main2() {
