@@ -999,15 +999,22 @@ async function åbenRedigerEvent(begivenhedsid) {
         let dat = new Date(begivenhed.dato);
         let dat2 = dat.toISOString().substring(0, 10);
         let dat3 = new Date(begivenhed.tidSlut);
-        let dat4 = dat3.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})
+        let dat4 = dat3.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
         let dat5 = dat.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})
+        let starttidHours =dat5.substring(0,2);
+        let starttidMinutes=dat5.substring(3);
+        let sluttidHours =dat4.substring(0,2);
+        let sluttidMinutes=dat4.substring(3);
+
+        console.log(dat4, dat5);
+        console.log(starttidHours +':'+starttidMinutes, sluttidHours+':'+sluttidMinutes);
 
 
         begivenhedHTML += compiledTemplate({
             navn: begivenhed.navn,
             dato: dat2,
-            starttid : dat5,
-            sluttid: dat4,
+            starttid : starttidHours +':'+starttidMinutes,
+            sluttid: sluttidHours+':'+sluttidMinutes,
             beskrivelse: begivenhed.beskrivelse,
             afvikler: afvikler.fornavn + " " + afvikler.efternavn,
             antalfrivillige: begivenhed.antalFrivillige,
@@ -1036,13 +1043,18 @@ async function åbenRedigerEvent(begivenhedsid) {
         let dat = new Date(begivenhed.dato);
         let dat2 = dat.toISOString().substring(0, 10);
         let dat3 = new Date(begivenhed.tidSlut);
+
         let dat4 = dat3.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})
         let dat5 = dat.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})
+        let starttidHours =dat5.substring(0,2);
+        let starttidMinutes=dat5.substring(3);
+        let sluttidHours =dat4.substring(0,2);
+        let sluttidMinutes=dat4.substring(3);
         begivenhedHTML += compiledTemplate({
             navn: begivenhed.navn,
             dato: dat2,
-            sluttid: dat4,
-            starttid: dat5,
+            starttid: starttidHours +':'+starttidMinutes,
+            sluttid: sluttidHours+':'+sluttidMinutes,
             beskrivelse: begivenhed.beskrivelse,
             antalfrivillige: begivenhed.antalFrivillige,
             logbog: begivenhed.logbog
