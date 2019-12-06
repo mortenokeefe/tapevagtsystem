@@ -123,9 +123,10 @@ exports.clearDatabase = async function clearDatabase() {
             console.log(vagter.length, "vager længde");
             for (let v of vagter) {
                 console.log(b._id,"begivenhed", v._id,"vagt");
-                await exports.fjernFrivilligFraVagt(v._id).then(exports.sletVagt(v._id));
-
-
+                await exports.fjernFrivilligFraVagt(v._id)
+            }
+            for (let v of vagter) {
+                await exports.sletVagt(v._id);
             }
             await Begivenhed.deleteOne(b);
         }
@@ -150,7 +151,6 @@ exports.newBruger = function newBruger(fornavn, efternavn, telefonnummer, bruger
 
 exports.updateBruger = async function newBruger(fornavn, efternavn, telefonnummer,  password, brugertype, tilstand, email, filterbrugernavn) {
     const filter = filterbrugernavn;
-    console.log(filter)
     const bruger = await exports.getBruger(filter);
     bruger.fornavn = fornavn;
     bruger.efternavn = efternavn;
@@ -255,7 +255,7 @@ exports.fjernFrivilligFraVagt = async function fjernFrivilligFraVagt(vagtid) {
             vagt.status = 0;
             await bruger.update({$pull: {vagter: vagtid}});
             bruger.save();
-           // vagt.save();
+            vagt.save();
         }
     }
     }
@@ -338,23 +338,22 @@ exports.getVagterTilSalg = async function getVagterTilSalg() {
        // console.log(vagt, "vagt");
         let begivenhed = await exports.getBegivenhed(vagt.begivenhed);
         // console.log(begivenhed, "begivenhed");
-        let dato = new Date(vagt.startTid).toLocaleDateString();
+        let dato = new Date(vagt.startTid);
         // console.log(dato);
         let frivillig = await exports.getBrugerFraId(vagt.bruger);
         // console.log(frivillig, "frivillig");
-        let o = {vagt: vagt, begivenhed: begivenhed.navn, bruger: frivillig.fornavn + ' ' + frivillig.efternavn, dato: dato};
+        let o = {vagt: vagt, begivenhed: begivenhed.navn, bruger: frivillig.fornavn + ' ' + frivillig.efternavn, dato: dato, tidSlut : vagt.slutTid};
         //console.log(o, "o");
         if(vagt.startTid >= new Date(Date.now()))
         vagtermedinfo.push(o);
     }
+    // console.log(vagtermedinfo);
     return vagtermedinfo;
 }
 
 exports.overtagVagt = async function overtagVagt(bruger, vagtid) {
     let b = await exports.getBruger(bruger);
     let vagt = await exports.getVagtFraId(vagtid);
-    let begivenhed = await exports.getBegivenhed(vagt.begivenhed);
-
     vagt.bruger = b;
     vagt.status = 1;
     vagt.save();
@@ -415,12 +414,12 @@ exports.redigerBegivenhed = async function redigerBegivenhed(begivenhedsid, navn
             await exports.fjerneNæsteLedigeVagtFraBegivenhed(begivenhedsid);
             vagterderskalfjernes--;
     }
-        const update = {navn: navn, dato: realDate, beskrivelse: beskrivelse, tidSlut : tidSlut, logbog:logbog, tidSlut :tidSlut};
+        const update = {navn: navn, dato: realDate, beskrivelse: beskrivelse, logbog:logbog, tidSlut :tidSlut, antalfrivillige : antalfrivillige};
         return await Begivenhed.findOneAndUpdate(filter, update);
     }
     //hvis antalfrivillige er uændret
     else {
-        const update = {navn: navn, dato: realDate, beskrivelse: beskrivelse, tidSlut :tidSlut, logbog:logbog, tidSlut: tidSlut};
+        const update = {navn: navn, dato: realDate, beskrivelse: beskrivelse, logbog:logbog, tidSlut: tidSlut, antalfrivillige :antalfrivillige};
         return await Begivenhed.findOneAndUpdate(filter, update);
     }
 }
@@ -582,4 +581,3 @@ async function main() {
     });
 }
 
-main();

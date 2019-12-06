@@ -1,0 +1,19 @@
+<p id="logBogTitle">Logbog: </p>
+<table id="logBogTable">
+    <tr>
+        <th>Logbogspost</th>
+        <th>Forfatter</th>
+        <th></th>
+    </tr>
+    {{#each logbog}}
+        <tr>
+            <th>{{entry}}</th>
+            <th>{{by}}</th>
+            <th><button id="{{@index}}">Slet post</button></th>
+        </tr>
+
+    {{/each}}
+</table>
+<textarea rows="3" cols="50" id="logBogsEntry"></textarea><br>
+<button id="gemLogbog">Gem Logbog</button>
+<br>
