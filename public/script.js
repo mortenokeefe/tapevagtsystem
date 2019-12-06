@@ -711,7 +711,6 @@ async function getBegivenhed(id) {
             dato: realDateStart.toLocaleDateString() +' ' +realDateStart.toLocaleTimeString([],{hour :'2-digit',minute: '2-digit'}),
              sluttid : realDateSlut.toLocaleDateString() +' ' + realDateSlut.toLocaleTimeString([],{hour :'2-digit',minute: '2-digit'}),
             beskrivelse: begivenhed.beskrivelse,
-             logbog: begivenhed.logbog,
             afvikler: afvikler.fornavn + " " + afvikler.efternavn
 
         });
@@ -722,7 +721,6 @@ async function getBegivenhed(id) {
                             dato: realDateStart.toLocaleDateString() +' ' +realDateStart.toLocaleTimeString([],{hour :'2-digit',minute: '2-digit'}),
                             sluttid : realDateSlut.toLocaleDateString() +' ' + realDateSlut.toLocaleTimeString([],{hour :'2-digit',minute: '2-digit'}),
                             beskrivelse: begivenhed.beskrivelse,
-                            logbog: begivenhed.logbog,
                              afvikler: 'ingen afvikler'
                              });
 
@@ -836,6 +834,15 @@ async function getBegivenhed(id) {
     }
 
         begivenhedHTML += vagterhtml;
+
+    const logbogside = await fetch('/logbog.hbs');
+    const logbogText = await logbogside.text();
+    const logbogTemplate = Handlebars.compile(logbogText);
+
+    begivenhedHTML += logbogTemplate({
+        logbog: begivenhed.logbog
+    });
+
     let div = document.getElementById('begivenhedcontent');
     div.innerHTML = begivenhedHTML;
 
@@ -884,6 +891,68 @@ async function getBegivenhed(id) {
                 getBegivenhed(id);
             }
         }
+    }
+    let logbogGemKnap = document.getElementById("gemLogbog");
+    logbogGemKnap.onclick = async function(){
+        let brugernavn = await GET("/bruger/api/getcurrentbrugernavn")
+        console.log(brugernavn)
+        begivenhed.logbog.push(
+            {entry: document.getElementById("logBogsEntry").value,
+                by: brugernavn.brugernavn
+            })
+        console.log(begivenhed.logbog, "logbog");
+        let begivenhedsid = begivenhed._id;
+        let navn = begivenhed.navn;
+        let dato = begivenhed.dato;
+        let beskrivelse = begivenhed.beskrivelse;
+        let logbog = begivenhed.logbog;
+        let antalfrivillige = begivenhed.antalfrivillige;
+        let sluttid =  begivenhed.tidSlut;
+        let starttid = dato;
+
+
+        let o = {begivenhedsid, navn, dato, beskrivelse, logbog, antalfrivillige,starttid, sluttid};
+        await PUT(o, '/redigerBegivenhed');
+        getBegivenhed(begivenhedsid);
+    }
+    //logbog slet knap, fjernes hvis bruger ikke er admin eller afvikler
+    for(i = 0; i<begivenhed.logbog.length;i++){
+        let postButton = document.getElementById(""+i)
+        console.log(postButton, "postbutton")
+        postButton.onclick = async function(){
+            begivenhed.logbog.splice(postButton.id, 1)
+            let begivenhedsid = begivenhed._id
+            let navn = begivenhed.navn
+            let dato = begivenhed.dato
+            let beskrivelse = begivenhed.beskrivelse
+            let logbog = begivenhed.logbog
+            let antalfrivillige = begivenhed.antalfrivillige
+            let sluttid =  begivenhed.tidSlut;
+            let starttid = dato;
+
+
+            let o = {begivenhedsid, navn, dato, beskrivelse, logbog, antalfrivillige, starttid, sluttid};
+            await PUT(o, '/redigerBegivenhed');
+            getBegivenhed(begivenhedsid);
+        }
+    }
+    if(brugertype == 2){
+        let logBogTable = document.getElementById("logBogTable")
+        logBogTable.style.display = "none"
+
+        for(i=0; i<begivenhed.logbog.length;i++){
+            let hiddenbutton = document.getElementById("" + i)
+            hiddenbutton.style.display = "none"
+        }
+        let logbogTitle = document.getElementById("gemLogbog")
+        logbogTitle.style.display = "none"
+
+        let logbogTA = document.getElementById("logBogsEntry")
+        logbogTA.style.display = "none"
+        let logbogGem = document.getElementById("logBogTitle")
+        logbogGem.style.display = "none"
+        let addLogBog = document.getElementById("addLogbog")
+        addLogBog.style.display = "none"
     }
 
     if (brugertype == 0) {
@@ -1080,50 +1149,6 @@ async function åbenRedigerEvent(begivenhedsid) {
         }
     }
     //mangler antal frivillige
-    let logbogGemKnap = document.getElementById("gemLogbog");
-    logbogGemKnap.onclick = async function(){
-        let brugernavn = await GET("/bruger/api/getcurrentbrugernavn")
-        console.log(brugernavn)
-        begivenhed.logbog.push(
-            {entry: document.getElementById("logBogsEntry").value,
-            by: brugernavn.brugernavn
-            })
-        console.log(begivenhed.logbog, "logbog");
-        let begivenhedsid = begivenhed._id;
-        let navn = begivenhed.navn;
-        let dato = begivenhed.dato;
-        let beskrivelse = begivenhed.beskrivelse;
-        let logbog = begivenhed.logbog;
-        let antalfrivillige = begivenhed.antalfrivillige;
-        let sluttid =  begivenhed.tidSlut;
-        let starttid = dato;
-
-
-        let o = {begivenhedsid, navn, dato, beskrivelse, logbog, antalfrivillige,starttid, sluttid};
-        await PUT(o, '/redigerBegivenhed');
-        åbenRedigerEvent(begivenhedsid);
-    }
-    for(i = 0; i<begivenhed.logbog.length;i++){
-        let postButton = document.getElementById(""+i)
-        console.log(postButton, "postbutton")
-        postButton.onclick = async function(){
-                    begivenhed.logbog.splice(postButton.id, 1)
-        let begivenhedsid = begivenhed._id
-        let navn = begivenhed.navn
-        let dato = begivenhed.dato
-        let beskrivelse = begivenhed.beskrivelse
-        let logbog = begivenhed.logbog
-        let antalfrivillige = begivenhed.antalfrivillige
-            let sluttid =  begivenhed.tidSlut;
-            let starttid = dato;
-
-
-            let o = {begivenhedsid, navn, dato, beskrivelse, logbog, antalfrivillige, starttid, sluttid};
-        await PUT(o, '/redigerBegivenhed');
-        åbenRedigerEvent(begivenhedsid);
-        }
-    }
-
     let knap = document.getElementsByClassName('gemændringer');
     knap[0].onclick = async function () {
         let navn = document.getElementById('begivenhednavn').value;
