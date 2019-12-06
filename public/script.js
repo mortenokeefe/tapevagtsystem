@@ -1087,8 +1087,11 @@ async function åbenRedigerEvent(begivenhedsid) {
         let beskrivelse = begivenhed.beskrivelse
         let logbog = begivenhed.logbog
         let antalfrivillige = begivenhed.antalfrivillige
+            let sluttid =  begivenhed.tidSlut;
+            let starttid = dato;
 
-        let o = {begivenhedsid, navn, dato, beskrivelse, logbog, antalfrivillige, starttid, sluttid};
+
+            let o = {begivenhedsid, navn, dato, beskrivelse, logbog, antalfrivillige, starttid, sluttid};
         await PUT(o, '/redigerBegivenhed');
         åbenRedigerEvent(begivenhedsid);
         }
