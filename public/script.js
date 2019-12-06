@@ -1007,7 +1007,6 @@ async function åbenRedigerEvent(begivenhedsid) {
             {entry: document.getElementById("logBogsEntry").value,
             by: brugernavn.brugernavn
             })
-        console.log(begivenhed.logbog, "logbog")
         let begivenhedsid = begivenhed._id
         let navn = begivenhed.navn
         let dato = begivenhed.dato
@@ -1018,6 +1017,24 @@ async function åbenRedigerEvent(begivenhedsid) {
         let o = {begivenhedsid, navn, dato, beskrivelse, logbog, antalfrivillige};
         await PUT(o, '/redigerBegivenhed');
         åbenRedigerEvent(begivenhedsid);
+    }
+    for(i = 0; i<begivenhed.logbog.length;i++){
+        let postButton = document.getElementById(""+i)
+        console.log(postButton, "postbutton")
+        postButton.onclick = async function(){
+                    begivenhed.logbog.splice(postButton.id, 1)
+        let begivenhedsid = begivenhed._id
+        let navn = begivenhed.navn
+        let dato = begivenhed.dato
+        let beskrivelse = begivenhed.beskrivelse
+        let logbog = begivenhed.logbog
+        let antalfrivillige = begivenhed.antalfrivillige
+
+        let o = {begivenhedsid, navn, dato, beskrivelse, logbog, antalfrivillige};
+                    console.log(o, "o")
+        await PUT(o,    '/redigerBegivenhed');
+        åbenRedigerEvent(begivenhedsid);
+        }
     }
 
     let knap = document.getElementsByClassName('gemændringer');
