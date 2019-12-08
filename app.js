@@ -38,55 +38,45 @@ app.get('/sebegivenhed/:begivenhedsid', async (req, res) => {
 });
 
 app.get('/begivenheder' , async (req, res )=>{
-    let events = await controller.getBegivenheder();
-   // console.log( events);
+    let events = await controller.getBegivenheder({});
     res.send(events)
 
 });
 app.get('/frivillige', async (req, res) => {
-   let frivillige = await controller.getFrivillige();
-   console.log('frivillige');
-   console.log(frivillige)
+   let frivillige = await controller.getBrugere({brugertype:2});
    res.send(frivillige);
 });
 app.get('/brugere', async (req, res) =>{
-    let brugere = await controller.getBrugere();
+    let brugere = await controller.getBrugere({});
     res.send(brugere);
 });
 app.get('/getbruger/:brugerid', async (req, res) => {
-    // console.log('prøver at hente bruger');
    let brugerid = req.params.brugerid;
-   let bruger = await controller.getBrugerFraId(brugerid);
+   let bruger = (await controller.getBrugere({_id:brugerid}))[0];
    let mitbrugernavn = req.session.brugernavn;
-   let minbruger = await controller.getBruger(mitbrugernavn);
+   let minbruger = (await controller.getBrugere({brugernavn:mitbrugernavn}))[0];
    let o = {bruger: bruger, minbruger: minbruger};
-   console.log(o);
    res.send(o);
 });
 app.get('/brugertype', async (req, res) =>
 {
-    let bruger = await controller.getBruger(req.session.brugernavn);
+    let bruger = (await controller.getBrugere({brugernavn:req.session.brugernavn}))[0];
     let brugertype = {brugertype: bruger.brugertype};
     res.send(brugertype);
 });
 
 app.get('/getbrugeridforbrugerloggetind', async (req,res) => {
     let brugernavn = req.session.brugernavn;
-    let bruger = await controller.getBruger(brugernavn);
+    let bruger = await (controller.getBrugere({brugernavn:brugernavn}))[0];
     res.send(bruger._id);
 });
 
-app.get('/vagter', async (req, res)=> {
-   let vagter //= controller.getVagter();
-    res.send(vagter);
-});
 app.get('/mineVagter', async (req, res) => {
     let vagter = await controller.getVagterFraBruger(req.session.brugernavn);
     let vagterView = [];
     if(vagter.length >0) {
         for (let vagt of vagter) {
             let samlet = {dato: 'dato', begivenhed: 'begivenhed', id: 'id', status: 'status', tidSlut : 'tidSlut'};
-           // dateConverted = vagt.startTid;
             samlet.dato = new Date(vagt.startTid) //new Date(dateConverted).toLocaleDateString();
             samlet.tidSlut = new Date(vagt.slutTid);
             let begivenhed = await controller.getBegivenhed(vagt.begivenhed);
@@ -110,8 +100,8 @@ app.get('/calendar', async function(req, res){
 
 
 app.get('/calendar/api/event', async function(req, res){
-    const events = await controller.getCalendarEvents({})
-    const vagter = await controller.getCalendarVagt({})
+    const events = await controller.getBegivenheder({})
+    const vagter = await controller.getVagter({})
     const eventsReformatted = []
     events.map(async function(element){
 
@@ -125,7 +115,6 @@ app.get('/calendar/api/event', async function(req, res){
 });
 
 app.get('/vagter/api/ledigevagter/:eventId', async function (req, res) {
-    console.log(req.params.eventId)
     const vagter = await controller.getVagter({begivenhed: mongoose.mongo.ObjectId(req.params.eventId)})
     const ledigeVagter = []
     vagter.map(element => {
@@ -165,12 +154,10 @@ app.get('/bruger/api/getCurrentBrugernavn', async (req, res)=>{
 
 //POST endpoints
 app.post('/opretBruger' , async (req, res) =>{
-    console.log(req.body);
     const {fornavn, efternavn, telefonnummer, brugernavn, password, brugertype, tilstand, email} = req.body;
     let salt = await bcrypt.hash(password, bcrypt.genSaltSync(12)).then(function(hashedPassword) {
         controller.newBruger(fornavn, efternavn, telefonnummer, brugernavn, hashedPassword, brugertype, tilstand, email, undefined);
     })
-    console.log(salt);
     res.sendStatus(201);
 });
 
@@ -200,48 +187,45 @@ app.post('/opretBegivenhed' , async (req, res) =>{
     const {navn, dato, beskrivelse, antalFrivillige, afvikler, starttid, sluttid} = req.body;
     console.log(navn + dato + beskrivelse + antalFrivillige);
    await controller.newBegivenhed(navn, dato, beskrivelse, antalFrivillige, undefined, afvikler, starttid, sluttid);
-    res.send({ok:true}); // fix fejlsikring senere
+    res.send({ok:true});
 });
 app.post('/opretVagt', async(req,res)=> {
-    //hvor meget skal vi egentlig have fra userinterface?
     const {startTid, fravær, fraværsBeskrivelse, status, vagtType, bruger, begivenhed} = req.body;
    await controller.newVagt(startTid, fravær, fraværsBeskrivelse, status, vagtType, bruger, begivenhed);
-    res.send({ok:true}); // fix fejlsikring senere
+    res.send({ok:true});
 });
 
 app.post('/tilmeldmigbegivenhed', async(req,res) =>{
     let begivenhedsid = req.body.id;
     let brugernavn = req.session.brugernavn;
-    console.log('prøver at tilmelde');
     await controller.tilmeldBegivenhed(brugernavn, begivenhedsid);
-     res.send({ok:true}); // fix fejlsikring senere
+     res.send({ok:true});
 });
 
 app.post('/adminTilfoejVagtTilBruger', async(req,res) =>{
     const vagt = req.body.vagtid;
     const frivillig = req.body.frivilligid;
     await controller.adminAddVagtToBruger(frivillig, vagt);
-    res.send({ok:true}); // fix fejlsikring senere
+    res.send({ok:true});
 });
 
 app.get('/getDenneMaanedsVagter/:begivenhedsid/:frivilligid',  async(req,res) =>{
     const begivenhedsid = req.params.begivenhedsid;
     let id = req.params.frivilligid;
-    let frivillig = await controller.getBrugerFraId(id);
+    let frivillig = (await controller.getBrugere({_id:id}))[0];
     let antal = await controller.getDenneMaanedsVagter(begivenhedsid, frivillig.brugernavn);
-     // console.log(antal + 'antal' + frivillig.brugernavn + 'brugernavn');
     res.send({antalvagter: antal});
 });
 
 app.post('/tilfoejVagtTilBruger', async(req,res) =>{
     const {vagt, bruger} = req.body;
    await controller.addVagtToBruger(bruger, vagt);
-    res.send({ok:true}); // fix fejlsikring senere
+    res.send({ok:true});
 });
 app.post('/tilfoejVagtTilBegivenhed', async(req,res) =>{
     const {vagt, begivenhed} = req.body;
    await controller.addVagtToBegivenhed(begivenhed, vagt);
-    res.send({ok:true}); // fix fejlsikring senere
+    res.send({ok:true});
 });
 app.post('/saetVagtTilSalg', async (req, res) => {
     const id = req.body.vagtID;
@@ -253,7 +237,6 @@ app.post('/saetVagtTilSalg', async (req, res) => {
 app.post('/overtagvagt', async (req, res) =>{
    let brugerloggedind = req.session.brugernavn;
    let vagtid = req.body.id;
-   // console.log(brugerloggedind + ' ønsker at overtage vagten med id: ' + vagtid);
     let email = await controller.getEmailFraVagtId(vagtid);
    await controller.overtagVagt(brugerloggedind, vagtid)
        .then(res.send({ok: true})).then(controller.sendmail(email));
@@ -273,35 +256,10 @@ app.put('/setFravaer', async (req, res) =>{
 
 });
 
-
-
-// app.get('/mineVagter', async (req, res) =>{
-//     let vagter = await controller.getVagterFraBruger(req.session.brugernavn);
-//     let vagterView = [];
-//     for (let vagt of vagter)
-//     {
-//         let samlet = {dato: 'dato', begivenhed : 'begivenhed', id : 'id'};
-//         dateConverted = vagt.startTid;
-//         samlet.dato = new Date(dateConverted).toLocaleDateString();
-//         let begivenhed = await controller.getBegivenhed(vagt.begivenhed);
-//         samlet.begivenhed = begivenhed.navn;
-//         samlet.id = vagt._id;
-//         let nu = Date.now();
-//         console.log(vagt.dato, "vagt.dato", nu, "nu") ;
-//         if(vagt.dato > nu) {
-//             vagterView.push(samlet)
-//         }
-//     }
-//     res.send(vagterView);
-//
-// });
-
 //login
-
-
 app.post('/login', async (request, response) => {
     const {brugernavn, password} = request.body;
-    const check = await controller.getBruger(brugernavn);
+    const check = (await controller.getBrugere({brugernavn:brugernavn}))[0];
 
     if (check == null)
         response.send({ok: false});
@@ -345,7 +303,6 @@ app.delete('/deleteBruger/:brugernavn' , async (req, res) =>{
 });
 
 app.delete('/clearDatabase/' , async (req, res) =>{
-    console.log("enter app /cleardatabase");
     await controller.clearDatabase();
     res.send({ok:true});
 });
@@ -360,59 +317,6 @@ app.get('/vagtertilsalg', async (req, res) => {
    res.send(vagter);
 });
 
-
-
-// app.get('/session', async (request, response) => {
-//     const brugernavn = request.session.brugernavn;
-//     const brugertype = request.session.brugertype;
-//     if (brugernavn && brugertype ===0) {
-//        let sti = __dirname + '/private/forside.html';
-//       // let template = await fs.readFile(sti,'utf8');
-//         //response.send(template);
-//         response.sendFile(sti);
-//     }
-//     else if (brugernavn && brugertype ===1)
-//     {
-//         let sti = __dirname + '/private/forside.html';
-//         // let template = await fs.readFile(sti,'utf8');
-//         // response.send(template);
-//         response.sendFile(sti);
-//
-//     }
-//     else if (brugernavn && brugertype ===2)
-//     {
-//         let sti = __dirname + '/private/forside.html';
-//         // let template = await fs.readFile(sti,'utf8');
-//         // response.send(template);
-//         response.sendFile(sti);
-//     }
-//     else {
-//         let sti = __dirname + '/private/ingenAdgang.html';
-//         let template = await fs.readFile(sti,'utf8');
-//         response.send(template);
-//
-//     }
-// });
-// app.get('/forside', async (request, response) =>{
-//     const brugernavn = request.session.brugernavn;
-//     const brugertype = request.session.brugertype;
-//     if (brugernavn && brugertype ===0) {
-//         response.redirect('/forside.html');
-//     }
-//     else if (brugernavn && brugertype ===1)
-//     {
-//         //fix redirect til afvikler
-//         response.redirect('/forside.html');
-//     }
-//     else if (brugernavn && brugertype ==2)
-//     {
-//         //fix redirect til frivillig
-//         response.redirect('/forside.html');
-//     }
-//     else {
-//         response.redirect('/ingenAdgang.html');
-//     }
-// })
 
 
 

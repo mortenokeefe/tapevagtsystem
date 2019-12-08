@@ -2,14 +2,13 @@ const nodemailer = require('nodemailer');
 const bcrypt = require('bcryptjs');
 
 function mailOptions(request) {
-    let mail = {
+    return  {
         from: 'tapetestmail@gmail.com',
         to: request,
         subject: 'Solgt valgt',
         text: 'Din vagt er blevet solgt'
-    }
-    return mail;
-};
+    };
+}
 
 const transporter = nodemailer.createTransport({
         service: 'gmail',
@@ -32,8 +31,6 @@ exports.sendmail = function sendmail (mail) {
 
 
 const mongoose = require('mongoose');
-const Schema = mongoose.Schema;
-const ObjectId = Schema.Types.ObjectId;
 
 mongoose.Promise = Promise;
 
@@ -43,11 +40,11 @@ const Vagt = require('../models/Vagt');
 const Bruger = require('../models/Bruger');
 
 
-exports.newVagt = function newVagt(startTid, fravær, fraværsBeskrivelse, status, vagtType, bruger, begivenhed, slutTid) {
+exports.newVagt = function newVagt(startTid, fravaer, fravaersBeskrivelse, status, vagtType, bruger, begivenhed, slutTid) {
     const vagt = new Vagt({
         startTid,
-        fravær,
-        fraværsBeskrivelse,
+        fravaer,
+        fravaersBeskrivelse,
         status,
         vagtType,
         bruger,
@@ -58,30 +55,24 @@ exports.newVagt = function newVagt(startTid, fravær, fraværsBeskrivelse, statu
 };
 
 exports.newBegivenhed = async function newBegivenhed(navn, dato, beskrivelse, antalFrivillige, vagter, afvikler,starttidspunkt, sluttidspunkt) {
-
-   // console.log(dato + "controller");
-    console.log(dato, "dato", starttidspunkt, "starttid", sluttidspunkt, "sluttidspunkt");
     let realDate = new Date(dato); // wtf hvorfor skal man convertere det til en date 2 gange? det virker ikke ellers
     let realDateStart = new Date(starttidspunkt);
     let realDateSlut = new Date(sluttidspunkt);
-    //beværk at kl 19 er den 20. time i døgnet, derfor hours = 20
+    //bemærk at kl 19 er den 20. time i døgnet, derfor hours = 20
     let starttidhours= realDateStart.getHours()-1;
     let starttidminutes = realDateStart.getMinutes();
     let sluttidhours = realDateSlut.getHours()-1;
     let sluttidminutes = realDateSlut.getMinutes();
     let tid = realDate.setHours(starttidhours, starttidminutes);
-    console.log(tid, "tid", realDate,"realdate", dato, "date");
     let tidSlut = new Date(realDate);
     if(sluttidhours < starttidhours) //hvis event slutter efter kl 24:00
     {
-
         tidSlut.setHours(sluttidhours, sluttidminutes);
         tidSlut.setDate(realDate.getDate()+1);
     }
     else {
             tidSlut.setHours(sluttidhours, sluttidminutes);
     }
-    console.log(tidSlut, "tidslut");
     dato= realDate;
     const begivenhed = new Begivenhed({
         navn,
@@ -105,7 +96,6 @@ exports.newBegivenhed = async function newBegivenhed(navn, dato, beskrivelse, an
 
     let afviklerVagt = begivenhed.vagter[begivenhed.vagter.length-1];
 
- //   console.log(afviklerVagt, "controller metode add afvikler");
     if(afvikler) {
         await exports.addVagtToBruger(afvikler.brugernavn, afviklerVagt);
     }
@@ -113,24 +103,9 @@ exports.newBegivenhed = async function newBegivenhed(navn, dato, beskrivelse, an
 }
 
 exports.clearDatabase = async function clearDatabase() {
-    console.log ("enter clearDatabase");
-    let date = Date.now();
-    let begivenheder = await exports.getBegivenheder();
-    for (let b of begivenheder) {
-        if (date > b.dato) {
-            console.log(b._id, "begivenhed ID");
-            let vagter = await exports.getVagterFraBegivenhed(b._id);
-            console.log(vagter.length, "vager længde");
-            for (let v of vagter) {
-                console.log(b._id,"begivenhed", v._id,"vagt");
-                await exports.fjernFrivilligFraVagt(v._id)
-            }
-            for (let v of vagter) {
-                await exports.sletVagt(v._id);
-            }
-            await Begivenhed.deleteOne(b);
-        }
-    }
+    let date = new Date();
+    date.setDate(date.getDate()-1)
+    await Begivenhed.deleteMany({dato:{$lt: date}})
 }
 
 
@@ -149,9 +124,8 @@ exports.newBruger = function newBruger(fornavn, efternavn, telefonnummer, bruger
     return bruger.save();
 }
 
-exports.updateBruger = async function newBruger(fornavn, efternavn, telefonnummer,  password, brugertype, tilstand, email, filterbrugernavn) {
-    const filter = filterbrugernavn;
-    const bruger = await exports.getBruger(filter);
+exports.updateBruger = async function updateBruger(fornavn, efternavn, telefonnummer,  password, brugertype, tilstand, email, filterbrugernavn) {
+    const bruger = (await exports.getBrugere({brugernavn:filterbrugernavn}))[0];
     bruger.fornavn = fornavn;
     bruger.efternavn = efternavn;
     bruger.telefonnummer = telefonnummer;
@@ -172,74 +146,50 @@ exports.addVagtToBegivenhed = function addVagtToBegivenhed(begivenhed, vagt) {
 
 exports.getFraværForBruger = async function getFraværForBruger(brugernavn) {
 
-    let vagter = await exports.getVagterFraBruger(brugernavn);
+    let vagter = await exports.getVagter({bruger:(await exports.getBrugere({brugernavn:brugernavn}))[0]._id});
     let counter = 0;
     for (let vagt of vagter) {
         if (vagt.fravær) {
             counter++;
         }
     }
-    if (counter > 0)
-        return 100 / (vagter.length / counter);
-    else
-        return 0;
+    return counter > 0? 100/ (vagter.length/counter) : 0
 }
 
-exports.getBegivenheder = async function getBegivenheder() {
-    //henter begivenheder for næste måned
-    // let datenow = new Date(Date.now());
-    // let month1 = datenow.getMonth();
-    // let year1 = datenow.getFullYear();
-    // let startofnextmonth = new Date(year1, month1+1, 1,1,0,0);
-    // let endofnextmonth = new Date(year1, month1+2, 0,1,0 );
-    //
-    // return Begivenhed.find(({"dato": {"$gte": startofnextmonth, "$lt": endofnextmonth}})).exec();
-
-    //finder alle brugere
-    return Begivenhed.find().exec();
+exports.getBegivenheder = async function getBegivenheder(filter) {
+    return Begivenhed.find(filter).exec();
 }
 
-exports.getBrugere = async function getBrugere() {
-    return Bruger.find().exec();
+exports.getBrugere = async function getBrugere(filter) {
+    return Bruger.find(filter).exec();
 }
 
 exports.adminAddVagtToBruger = async function adminAddVagtToBruger(brugerid, vagtid) {
-    vagt = await exports.getVagtFraId(vagtid);
-    bruger = await exports.getBrugerFraId(brugerid);
+    vagt = (await exports.getVagter({_id:vagtid}))[0];
+    bruger = (await exports.getBrugere({_id:brugerid}))[0];
     vagt.bruger = bruger;
     vagt.status = 1;
     bruger.vagter.push(vagt);
     return Promise.all([vagt.save(), bruger.save()]);
 }
 
-exports.getVagtFraId = async function getVagtFraId(id) {
-    return Vagt.findOne({_id: id}).exec();
+exports.getVagter = async function getVagter(filter) {
+    return Vagt.find(filter).exec();
 }
 
 
 exports.getDenneMaanedsVagter = async function getDenneMaanedsVagter(begivenhedsid, brugernavn) {
-    // console.log('kører getDenneMaanedsVagter i controller');
-    let count = 0;
-    let begivenhed = await exports.getBegivenhed(begivenhedsid);
-    let d = begivenhed.dato;
-    let begivenhedmaaned = new Date(d);
-    let vagter = await exports.getVagterFraBruger(brugernavn);
-
-    for (let vagt of vagter) {
-        let vagtdato = vagt.startTid;
-        let vagtmåned = vagtdato.getMonth();
-        if (vagt.startTid.getMonth() === begivenhedmaaned.getMonth()) {
-            count++;
-        }
-    }
-    return count;
+    let begivenhed = (await exports.getBegivenheder({_id:begivenhedsid}))[0];
+    let begivenhedsDato = new Date(begivenhed.dato);
+    let fromDate = new Date(begivenhedsDato.getFullYear(), begivenhedsDato.getMonth(), 1)
+    let toDate = new Date(fromDate.getFullYear(), fromDate.getMonth() + 1, 0);
+    let vagter = await exports.getVagter({bruger: (await exports.getBrugere({brugernavn: brugernavn}))[0], startTid:{$gte: fromDate, $lte:toDate}});
+    return vagter.length;
 }
 
 exports.addVagtToBruger = async function addVagtToBruger(brugernavn, id) {
-    const vagt = await exports.getVagtFraId(id._id);
-    const bruger = await exports.getBruger(brugernavn);
-    //console.log(vagt, "vagt")
-   // console.log(bruger, "bruger")
+    const vagt = (await exports.getVagter({_id:id._id}))[0];
+    const bruger = (await exports.getBrugere({brugernavn:brugernavn}))[0];
     vagt.bruger = bruger;
     vagt.status = 1;
     bruger.vagter.push(vagt);
@@ -247,10 +197,10 @@ exports.addVagtToBruger = async function addVagtToBruger(brugernavn, id) {
 }
 
 exports.fjernFrivilligFraVagt = async function fjernFrivilligFraVagt(vagtid) {
-    let vagt = await exports.getVagtFraId(vagtid);
+    let vagt = (await exports.getVagter({_id:vagtid}))[0];
     if(vagt) {
         if (vagt.status === 1) {
-            let bruger = await exports.getBrugerFraId(vagt.bruger);
+            let bruger = (await exports.getBrugere({_id:vagt.bruger}))[0];
             vagt.bruger = undefined;
             vagt.status = 0;
             await bruger.update({$pull: {vagter: vagtid}});
@@ -262,14 +212,12 @@ exports.fjernFrivilligFraVagt = async function fjernFrivilligFraVagt(vagtid) {
 
 
 exports.tilmeldBegivenhed = async function tilmeldBegivenhed(brugernavn, begivenhedsid) {
-    begivenhed = await exports.getBegivenhed(begivenhedsid);
-     vagter = await exports.getVagterFraBegivenhed(begivenhedsid);
+    begivenhed = (await exports.getBegivenheder({_id:begivenhedsid}))[0];
+     vagter = await exports.getVagter({begivenhed:begivenhedsid});
      let found = false;
      let index = 0;
      while (!found) {
          if (vagter[index].status == 0) {
-          //   console.log(vagter[index]);
-            // console.log(brugernavn);
               await exports.addVagtToBruger(brugernavn, vagter[index]);
              found = true;
          }
@@ -277,43 +225,20 @@ exports.tilmeldBegivenhed = async function tilmeldBegivenhed(brugernavn, begiven
      }
 }
 
-exports.getBruger = async function getBruger(brugernavn) {
-    return Bruger.findOne({"brugernavn" : brugernavn}, function (err, bruger) {}).exec();
-}
-exports.getBrugere = async function getBrugere() {
-    return Bruger.find().exec();
-}
-
-exports.getFrivillige = async function getFrivillige() {
-    let brugere = await Bruger.find().exec();
-    let frivillige = [];
-    for (let bruger of brugere) {
-        if (bruger.brugertype == 2) {
-            frivillige.push(bruger);
-        }
-    }
-    return frivillige;
+exports.getBrugere = async function getBrugere(filter) {
+    return Bruger.find(filter).exec();
 }
 
 
-exports.getVagterFraBruger = async function getVagterFraBruger(brugernavn) {
-    let bruger = await exports.getBruger(brugernavn);
-    let vagtermedid = await Vagt.find({"bruger" : bruger}).exec();
-    return vagtermedid;
-}
 exports.getBegivenhed = async function getBegivenhed(id)
 {
     return Begivenhed.findOne({_id : id}, function(err, begivenhed){}).exec();
 }
 
-exports.getBrugerFraId = async function getBrugerMedId(id) {
-    return Bruger.findOne({_id: id}).exec();
-}
-
 exports.getEmailFraVagtId = async function getEmailFraVagtId(id)
 {
     let vagt = await exports.getVagtFraId(id);
-    let bruger = await exports.getBrugerFraId(vagt.bruger);
+    let bruger = (await exports.getBrugere({_id:vagt.bruger}))[0];
     return bruger.email;
 }
 
@@ -321,7 +246,6 @@ exports.setFravær = async function setFravær(vagtId){
     const filter = {_id : vagtId};
     let vagt = await exports.getVagtFraId(vagtId);
     const update = {fravær : !vagt.fravær};
-    console.log(vagt.fravær, "vagt fravær");
     return  await Vagt.findOneAndUpdate(filter, update);
 }
 
@@ -335,24 +259,22 @@ exports.getVagterTilSalg = async function getVagterTilSalg() {
 
     for (let vagt of vagter) {
 
-       // console.log(vagt, "vagt");
-        let begivenhed = await exports.getBegivenhed(vagt.begivenhed);
-        // console.log(begivenhed, "begivenhed");
+        let begivenhed = (await exports.getBegivenheder({_id:vagt.begivenhed}))[0];
+
         let dato = new Date(vagt.startTid);
-        // console.log(dato);
-        let frivillig = await exports.getBrugerFraId(vagt.bruger);
-        // console.log(frivillig, "frivillig");
+
+        let frivillig = (await exports.getBrugere({_id:vagt.bruger}))[0];
+
         let o = {vagt: vagt, begivenhed: begivenhed.navn, bruger: frivillig.fornavn + ' ' + frivillig.efternavn, dato: dato, tidSlut : vagt.slutTid};
-        //console.log(o, "o");
+
         if(vagt.startTid >= new Date(Date.now()))
         vagtermedinfo.push(o);
     }
-    // console.log(vagtermedinfo);
     return vagtermedinfo;
 }
 
 exports.overtagVagt = async function overtagVagt(bruger, vagtid) {
-    let b = await exports.getBruger(bruger);
+    let b = (await exports.getBrugere({brugernavn:bruger}))[0];
     let vagt = await exports.getVagtFraId(vagtid);
     vagt.bruger = b;
     vagt.status = 1;
@@ -371,10 +293,8 @@ exports.setVagtStatus = async function setVagtStatus(id, newStatus)
 
 exports.redigerBegivenhed = async function redigerBegivenhed(begivenhedsid, navn, dato, beskrivelse, logbog, antalfrivillige, starttidspunkt, sluttidspunkt) {
     let begivenhed = await exports.getBegivenhed(begivenhedsid);
-    //let vagter = await exports.getVagterFraBegivenhed(begivenhedsid);
     const filter = {_id: begivenhedsid};
     let realDate = new Date(dato);
-    console.log(dato, "dato", realDate, "realDate");
 
     let realDateStart = new Date(starttidspunkt);
     let realDateSlut = new Date(sluttidspunkt);
@@ -408,7 +328,6 @@ exports.redigerBegivenhed = async function redigerBegivenhed(begivenhedsid, navn
     }
     //hvis antalfrivillige er blevet mindre
     else if (begivenhed.antalFrivillige > antalfrivillige) {
-        console.log(antalfrivillige, ' skal fjernes fra event');
         let vagterderskalfjernes = begivenhed.antalFrivillige - antalfrivillige;
         while (vagterderskalfjernes > 0) {
             await exports.fjerneNæsteLedigeVagtFraBegivenhed(begivenhedsid);
@@ -453,8 +372,6 @@ exports.seBegivenhed = async function seBegivenhed(id) {
         }
     }
     let o = [begivenhed, frivillige, afvikler];
-  //  console.log('controller');
-   // console.log(o);
     return o;
 }
 
@@ -557,7 +474,8 @@ exports.findFrivilligeDerIkkeHarEnVagtPåBegivenhed = async function findFrivill
         if(b.brugertype ==2) {
             let harvagt = false;
             for (let v of b.vagter) {
-                let vagt = await exports.getVagtFraId(v);
+                let vagt = (await exports.getVagter({_id:v}))[0];
+                console.log(vagt)
                 if (vagt.begivenhed.toString() == begivenhedId.toString()) {
                     harvagt = true;
                     break;
@@ -581,4 +499,4 @@ async function main() {
     });
 }
 
-main()
+//main()
