@@ -72,7 +72,7 @@ app.get('/getbrugeridforbrugerloggetind', async (req,res) => {
 });
 
 app.get('/mineVagter', async (req, res) => {
-    let vagter = await controller.getVagterFraBruger(req.session.brugernavn);
+    let vagter = await controller.getVagter({bruger:(await controller.getBrugere({brugernavn:req.session.brugernavn}))[0]._id});
     let vagterView = [];
     if(vagter.length >0) {
         for (let vagt of vagter) {

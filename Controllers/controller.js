@@ -237,14 +237,14 @@ exports.getBegivenhed = async function getBegivenhed(id)
 
 exports.getEmailFraVagtId = async function getEmailFraVagtId(id)
 {
-    let vagt = await exports.getVagtFraId(id);
+    let vagt = await exports.getVagter({_id:id});
     let bruger = (await exports.getBrugere({_id:vagt.bruger}))[0];
     return bruger.email;
 }
 
 exports.setFravær = async function setFravær(vagtId){
     const filter = {_id : vagtId};
-    let vagt = await exports.getVagtFraId(vagtId);
+    let vagt = await exports.getVagter(filter);
     const update = {fravær : !vagt.fravær};
     return  await Vagt.findOneAndUpdate(filter, update);
 }
@@ -275,7 +275,7 @@ exports.getVagterTilSalg = async function getVagterTilSalg() {
 
 exports.overtagVagt = async function overtagVagt(bruger, vagtid) {
     let b = (await exports.getBrugere({brugernavn:bruger}))[0];
-    let vagt = await exports.getVagtFraId(vagtid);
+    let vagt = await exports.getvagter({_id:vagtid});
     vagt.bruger = b;
     vagt.status = 1;
     vagt.save();
@@ -434,7 +434,7 @@ exports.checkForLedigeVagter = async function checkForLedigeVagter(begivenhedsId
     let antalVagterDerSkalVæreLedige = (begivenhed.vagter.length-1)-antal;
     for(let vagt of begivenhed.vagter)
     {
-    let v = await exports.getVagtFraId(vagt);
+    let v = await exports.getVagter({_id:vagt});
         if (v.status ==0 && v.vagtType ==0)
         {
             counter++;
@@ -456,7 +456,7 @@ exports.fjerneNæsteLedigeVagtFraBegivenhed = async function fjerneNæsteLedigeV
     for(let vagt of begivenhed.vagter)
     {
         console.log('for loop');
-        let v = await exports.getVagtFraId(vagt);
+        let v = await exports.getVagter({_id:vagt});
         if (v.status ==0 && v.vagtType ==0)
         {
             console.log('if')
