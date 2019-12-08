@@ -15,7 +15,7 @@ conn= mongoose.connect("mongodb+srv://victor:namchu2897@cluster0-3shzr.gcp.mongo
     useUnifiedTopology: true
 });
 let date1 = new Date('December 17, 2019 20:00:00');
-let dateStart = new Date('December 17, 2019 20:00:00');
+
 let dateSlut = new Date('December 17, 2019 02:00:00');
 let test = {navn : "FestAften", dato : date1 , beskrivelse : "abefest", antalFrivillige : 4, vagtArr: [], logbog: [], tidSlut:  dateSlut};
 //console.log( new Begivenhed('FestAften',date1, 'abefest',4));
@@ -39,7 +39,7 @@ describe('unittest/integrationstest', () =>{
 
     { //test af controllermetode til at oprette begivenhed uden afvikler
 
-        let b1 = await controller.newBegivenhed('FestAften',date1, 'abefest', 4,undefined, undefined, dateStart, dateSlut);
+        let b1 = await controller.newBegivenhed('FestAften',date1, 'abefest', 4,undefined, undefined, date1, dateSlut);
         let starttidhours= date1.getHours()-1;
         let starttidminutes = date1.getMinutes();
         let sluttidhours = dateSlut.getHours()-1;
@@ -53,15 +53,23 @@ describe('unittest/integrationstest', () =>{
          b1.beskrivelse.should.be.equal('abefest');
          b1.antalFrivillige.should.be.equal(4);
         // b1.afvikler.should.be.equal(afvikler);
-        let checkForUndefined = (b1.afvikler === undefined);
+        let checkForUndefined = (b1.vagter[4].bruger === undefined);
         checkForUndefined.should.be.equal(true);
+        for(let i=0; i< b1.vagter.length-1;i++)
+        {
+            let checkForUndefined = (b1.vagter[i].bruger === undefined);
+            checkForUndefined.should.be.equal(true);
+            b1.vagter[i].vagtType.should.be.equal(0);
+        }
+        b1.vagter[4].vagtType.should.be.equal(1);
          b1.vagter.length.should.be.equal(5);
          b1.tidSlut.toLocaleDateString().should.be.equal(dateSlutCorrected.toLocaleDateString())
+        b1.logbog.length.should.be.equal(0);
        // return  controller.newBegivenhed('FestAften',date1, 'abefest', 4,undefined, undefined);
     });
     it('controller opret begivenhed med afvikler', async function () {
             let afvikler = await controller.newBruger('jens','brouw','12345678','jaja','jaja',1,0,'jaja@jaja.dk',undefined);
-        let b1 = await controller.newBegivenhed('FestAften2',date1, 'abefest', 4,undefined, afvikler, dateStart, dateSlut);
+        let b1 = await controller.newBegivenhed('FestAften2',date1, 'abefest', 4,undefined, afvikler, date1, dateSlut);
         let dateCorrected = new Date('December 17, 2019 19:00:00');
         let dateSlutCorrected = new Date('December 18, 2019 01:00:00');
         b1.navn.should.be.equal('FestAften2')
@@ -78,6 +86,15 @@ describe('unittest/integrationstest', () =>{
         begivenhedFraDb.vagter[4].toString().should.be.equal(afviklerVagt._id.toString());
         b1.vagter.length.should.be.equal(5);
         b1.tidSlut.toLocaleDateString().should.be.equal(dateSlutCorrected.toLocaleDateString())
+        b1.logbog.length.should.be.equal(0);
+        for(let i=0; i< b1.vagter.length-1;i++)
+        {
+            let checkForUndefined = (b1.vagter[i].bruger === undefined);
+            checkForUndefined.should.be.equal(true);
+            b1.vagter[i].vagtType.should.be.equal(0);
+        }
+        b1.vagter[4].vagtType.should.be.equal(1);
+        b1.vagter[4].bruger.should.be.equal(afvikler);
         //test af afvikler
         afviklerFromDb.fornavn.should.be.equal(afvikler.fornavn);
         afviklerFromDb.efternavn.should.be.equal(afvikler.efternavn);
@@ -87,6 +104,7 @@ describe('unittest/integrationstest', () =>{
         afviklerFromDb.brugertype.should.be.equal(afvikler.brugertype);
         afviklerFromDb.tilstand.should.be.equal(afvikler.tilstand);
         afviklerFromDb.email.should.be.equal(afvikler.email);
+        afviklerFromDb.vagter[0]._id.toString().should.be.equal(b1.vagter[4]._id.toString());
 
     });
 
@@ -96,7 +114,7 @@ describe('unittest/integrationstest', () =>{
 describe('integrationstest', () =>{
     it('controller tilmeld begivenhed ', async function (){
         let frivillig = await controller.newBruger('frivillig','test','11223344','fri','fri',2,0,'fri@fri.dk',undefined);
-        let b1 = await controller.newBegivenhed('FestAften3',date1, 'abefest', 4,undefined, undefined, dateStart, dateSlut);
+        let b1 = await controller.newBegivenhed('FestAften3',date1, 'abefest', 4,undefined, undefined, date1, dateSlut);
         let frivilligFraDb = await controller.getBrugerFraId(frivillig);
         let bFromDb = await controller.getBegivenhed(b1);
         await controller.tilmeldBegivenhed(frivilligFraDb.brugernavn, bFromDb);
