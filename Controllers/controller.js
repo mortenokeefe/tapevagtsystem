@@ -314,7 +314,13 @@ exports.redigerBegivenhed = async function redigerBegivenhed(begivenhedsid, navn
         tidSlut.setHours(sluttidhours, sluttidminutes);
     }
     let tid = realDate.setHours(starttidhours, starttidminutes);
-
+        // let vagter = await exports.getVagterFraBegivenhed(begivenhed); // fix snart
+        // for(let v of vagter)
+        // {
+        //     v.update({startTid:tid,slutTid:tidSlut});
+        //
+        // }
+        // Vagt.save();
     //hvis antalfrivillige er blevet forøget
     if (begivenhed.antalFrivillige < antalfrivillige) {
         let ektravagter = antalfrivillige - begivenhed.antalFrivillige;
